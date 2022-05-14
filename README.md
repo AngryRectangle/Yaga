@@ -102,7 +102,41 @@ public class ResourceIconView : View<EResourceType>
         }
     }
 ```
+Биндинг Presenter:
+```c#
+UiBootstrap.Bind<ResourceIconView.Presenter>();
+```
+### Пример биндинга данных
+```c#
+public class BuildingCardView : View<BuildingCardView.Model>
+    {
+        [SerializeField] private Button buildingCardButton;
 
+        // Children views. It is required to call Model sets/usets methods automatically.
+        public override IEnumerable<IView> Children => new[] {cardInfo};
+        public class Presenter : BindPresenter<BuildingCardView, Model>
+        {
+            protected override void OnModelSet(BuildingCardView view, Model model)
+            {                
+                // Call base model sets, for example bindings from Unity and also set models for children.
+                base.OnModelSet(view, model);
+                // Invoke PlaceAttempt every time buildingCardButton is clicked.
+                view.Subscribe(view.buildingCardButton.onClick, () => model.PlaceAttempt.Execute());
+                // Subcribe on changes of field IsEnoughResources and change button interactable every change.
+                view.SubscribeAndCall(model.IsEnoughResources,
+                    isEnough => view.buildingCardButton.interactable = isEnough);
+            }
+        }
+
+        public class Model
+        {
+            // This field can be observed by views.
+            public readonly Observable<bool> IsEnoughResources = new Observable<bool>();
+            // Wrapper around event. Subscription on beacon can be disposed everywhere.
+            public readonly Beacon PlaceAttempt = new Beacon();
+        }
+    }
+```
 Best practices
 ----
 ____
