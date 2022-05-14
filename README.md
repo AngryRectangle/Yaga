@@ -142,7 +142,7 @@ public class BuildingCardView : View<BuildingCardView.Model>
 
 Биндить данные можно из редактора в случае если их не нужно как-то преобразовывать. Можно выбрать нужное поле и прикрепить View для которого нужно забиндить поле или свойство.
 
-![Биндинг в Unity](https://imgur.com/a/6ws96lz)
+![Биндинг в Unity](https://i.imgur.com/KLXRb4S.png)
 
 Best practices
 ----
