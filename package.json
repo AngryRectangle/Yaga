@@ -1,0 +1,17 @@
+{
+  "name": "com.radioactive_gear.yaga",
+  "displayName": "Yaga",
+  "version": "0.1.0,
+  "unity": "2020.1",
+  "description": "MVVM library",
+  "keywords": [
+    "ui",
+    "mvvm",
+    "unity"
+  ],
+  "repository": {
+    "url": "https://github.com/AngryRectangle/Yaga.git",
+    "type": "git",
+    "revision": "9f0fcaba00adbba963bedef619d5e662f6797723"
+  }
+}
