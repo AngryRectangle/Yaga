@@ -17,7 +17,7 @@ namespace Yaga
 
         public override IEnumerable<IView> Children => Array.Empty<IView>();
 
-        private List<IDisposable> _disposables = new List<IDisposable>();
+        internal List<IDisposable> _disposables = new List<IDisposable>();
 
         /// <summary>
         /// Subscribe on observable value change and dispose subscription when needed.
