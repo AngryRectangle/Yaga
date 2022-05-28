@@ -75,6 +75,22 @@ disposable.Dispose();
 
 ### Цепочки биндингов
 
+Пример простой цепочки Observables,
+в которой каждый следующий Observable реагирует на изменения в предыдущем.
+
+```c#
+var amount = new Observable(100); // Observale that will trigger itemInfo on change
+var itemInfo = new Observable<string>(); // Observable that will be triggered by amount
+
+// Specify binding rule for data from amount to itemInfo
+itemInfo.Bind(amount, count => $"Current amount is {count}")
+
+//Specify logic that will be invoked when itemInfo changes
+var disposable = itemInfo.Subscribe(info => Debug.Log(info))
+amount.Data = 5 // Will trigger **itemInfo** that will trigger message "Current amount is 5"
+disposable.Dispose();
+```
+
 Несколько биндингов можно совместить в один биндинг создавая "цепочки" биндингов.
 Как только изменится хотя бы один дочерний Observable, будет изменён и родительский.
 
