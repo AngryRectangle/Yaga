@@ -8,8 +8,8 @@ namespace Yaga
     {
         
     }
-    public class ListView<TChild, TModel> : BaseView<IObservableEnumerable<TModel>>, IListView<TModel> 
-        where TChild : BaseView<TModel>
+    public class ListView<TChild, TModel> : BaseView, IListView<TModel> 
+        where TChild : View<TModel>
     {
         [SerializeField] private TChild _prefab;
         [SerializeField] private RectTransform _childHolder;
@@ -44,5 +44,8 @@ namespace Yaga
                 view._children.Clear();
             }
         }
+
+        public bool HasModel { get; set; }
+        public IObservableEnumerable<TModel> Model { get; set; }
     }
 }

@@ -7,7 +7,7 @@ using Yaga.Utils;
 
 namespace Yaga
 {
-    public abstract class View<TModel> : BaseView<TModel>
+    public abstract class View : BaseView
     {
         [SerializeField] private Bind[] _bindings;
 
@@ -109,5 +109,12 @@ namespace Yaga
                     bind.View.Open();
             }
         }
+    }
+
+    public abstract class View<TModel> : View, IView<TModel>
+    {
+        public bool HasModel { get; set; }
+        public TModel Model { get; set; }
+        public bool Equals(View<TModel> other) => other.GetInstanceID() == GetInstanceID();
     }
 }

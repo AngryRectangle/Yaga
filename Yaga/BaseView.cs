@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Yaga
 {
-    public abstract class BaseView<TModel> : MonoBehaviour, IView<TModel>
+    public abstract class BaseView : MonoBehaviour, IView
     {
         public abstract IEnumerable<IView> Children { get; }
         public bool IsOpened { protected set; get; }
@@ -52,13 +52,9 @@ namespace Yaga
             #endif
         }
 
-        public bool Equals(BaseView<TModel> other) => other.GetInstanceID() == GetInstanceID();
         public bool Equals(IView other) => other != null && other.GetInstanceID() == GetInstanceID();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public IEnumerator<IView> GetEnumerator() => Children.Cast<IView>().GetEnumerator();
-        public bool HasModel { get; set; }
-        public TModel Model { get; set; }
-
         public override string ToString() => gameObject.name;
     }
 }
