@@ -4,6 +4,17 @@ Yaga
 (MVP but View is also Model for Data).
 (На самом деле просто MVVM)
 
+Внимание! Attention! Achtung!
+-
+Библиотека находиться в разработке и возможны breaking changes.
+
+Инструкция по установке
+-
+Зайти на верхней панели в Window > PackageManager.
+Нажать на "+" слева сверху и вставить ссылку на репозиторий:
+```https://github.com/AngryRectangle/Yaga.git```
+
+![Installation screenshot](https://i.postimg.cc/zfmXHrSk/img.png)
 
 Особенности Yaga
 -

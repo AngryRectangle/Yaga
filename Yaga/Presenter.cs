@@ -11,8 +11,15 @@ namespace Yaga
 
     public interface IPresenter
     {
-        void Unset(IView view);
         bool AcceptableView(Type viewType);
+        void Unset(IView view);
+    }
+
+    public interface IPresenter<in TView> : IPresenter
+        where TView : IView
+    {
+        void Set(TView view);
+        void Unset(TView view);
     }
 
     public abstract class Presenter<TView, TModel> : IPresenter<TView, TModel>
@@ -51,7 +58,35 @@ namespace Yaga
         {
         }
 
-        public void Unset(IView view) => Unset((TView) view);
+        public void Unset(IView view) => Unset((TView)view);
+
+        public bool AcceptableView(Type viewType)
+            => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);
+    }
+
+    public abstract class Presenter<TView> : IPresenter<TView>
+        where TView : View
+    {
+        public void Set(IView view) => Set((TView)view);
+        public void Set(TView view) => OnSet(view);
+
+        protected virtual void OnSet(TView view)
+        {
+        }
+
+        public void Unset(IView view) => Unset((TView)view);
+
+        public void Unset(TView view)
+        {
+            foreach (var child in view)
+                UiBootstrap.Instance.Unset(child);
+
+            OnUnset(view);
+        }
+
+        protected virtual void OnUnset(TView view)
+        {
+        }
 
         public bool AcceptableView(Type viewType)
             => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);

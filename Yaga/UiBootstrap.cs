@@ -16,7 +16,7 @@ namespace Yaga
         /// List of all bound presenters.
         /// </summary>
         private List<IPresenter> _presenters = new List<IPresenter>();
-
+        
         /// <summary>
         /// Binds presenter to view. Remember that presenter and view has to has single-to-single relation.
         /// </summary>
@@ -32,6 +32,14 @@ namespace Yaga
             where TPresenter : IPresenter
         {
             Instance._presenters.Add(Activator.CreateInstance<TPresenter>());
+        }
+
+        /// <summary>
+        /// Clear all binded presenters.
+        /// </summary>
+        public static void ClearPresenters()
+        {
+            Instance._presenters.Clear();
         }
 
         /// <summary>
@@ -59,7 +67,7 @@ namespace Yaga
         /// Method for reflection for bindings. Don't use, don't rename, don't delete.
         /// </summary>
         private void SetList<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : BaseView<TModel>
+            where TChild : View<TModel>
             => Set(view, model);
 
         /// <summary>
@@ -67,7 +75,7 @@ namespace Yaga
         /// </summary>
         /// <exception cref="PresenterNotFoundException">If there are zero or more than one acceptable presenter for view.</exception>
         public void Set<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : BaseView<TModel>
+            where TChild : View<TModel>
         {
             if (view.HasModel && view.Model.Equals(model))
                 return;
@@ -82,7 +90,7 @@ namespace Yaga
         /// </summary>
         /// <exception cref="PresenterNotFoundException">If there are zero or more than one acceptable presenter for view.</exception>
         public void Set<TChild, TModel>(ListView<TChild, TModel> view, IObservableEnumerable<TModel> model)
-            where TChild : BaseView<TModel>
+            where TChild : View<TModel>
         {
             if (view.HasModel && view.Model.Equals(model))
                 return;
@@ -98,7 +106,7 @@ namespace Yaga
         /// <exception cref="PresenterNotFoundException">If there are zero or more than one acceptable presenter for view.</exception>
         public void Unset(IView view) => GetController(view.GetType()).Unset(view);
 
-        private IPresenter GetController(Type viewType)
+        internal IPresenter GetController(Type viewType)
         {
             try
             {

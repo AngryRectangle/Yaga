@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine.Events;
+using UnityEngine.UI;
 using Yaga.Binding.Observable;
+using Yaga.Binding.Observable.ConcreteObservables;
 using Yaga.Binding.OptionalObservable;
+using Yaga.Utils;
 
 namespace Yaga.Binding
 {
@@ -16,11 +20,26 @@ namespace Yaga.Binding
 
         public BindObservable<T> Bind<T>(Utils.IObservable<T> observable)
             => new BindObservable<T>(this, observable);
+
+        public BindBeacon Bind(Beacon beacon)
+            => new BindBeacon(this, beacon);
+
+        public BindBeacon Bind(UnityEvent @event)
+        {
+            var beacon = new Beacon();
+            var action = new UnityAction(() => beacon.Execute());
+            @event.AddListener(action);
+            return new BindBeacon(this, beacon, () => @event.RemoveListener(action));
+        }
         
+        public BindBeacon Bind(Button button) => Bind(button.onClick);
+
         public BindStringObservable Bind(Utils.IObservable<string> observable)
             => new BindStringObservable(this, observable);
-        
-        public IBindOptionalObservable<T> Bind<T>(Utils.IOptionalObservable<T> observable)
+        public BindIntObservable Bind(Utils.IObservable<int> observable)
+            => new BindIntObservable(this, observable);
+
+        public IBindOptionalObservable<T> Bind<T>(IOptionalObservable<T> observable)
             => new BindOptionalObservable<T>(this, observable);
 
         public void Dispose()
