@@ -30,8 +30,13 @@ namespace Yaga.Utils
         {
             _array = new T[count];
         }
+        
+        public ObservableArray(T[] array)
+        {
+            _array = array;
+        }
 
-        public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)_array.AsEnumerable();
+        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _array.GetEnumerator();
     }
