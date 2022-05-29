@@ -35,6 +35,14 @@ namespace Yaga
         }
 
         /// <summary>
+        /// Clear all binded presenters.
+        /// </summary>
+        public static void ClearPresenters()
+        {
+            Instance._presenters.Clear();
+        }
+
+        /// <summary>
         /// Method for reflection for bindings. Don't use, don't rename, don't delete.
         /// </summary>
         private void SetView<TView, TModel>(TView view, TModel model)
