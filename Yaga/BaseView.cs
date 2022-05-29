@@ -18,9 +18,6 @@ namespace Yaga
 
             IsOpened = true;
             gameObject.SetActive(true);
-            #if UBER_LOG
-            UberDebug.LogChannel(Channel.UI, $"Opened UI: {gameObject.name}");
-            #endif
         }
 
         public virtual void Close()
@@ -30,26 +27,17 @@ namespace Yaga
 
             IsOpened = false;
             gameObject.SetActive(false);
-            #if UBER_LOG
-            UberDebug.LogChannel(Channel.UI, $"Closed UI: {gameObject.name}");
-            #endif
         }
 
         public virtual void Create()
         {
             IsInstanced = true;
             gameObject.SetActive(false);
-            #if UBER_LOG
-            UberDebug.LogChannel(Channel.UI, $"Created UI: {gameObject.name}");
-            #endif
         }
 
         public virtual void Destroy()
         {
             Destroy(gameObject);
-            #if UBER_LOG
-            UberDebug.LogChannel(Channel.UI, $"Destroyed UI: {gameObject.name}");
-            #endif
         }
 
         public bool Equals(IView other) => other != null && other.GetInstanceID() == GetInstanceID();
