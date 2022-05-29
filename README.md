@@ -4,6 +4,10 @@ Yaga
 (MVP but View is also Model for Data).
 (На самом деле просто MVVM)
 
+Внимание! Attention! Achtung!
+-
+Библиотека находиться в разработке и возможны breaking changes.
+
 Инструкция по установке
 -
 Зайти на верхней панели в Window > PackageManager.
