@@ -10,7 +10,7 @@ jobs:
       - name: Unity - Request Activation File
         uses: game-ci/unity-request-activation-file@v2.0.0
         id: licenceFile
-      - uses: actions/upload-artifact@3.1.0
+      - uses: actions/upload-artifact@v2
         with:
           name: Activation File
           path: ${{ steps.licenceFile.outputs.filePath }}
