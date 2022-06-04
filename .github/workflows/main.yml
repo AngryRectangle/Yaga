@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test
       - uses: game-ci/unity-test-runner@v2
+        name: test
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
