@@ -12,12 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: game-ci/unity-test-runner@v2
+      - uses: trudeaua21/unity-test-runner@v2
         name: test
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          packageMode: true
         
       - uses: actions/upload-artifact@v2
         if: always()
