@@ -22,7 +22,7 @@ namespace Yaga
         /// <summary>
         /// It is necessary method for <see cref="UiControl"/>> initialization.
         /// </summary>
-        public static void Initialize(Canvas canvasPrefab)
+        public static void InitializeSingleton(Canvas canvasPrefab)
         {
             Instance = new UiControl(canvasPrefab);
         }
