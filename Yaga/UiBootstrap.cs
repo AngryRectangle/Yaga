@@ -59,6 +59,7 @@ namespace Yaga
         /// Binds presenter to view. Remember that presenter and view has to has single-to-single relation.
         /// <exception cref="ArgumentNullException">If presenter is null</exception>
         /// </summary>
+        /// <inheritdoc cref="Instance"/>
         public static void Bind(IPresenter presenter)
         {
             Instance._presenters.Add(presenter ?? throw new ArgumentNullException(nameof(presenter)));
@@ -68,6 +69,7 @@ namespace Yaga
         /// Binds presenter with default constructor to view. Remember that presenter and view has to has single-to-single relation.
         /// </summary>
         /// <exception cref="NoDefaultConstructorForPresenterException">If presenter has no default constructor.</exception>
+        /// <inheritdoc cref="Instance"/>
         public static void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
@@ -86,6 +88,7 @@ namespace Yaga
         /// <summary>
         /// Clear all binded presenters.
         /// </summary>
+        /// <inheritdoc cref="Instance"/>
         public static void ClearPresenters()
         {
             Instance._presenters.Clear();
