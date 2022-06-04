@@ -21,6 +21,7 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           unityVersion: "2020.3.30f1"
           packageMode: true
+          projectPath: .
         
       - uses: actions/upload-artifact@v2
         if: always()
