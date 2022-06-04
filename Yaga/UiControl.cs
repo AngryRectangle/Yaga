@@ -95,8 +95,7 @@ namespace Yaga
         /// </summary>
         /// <exception cref="ArgumentNullException">If prefab or parent is null.</exception>
         /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        /// <inheritdoc cref="UiBootstrap.Instance"/>
+        /// <inheritdoc cref="UiBootstrap.Set{TView}(TView)"/>
         public TView Create<TView>(TView prefab, Transform parent)
             where TView : MonoBehaviour, IView
         {
@@ -111,8 +110,7 @@ namespace Yaga
 
             var instance = MonoBehaviour.Instantiate(prefab, parent);
             instance.Create();
-            var presenter = UiBootstrap.Instance.GetController(typeof(TView));
-            ((IPresenter<TView>)presenter).Set(instance);
+            UiBootstrap.Instance.Set(instance);
             instance.Open();
             return instance;
         }

@@ -10,6 +10,7 @@ namespace Yaga
         public abstract IEnumerable<IView> Children { get; }
         public bool IsOpened { protected set; get; }
         public bool IsInstanced { protected set; get; }
+        bool IView.IsSetted { get; set; }
 
         public virtual void Open()
         {
@@ -38,6 +39,12 @@ namespace Yaga
         public virtual void Destroy()
         {
             Destroy(gameObject);
+        }
+
+        public void OnDestroy()
+        {
+            if (((IView)this).IsSetted)
+                UiBootstrap.Instance.Unset(this);
         }
 
         public bool Equals(IView other) => other != null && other.GetInstanceID() == GetInstanceID();

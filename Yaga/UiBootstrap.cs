@@ -116,6 +116,25 @@ namespace Yaga
         }
 
         /// <summary>
+        /// Call set method for presenter for view without model.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">If view is null.</exception>
+        /// <exception cref="ArgumentException">If TView requires model</exception>
+        /// <inheritdoc cref="UiBootstrap.GetController"/>
+        public void Set<TView>(TView view)
+            where TView : IView
+        {
+            if (view is null)
+                throw new ArgumentNullException(nameof(view));
+
+            var controller = GetController(view.GetType()) as IPresenter<TView>;
+            if (controller is null)
+                throw new ArgumentException($"{typeof(TView)} require model", nameof(view));
+
+            controller.Set(view);
+        }
+
+        /// <summary>
         /// Sets model to provided view.
         /// </summary>
         /// <exception cref="ArgumentNullException">If view or model is null.</exception>
