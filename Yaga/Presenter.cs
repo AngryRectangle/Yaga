@@ -38,6 +38,7 @@ namespace Yaga
             view.HasModel = true;
             view.Model = model;
             OnModelSet(view, model);
+            view.IsSetted = true;
         }
 
         public void Unset(TView view)
@@ -50,6 +51,7 @@ namespace Yaga
                 UiBootstrap.Instance.Unset(child);
 
             OnModelUnset(view);
+            view.IsSetted = false;
         }
 
         protected abstract void OnModelSet(TView view, TModel model);
@@ -68,7 +70,12 @@ namespace Yaga
         where TView : View
     {
         public void Set(IView view) => Set((TView)view);
-        public void Set(TView view) => OnSet(view);
+
+        public void Set(TView view)
+        {
+            OnSet(view);
+            (view as IView).IsSetted = true;
+        }
 
         protected virtual void OnSet(TView view)
         {
@@ -82,6 +89,7 @@ namespace Yaga
                 UiBootstrap.Instance.Unset(child);
 
             OnUnset(view);
+            (view as IView).IsSetted = false;
         }
 
         protected virtual void OnUnset(TView view)

@@ -5,6 +5,7 @@ namespace Yaga
 {
     public interface IView : IEquatable<IView>, IEnumerable<IView>
     {
+        internal bool IsSetted { get; set; }
         IEnumerable<IView> Children { get; }
         int GetInstanceID();
         bool IsOpened { get; }

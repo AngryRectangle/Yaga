@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Yaga.Exceptions;
 
 namespace Yaga
 {
@@ -8,11 +10,17 @@ namespace Yaga
     public class UiControl
     {
         private readonly Canvas _canvasPrefab;
+        private static UiControl _instance;
 
         /// <summary>
-        /// Null if <see cref="UiControl"/> was not initialized.
+        /// Singleton instance of <see cref="UiControl"/>. Requires to be installed before using.
         /// </summary>
-        public static UiControl Instance { private set; get; }
+        /// <exception cref="UiControlInitializationException">If singleton wasn't initialized.</exception>
+        public static UiControl Instance
+        {
+            get => _instance ?? throw new UiControlInitializationException();
+            private set => _instance = value;
+        }
 
         private UiControl(Canvas canvasPrefab)
         {
@@ -21,18 +29,18 @@ namespace Yaga
 
         /// <summary>
         /// It is necessary method for <see cref="UiControl"/>> initialization.
+        /// <exception cref="NullReferenceException">If canvasPrefab is null</exception>
         /// </summary>
-        public static void Initialize(Canvas canvasPrefab)
+        public static void InitializeSingleton(Canvas canvasPrefab)
         {
+            if (canvasPrefab is null)
+                throw new NullReferenceException(nameof(canvasPrefab));
+
             Instance = new UiControl(canvasPrefab);
         }
 
-        /// <summary>
-        /// Shortcut to create view. Instantiates canvas for view instance and make it view parent.
-        /// Calls <see cref="UiBootstrap.Create"/>,
-        /// <see cref="UiBootstrap.Set"/>, <see cref="UiBootstrap.Open"/> underhood.
-        /// It is recommended to use this method if you are outside of presenter's code.
-        /// </summary>
+        /// <inheritdoc cref="UiControl.Create{TView, TModel}(TView, TModel, Transform)"/>
+        /// <remarks>Parent for view is created from <see cref="UiControl"/> Canvas</remarks>
         public TView Create<TView, TModel>(TView prefab, TModel model)
             where TView : MonoBehaviour, IView<TModel>
         {
@@ -42,15 +50,26 @@ namespace Yaga
 
         /// <summary>
         /// Shortcut to create view. Instantiates view and sets parent for it.
-        /// Calls <see cref="UiBootstrap.Create"/>,
-        /// <see cref="UiBootstrap.Set"/>, <see cref="UiBootstrap.Open"/> underhood.
+        /// Calls <see cref="IView.Create"/> on view,
+        /// <see cref="UiBootstrap.Set{TView, TModel}(TView, TModel)"/>
+        /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
+        /// <exception cref="ArgumentNullException">If prefab, parent or model is null.</exception>
+        /// <inheritdoc cref="UiBootstrap.Set{TView, TModel}(TView, TModel)"/>
         public TView Create<TView, TModel>(TView prefab, TModel model, Transform parent)
             where TView : MonoBehaviour, IView<TModel>
         {
+            if (prefab is null)
+                throw new ArgumentNullException(nameof(prefab));
+            if (model is null)
+                throw new ArgumentNullException(nameof(model));
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
             if (prefab.gameObject.scene.isLoaded)
-                Debug.LogWarning("Provided game object is not prefab");
+                throw new IsNotPrefabException(prefab.gameObject);
 
             var instance = MonoBehaviour.Instantiate(prefab, parent);
             instance.Create();
@@ -59,12 +78,8 @@ namespace Yaga
             return instance;
         }
 
-        /// <summary>
-        /// Shortcut to create view. Instantiates canvas for view instance and make it view parent.
-        /// Calls <see cref="UiBootstrap.Create"/>,
-        /// <see cref="UiBootstrap.Set"/>, <see cref="UiBootstrap.Open"/> underhood.
-        /// It is recommended to use this method if you are outside of presenter's code.
-        /// </summary>
+        /// <inheritdoc cref="UiControl.Create{TView}(TView, Transform)"/>
+        /// <remarks>Parent for view is created from <see cref="UiControl"/> Canvas</remarks>
         public TView Create<TView>(TView prefab)
             where TView : MonoBehaviour, IView
         {
@@ -74,20 +89,28 @@ namespace Yaga
 
         /// <summary>
         /// Shortcut to create view. Instantiates view and sets parent for it.
-        /// Calls <see cref="UiBootstrap.Create"/>,
-        /// <see cref="UiBootstrap.Set"/>, <see cref="UiBootstrap.Open"/> underhood.
+        /// Calls <see cref="IView.Create"/> on view
+        /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <exception cref="ArgumentNullException">If prefab or parent is null.</exception>
+        /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
+        /// <inheritdoc cref="UiBootstrap.Set{TView}(TView)"/>
         public TView Create<TView>(TView prefab, Transform parent)
             where TView : MonoBehaviour, IView
         {
+            if (prefab is null)
+                throw new ArgumentNullException(nameof(prefab));
+
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
             if (prefab.gameObject.scene.isLoaded)
-                Debug.LogWarning("Provided game object is not prefab");
+                throw new IsNotPrefabException(prefab.gameObject);
 
             var instance = MonoBehaviour.Instantiate(prefab, parent);
             instance.Create();
-            var presenter = UiBootstrap.Instance.GetController(typeof(TView));
-            ((IPresenter<TView>)presenter).Set(instance);
+            UiBootstrap.Instance.Set(instance);
             instance.Open();
             return instance;
         }
