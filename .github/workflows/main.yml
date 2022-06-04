@@ -18,7 +18,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          packageMode: true
+          unityVersion: 2020.3.30
         
       - uses: actions/upload-artifact@v2
         if: always()
