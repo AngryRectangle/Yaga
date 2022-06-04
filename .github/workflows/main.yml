@@ -1,6 +1,4 @@
 name: CI
-on:    
-  workflow_dispatch:
 
 jobs:
   test:
