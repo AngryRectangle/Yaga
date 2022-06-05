@@ -1,3 +1,21 @@
+#### 0.4.0 (2022-06-05)
+
+##### BREAKING CHANGES
+
+*  Rename Initialize method in UiControl ([03acca6a](https://github.com/AngryRectangle/Yaga/commit/03acca6a51cad8858d6e9ab40e039620b03a996f))
+
+##### Documentation Changes
+
+*  add info about Initialize exception to UiBootstrap.cs docs ([4b023d89](https://github.com/AngryRectangle/Yaga/commit/4b023d895a9671b5b0a62c1d948807d561c127bd))
+
+##### New Features
+
+*  add model unset on scene reload or game object destroying ([948eff09](https://github.com/AngryRectangle/Yaga/commit/948eff0990c5965b00e9fc52c6dd953ded590dbe))
+
+##### Tests
+
+*  add modeless view testing ([910bf30b](https://github.com/AngryRectangle/Yaga/commit/910bf30bb6d7de8c5bc6d5dec30c3251cb674182))
+
 #### 0.3.0 (2022-05-29)
 
 ##### Continuous Integration
