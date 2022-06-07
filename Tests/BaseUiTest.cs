@@ -16,12 +16,5 @@ namespace Yaga.Test
                 return _locator;
             }
         }
-        
-        [SetUp]
-        public void SetUp()
-        {
-            UiBootstrap.InitializeSingleton();
-            UiControl.InitializeSingleton(Locator.canvasPrefab);
-        }
     }
 }

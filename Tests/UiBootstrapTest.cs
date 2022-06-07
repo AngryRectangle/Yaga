@@ -8,6 +8,13 @@ namespace Yaga.Test
 {
     public class UiBootstrapTest : BaseUiTest
     {
+        [SetUp]
+        public void SetUp()
+        {
+            UiBootstrap.InitializeSingleton();
+            UiControl.InitializeSingleton(Locator.canvasPrefab);
+        }
+        
         [Test]
         public void CheckModelessNullSetView()
         {
