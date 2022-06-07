@@ -12,7 +12,7 @@ namespace Yaga.Test
             get
             {
                 if(_locator is null)
-                    _locator = AssetDatabase.LoadAssetAtPath<PrefabLocator>("Assets/Yaga.Test/TestPrefabLocator.asset");
+                    _locator = AssetDatabase.LoadAssetAtPath<PrefabLocator>("Assets/Tests/TestPrefabLocator.asset");
                 return _locator;
             }
         }
