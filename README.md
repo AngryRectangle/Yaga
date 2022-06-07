@@ -25,6 +25,7 @@ on values in model.
 
 In this example SimpleTextButtonView is just a wrapper for button with text.
 It will allow you change text on button and do something when button is clicked.
+
 ```c#
 // Create class for view with string model.
 public class SimpleTextButtonView : View<string>
@@ -46,8 +47,10 @@ public class SimpleTextButtonView : View<string>
     }
 }
 ```
+
 Then you have to initialize library classes. You have to do it only once.
-```с#
+
+```c#
 // Call initialization method to initialize singleton.
 UiBootstrap.InitializeSingleton();
 // Initialize UiControl with canvas prefab.
@@ -56,10 +59,11 @@ UiControl.InitializeSingleton(canvasPrefab);
 // Bind presenter to make library call its method when it needed.
 UiBootstrap.Bind(new SimpleTextButtonView.Presenter());
 ```
+
 After initialization you only have write single line to create instance of view
 with "Sample text" on button. Also, when you click button, you will see "Click"
 in the console.
-```с#
+```c#
 // Create instance of sample view with "Sample text" on button.
 UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
 ```
