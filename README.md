@@ -1,20 +1,68 @@
 Yaga
 ====
-**Yaga** - это простая библиотека-обёртка для UI в Unity3D, выполненная в парадигме *MVPb Via MfD*
-(MVP but View is also Model for Data).
-(На самом деле просто MVVM)
+**Yaga** is a simple UI lib for Unity3D.
+Paradigm of the lib is *MVPb Via MfD* (MVP but View is also Model for Data).
+Just joking, it is MVVM library.
 
-Внимание! Attention! Achtung!
+Attention! Achtung! Внимание!
 -
-Библиотека находиться в разработке и возможны breaking changes.
+Breaking changes alert!
+Breaking changes are possible due to early development stage.
 
-Инструкция по установке
+Installation guide
 -
-Зайти на верхней панели в Window > PackageManager.
-Нажать на "+" слева сверху и вставить ссылку на репозиторий:
+Click on top panel "Window > PackageManager".
+Click "+" on the top left and paste link to repository:
 ```https://github.com/AngryRectangle/Yaga.git```
 
 ![Installation screenshot](https://i.postimg.cc/zfmXHrSk/img.png)
+
+Getting Started
+-
+Firstly you need to create view class which will be in inspector 
+and create presenter class which will help you to change your view depending
+on values in model.
+
+In this example SimpleTextButtonView is just a wrapper for button with text.
+It will allow you change text on button and do something when button is clicked.
+```c#
+// Create class for view with string model.
+public class SimpleTextButtonView : View<string>
+{
+    // Create fields for UI components.
+    [SerializeField] private Text buttonText;
+    [SerializeField] private Button button;
+    
+    // Create presenter for view, which will handle input from view and apply data from model.
+    public class Presenter : Presenter<SimpleTextButtonView, string>
+    {
+        protected override void OnModelSet(SimpleTextButtonView view, string model)
+        {
+            // Set string value to text on button.
+            view.buttonText.text = model;
+            // Subscribe on button onClick and log messages after every click.
+            view.Subscribe(view.button, () => Debug.Log("Click"));
+        }
+    }
+}
+```
+Then you have to initialize library classes. You have to do it only once.
+```с#
+// Call initialization method to initialize singleton.
+UiBootstrap.InitializeSingleton();
+// Initialize UiControl with canvas prefab.
+UiControl.InitializeSingleton(canvasPrefab);
+
+// Bind presenter to make library call its method when it needed.
+UiBootstrap.Bind(new SimpleTextButtonView.Presenter());
+```
+After initialization you only have write single line to create instance of view
+with "Sample text" on button. Also, when you click button, you will see "Click"
+in the console.
+```с#
+// Create instance of sample view with "Sample text" on button.
+UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+```
 
 Особенности Yaga
 -
