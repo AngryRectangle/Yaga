@@ -68,6 +68,48 @@ in the console.
 UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
 ```
 
+## Initialization
+
+UI initialization consists from two steps:
+1. Initialization of UiControl and UiBootstrap singletons
+2. Presenters binding
+
+### Singletons
+UiControl provides you shortcut methods for UI controls. 
+It requires `Canvas` prefab to create views with auto-created parents.
+So you have to initialize UiControl with canvas prefab:
+```c#
+UiControl.InitializeSingleton(Canvas canvasPrefab)
+```
+Also you have to initialize UiBootstrap singleton. 
+You can do it either with shortcut method:
+```c#
+UiBootstrap.InitializeSingleton();
+```
+Or if you are using DI containers, 
+you can put instance of UiBootstrap DI container
+to get benefits of autobinding of presenters.
+Example with Zenject:
+```c#
+// Binding inside Installer class.
+Container.Bind<UiBootstrap>();
+Container.BindInterfacesTo<Presenter>();
+
+// Singleton initialization inside IInitializable class with injected UiBootstrap.
+UiBootstrap.InitializeSingleton(_uiBootstrap);
+```
+### Presenters binding
+You have to put your presenter for every view type you have created.
+It is possible either with shortcut method for presenters with
+parameterless constructors or just with binding instance of your presenter.
+```c#
+// For presenter with parameterless constructor.
+UiBootstrap.Bind<Presenter>();
+
+// For presenters with parameters in constructor.
+UiBootstrap.Bind(new Presenter(param1, param2));
+```
+
 Особенности Yaga
 -
 
