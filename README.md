@@ -110,6 +110,26 @@ UiBootstrap.Bind<Presenter>();
 UiBootstrap.Bind(new Presenter(param1, param2));
 ```
 
+## View
+View is monobehaviours which is used to show your data to player and handler player input.
+Each view can have concrete model type like int, string, our your custom type. 
+Or it can have no model. Also each view has one and only one Presenter.
+
+Relation scheme between view, presenter and model:
+`View ⇆ Presenter ⇆ Model`
+
+Each view is going through these stages:
+1. Create - initializes game object and make it inactive after instantiation
+2. Open - shows view after model was set
+3. Close - hides view after model unset
+4. Destroy - preparing view for destroy and call Destroy method on it.
+
+Each stage should be called in represented order
+and order violation is strongly not recommended.
+Also Open method should be called after model set and clos after unset
+but about it in Presenters section.
+
+
 Особенности Yaga
 -
 
