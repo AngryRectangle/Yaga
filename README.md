@@ -163,7 +163,7 @@ And Beacon realisation:
 Beacon<string> TextBeacon = new Beacon<string>();
 
 // Subscription logic.
-var disposable = TextBeacon += e => Debug.Log($"Text {e} with length {e.Length}");
+var disposable = TextBeacon.Add(e => Debug.Log($"Text {e} with length {e.Length}"));
 
 // Unsubscription logic.
 disposable.Dispose();
@@ -179,7 +179,7 @@ It uses all benefits from Beacons, but also stores variable to hold data inside.
 Here is usage example:
 ```c#
 Observable<string> observable = new Observable<string>();
-var disposable = observable += e => Debug.Log($"New line {e}!");
+var disposable = observable.Subscribe(e => Debug.Log($"New line {e}!"));
 
 // Will trigger message to console
 observable.Data = "second";
@@ -190,27 +190,25 @@ disposable.Dispose();
 You can chain observables to combine data from several sources and process it.
 Example of simple chain where each next observable reacts on changes in previous.
 ```c#
-var amount = new Observable(100); // Observale that will trigger itemInfo on change
-var itemInfo = new Observable<string>(); // Observable that will be triggered by amount
-
+// Observale that will trigger itemInfo on change
+var amount = new Observable<int>(100);
 // Specify binding rule for data from amount to itemInfo
-itemInfo.Bind(amount, count => $"Current amount is {count}");
+var itemInfo = Observable.Bind(amount, count => $"Current amount is {count}");
 //Specify logic that will be invoked when itemInfo changes
-var disposable = itemInfo.Subscribe(info => Debug.Log(info));
+var disposable = itemInfo.Add(info => Debug.Log(info));
 // Will trigger itemInfo that will trigger message "Current amount is 5"
-amount.Data = 5 ;
+amount.Data = 5;
 
 disposable.Dispose();
 ```
 You can combine several observables to one. 
 When one of the parent observables changes it will trigger changes in all child observables.
 ```c#
-var amount = new Observable(100);
-var itemName = new Observable("cake");
-var itemInfo = new Observable<string>()
-    .Bind(amount, itemName, (count, name) => $"{name} {count}");
+var amount = new Observable<int>(100);
+var itemName = new Observable<string>("cake");
+var itemInfo = Observable.Bind(amount, itemName, (count, name) => $"{name} {count}");
     
-var disposable = itemInfo.Subscribe(info => Debug.Log(info));
+var disposable = itemInfo.Add(info => Debug.Log(info));
 // Will trigger message to console "apple 100"
 itemName.Data = "apple";
 // Will trigger message to console "apple 5"
@@ -225,12 +223,12 @@ which will guarantee correct processing of empty values.
 In subscription method you should provide methods which will process data in two scenarios:
 when data is present and when data is not present.
 ```c#
-var someObservable = new OptionalObservable(100);
+var someObservable = new OptionalObservable<int>(100);
 var disposable = someObservable
-    .Subscribe(value => Debug.Log(value), () => Debug.Log("No count"))
+    .Subscribe(value => Debug.Log(value), () => Debug.Log("No count"));
 
 someObservable.SetDefault(); // Will trigger "No count" message.
-someObservable.Data = 5 // Will trigger "5" message.
+someObservable.Data = 5; // Will trigger "5" message.
 
 disposable.Dispose();
 ```
@@ -238,14 +236,13 @@ You can create chains with OptionalObervables too.
 If one of parent observables gets default value,
 all children will also get it.
 ```c#
-var amount = new OptionalObservable(100);
-var itemName = new OptionalObservable("cake");
-var itemInfo = new OptionalObservable<string>()
-    .Bind(amount, itemName, (count, name) => $"{name} {count}")
-var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"))
+var amount = new OptionalObservable<int>(100);
+var itemName = new OptionalObservable<string>("cake");
+var itemInfo = OptionalObservable.Bind(amount, itemName, (count, name) => $"{name} {count}");
+var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"));
 
-itemName.Data = "apple" // Will trigger message to console "apple 100"
-amount.SetDefault() // Will trigger message to console "No valid info"
+itemName.Data = "apple"; // Will trigger message to console "apple 100"
+amount.SetDefault(); // Will trigger message to console "No valid info"
 
 disposable.Dispose();
 ```
@@ -298,141 +295,6 @@ UI Flow следует понимать как матрёшку из вложе�
 вызывать Unset, т.к. перед этим должен быть вызван Close. Корректость UI Flow может быть нарушена при использовании
 [UiBootstrap](UiBootstrap.cs) вместо [UiControl](UiControl.cs), что неизбежно происходит в Presenter, потому как каждый
 Presenter сам отвечает за корректность обработки этапов для себя и дочерних визуальных компонент.
-
-
-Observable
--
-В Yaga паттерн Observer реализован с использованием IObservable, IOptionalObservable,
-IObservableEnumerable, IObservableArray. Последние два просто имеют ивенты при изменении / добавлении / удалении
-элементов. Намного интереснее ситуация с IObservable, IOptionalObservable.
-
-### Подписка и отписка
-
-Например, подписка на IObservable вернёт IDisposable объект с помощью которого можно завершить подписку.
-Это позволяет отписывать лямбды от IObservable без boilerplate.
-
-```c#
-var someObservable = new Observable(100);
-var disposable = someObservable.Subscribe(value => Debug.Log(value))
-// Some code
-disposable.Dispose();
-```
-
-### Цепочки биндингов
-
-Пример простой цепочки Observables,
-в которой каждый следующий Observable реагирует на изменения в предыдущем.
-
-```c#
-var amount = new Observable(100); // Observale that will trigger itemInfo on change
-var itemInfo = new Observable<string>(); // Observable that will be triggered by amount
-
-// Specify binding rule for data from amount to itemInfo
-itemInfo.Bind(amount, count => $"Current amount is {count}")
-
-//Specify logic that will be invoked when itemInfo changes
-var disposable = itemInfo.Subscribe(info => Debug.Log(info))
-amount.Data = 5 // Will trigger **itemInfo** that will trigger message "Current amount is 5"
-disposable.Dispose();
-```
-
-Несколько биндингов можно совместить в один биндинг создавая "цепочки" биндингов.
-Как только изменится хотя бы один дочерний Observable, будет изменён и родительский.
-
-```c#
-var amount = new Observable(100);
-var itemName = new Observable("cake");
-var itemInfo = new Observable<string>().Bind(amount, itemName, (count, name) => $"{name} {count}")
-var disposable = itemInfo.Subscribe(info => Debug.Log(info))
-
-itemName.Data = "apple" // Will trigger message to console "apple 100"
-amount.Data = 5 // Will trigger message to console "apple 5"
-
-disposable.Dispose();
-```
-
-### OptionalObservable
-OptionalObservable следует использовать в те моменты когда нужно гарантировать
-правильную обработку default значений. Гарантию обеспечивает необходимость задать отдельную логику,
-на случай default значения.
-
-```c#
-var someObservable = new OptionalObservable(100);
-var disposable = someObservable.Subscribe(value => Debug.Log(value), () => Debug.Log("No count"))
-
-someObservable.SetDefault(); // Will trigger "No count" message.
-someObservable.Data = 5 // Will trigger "5" message.
-
-disposable.Dispose();
-```
-С OptionalObservable можно также создавать цепочки.
-Если хотя бы один из дочерних узлов получит "дефолтное" значение, то и родительский OptionalObservable его получит.
-```c#
-var amount = new OptionalObservable(100);
-var itemName = new OptionalObservable("cake");
-var itemInfo = new OptionalObservable<string>().Bind(amount, itemName, (count, name) => $"{name} {count}")
-var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"))
-
-itemName.Data = "apple" // Will trigger message to console "apple 100"
-amount.SetDefault() // Will trigger message to console "No valid info"
-
-disposable.Dispose();
-```
-
-Использование
-----
-
-1. Создание Model.
-2. Создание View, реализующую интерфейс [IView\<Model>](IView.cs) для созданной модели.
-3. Создание Presenter, реализующий интерфейс [IPresenter<View, Model>](Controller.cs) и перегружающий необходимые
-   методы.
-4. Биндинг Presenter в [UiBootstrap](UiBootstrap.cs)
-
-### Пример простой связки Model-View-Presenter
-
-Простая модель в виде Enum
-
-```c#
-public enum EResourceType
-{
-    Wood,
-    Iron
-}
-```
-
-View и Presenter для этой модели
-
-```c#
-public class ResourceIconView : View<EResourceType>
-{
-    [SerializeField] private Image _resourceIcon;
-        
-    // This view has no children, so children Enumerable must be empty.
-    public override IEnumerable<IView> Children => Array.Empty<IView>();
-
-    public class Presenter : Presenter<ResourceIconView, EResourceType>
-    {
-        // Some dependencies of Preseter that are managed from outside.
-        private readonly ResourceIconProvider _resourceIconProvider;
-        public Presenter(ResourceIconProvider resourceIconProvider)
-        {
-            _resourceIconProvider = resourceIconProvider;
-        }
-
-        // Set icon for view, after model was received.
-        protected override void OnModelSet(ResourceIconView view, EResourceType model)
-        {
-            view._resourceIcon.sprite = _resourceIconProvider.Get(model);
-        }
-    }
-}
-```
-
-Биндинг Presenter:
-
-```c#
-UiBootstrap.Bind<ResourceIconView.Presenter>();
-```
 
 ### Пример биндинга данных
 
