@@ -142,6 +142,114 @@ subscribe on event in `OnModelSet` and unsubscribe in `OnModelUnset`.
 Model is structure where you can store your data, events or properties.
 You can use any type as model, like int, string, IEnumerable or your own custom class.
 
+## Beacon
+Beacons is an useful replacement for events.
+One of the main benefits of using beacons is much simpler
+unsubscription logic for lambdas compared to events. 
+After subscription beacon returns to you IDisposable which you can dispose to unsubscribe.
+Just compare event realisation:
+```c#
+event Action<string> TextEvent;
+
+// Subscription logic.
+var action = new Action<string>(e => Debug.Log($"Text {e} with length {e.Length}"));
+TextEvent += action;
+
+// Unsubscription logic.
+TextEvent -= action;
+```
+And Beacon realisation:
+```c#
+Beacon<string> TextBeacon = new Beacon<string>();
+
+// Subscription logic.
+var disposable = TextBeacon += e => Debug.Log($"Text {e} with length {e.Length}");
+
+// Unsubscription logic.
+disposable.Dispose();
+```
+
+## Observables
+Observer pattern in Yaga implemented with using of IObservable, IOptionalObservable,
+IObservableEnumerable and IObservableArray.
+
+### Observable
+Observable is generic wrapper around your data.
+It uses all benefits from Beacons, but also stores variable to hold data inside.
+Here is usage example:
+```c#
+Observable<string> observable = new Observable<string>();
+var disposable = observable += e => Debug.Log($"New line {e}!");
+
+// Will trigger message to console
+observable.Data = "second";
+disposable.Dispose();
+```
+
+### Binding chains
+You can chain observables to combine data from several sources and process it.
+Example of simple chain where each next observable reacts on changes in previous.
+```c#
+var amount = new Observable(100); // Observale that will trigger itemInfo on change
+var itemInfo = new Observable<string>(); // Observable that will be triggered by amount
+
+// Specify binding rule for data from amount to itemInfo
+itemInfo.Bind(amount, count => $"Current amount is {count}");
+//Specify logic that will be invoked when itemInfo changes
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
+// Will trigger itemInfo that will trigger message "Current amount is 5"
+amount.Data = 5 ;
+
+disposable.Dispose();
+```
+You can combine several observables to one. 
+When one of the parent observables changes it will trigger changes in all child observables.
+```c#
+var amount = new Observable(100);
+var itemName = new Observable("cake");
+var itemInfo = new Observable<string>()
+    .Bind(amount, itemName, (count, name) => $"{name} {count}");
+    
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
+// Will trigger message to console "apple 100"
+itemName.Data = "apple";
+// Will trigger message to console "apple 5"
+amount.Data = 5;
+
+disposable.Dispose();
+```
+### OptionalObservable
+You should use optional observables when your observable data can be empty.
+With OptionalObservable you can organise data processing
+which will guarantee correct processing of empty values.
+In subscription method you should provide methods which will process data in two scenarios:
+when data is present and when data is not present.
+```c#
+var someObservable = new OptionalObservable(100);
+var disposable = someObservable
+    .Subscribe(value => Debug.Log(value), () => Debug.Log("No count"))
+
+someObservable.SetDefault(); // Will trigger "No count" message.
+someObservable.Data = 5 // Will trigger "5" message.
+
+disposable.Dispose();
+```
+You can create chains with OptionalObervables too.
+If one of parent observables gets default value,
+all children will also get it.
+```c#
+var amount = new OptionalObservable(100);
+var itemName = new OptionalObservable("cake");
+var itemInfo = new OptionalObservable<string>()
+    .Bind(amount, itemName, (count, name) => $"{name} {count}")
+var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"))
+
+itemName.Data = "apple" // Will trigger message to console "apple 100"
+amount.SetDefault() // Will trigger message to console "No valid info"
+
+disposable.Dispose();
+```
+
 Особенности Yaga
 -
 
