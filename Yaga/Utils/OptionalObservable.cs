@@ -1,4 +1,5 @@
 ﻿using System;
+using Yaga.Utils.Exceptions;
 
 namespace Yaga.Utils
 {
@@ -9,11 +10,66 @@ namespace Yaga.Utils
         IDisposable Subscribe(Action<T> action, Action onNull);
     }
 
+    public static class OptionalObservable
+    {
+        public static BoundOptionalObservable<T2> Bind<T1, T2>(
+            IOptionalObservable<T1> observable1,
+            Func<T1, T2> selector)
+        {
+            var result = new BoundOptionalObservable<T2>();
+            observable1.Subscribe(data => result.Data = selector(data), result.SetDefault);
+            return result;
+        }
+
+        public static BoundOptionalObservable<T3> Bind<T1, T2, T3>(
+            IOptionalObservable<T1> observable1,
+            IOptionalObservable<T2> observable2,
+            Func<T1, T2, T3> selector)
+        {
+            var result = new BoundOptionalObservable<T3>();
+            observable1.Subscribe(data =>
+            {
+                if (!observable2.IsDefault)
+                    result.Data = selector(data, observable2.Data);
+            }, result.SetDefault);
+
+            observable2.Subscribe(data =>
+            {
+                if (!observable1.IsDefault)
+                    result.Data = selector(observable1.Data, data);
+            }, result.SetDefault);
+
+            return result;
+        }
+
+        public static BoundOptionalObservable<T3> Bind<T1, T2, T3>(
+            IObservable<T1> observable1,
+            IOptionalObservable<T2> observable2,
+            Func<T1, T2, T3> selector)
+        {
+            var result = new BoundOptionalObservable<T3>();
+            observable1.Subscribe(data =>
+            {
+                if (!observable2.IsDefault)
+                    result.Data = selector(data, observable2.Data);
+            });
+
+            observable2.Subscribe(data => result.Data = selector(observable1.Data, data), result.SetDefault);
+
+            return result;
+        }
+    }
+
     public class OptionalObservable<T> : IOptionalObservable<T>
     {
         public OptionalObservable()
         {
             IsDefault = true;
+        }
+
+        public OptionalObservable(T value)
+        {
+            _data = value;
         }
 
         private event Action<T> OnChange;
@@ -23,7 +79,12 @@ namespace Yaga.Utils
 
         public T Data
         {
-            get => _data;
+            get
+            {
+                if (IsDefault)
+                    throw new EmptyDataAccessException();
+                return _data;
+            }
             set
             {
                 if (value.Equals(_data) && !IsDefault)
@@ -54,67 +115,46 @@ namespace Yaga.Utils
                 OnNull -= onNull;
             });
         }
-        
-        public IDisposable Bind<T1>(
-            IOptionalObservable<T1> observable1,
-            Func<T1, T> selector
-        )
+    }
+
+    public class BoundOptionalObservable<T> : IOptionalObservable<T>
+    {
+        private event Action<T> OnChange;
+        private event Action OnNull;
+
+        private T _data;
+
+        public T Data
         {
-            return observable1.Subscribe(data =>
+            get => _data;
+            internal set
             {
-                Data = selector(data);
-            }, SetDefault);
+                if (value.Equals(_data) && !IsDefault)
+                    return;
+
+                IsDefault = false;
+                OnChange?.Invoke(value);
+                _data = value;
+            }
         }
 
-        public IDisposable Bind<T1, T2>(
-            IOptionalObservable<T1> observable1,
-            IOptionalObservable<T2> observable2,
-            Func<T1, T2, T> selector
-        )
+        public bool IsDefault { private set; get; }
+
+        internal void SetDefault()
         {
-            var firstDisposer = observable1.Subscribe(data =>
-            {
-                if (observable2.IsDefault)
-                    return;
-                Data = selector(data, observable2.Data);
-            }, SetDefault);
-
-            var secondDisposer= observable2.Subscribe(data =>
-            {
-                if (observable1.IsDefault)
-                    return;
-                Data = selector(observable1.Data, data);
-            }, SetDefault);
-
-            return new Reflector(() =>
-            {
-                firstDisposer.Dispose();
-                secondDisposer.Dispose();
-            });
+            _data = default;
+            IsDefault = true;
+            OnNull?.Invoke();
         }
-        
-        public IDisposable Bind<T1, T2>(
-            IObservable<T1> observable1,
-            IOptionalObservable<T2> observable2,
-            Func<T1, T2, T> selector
-        )
+
+        public IDisposable Subscribe(Action<T> action, Action onNull)
         {
-            var firstDisposer = observable1.Subscribe(data =>
-            {
-                if (observable2.IsDefault)
-                    return;
-                Data = selector(data, observable2.Data);
-            });
-
-            var secondDisposer= observable2.Subscribe(data =>
-            {
-                Data = selector(observable1.Data, data);
-            }, SetDefault);
-
+            OnChange += action;
+            OnNull += onNull;
             return new Reflector(() =>
             {
-                firstDisposer.Dispose();
-                secondDisposer.Dispose();
+                OnChange -= action;
+                OnNull -= onNull;
             });
         }
     }

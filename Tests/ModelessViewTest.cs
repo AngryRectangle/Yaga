@@ -8,6 +8,13 @@ namespace Yaga.Test
 {
     public class ModelessViewTest : BaseUiTest
     {
+        [SetUp]
+        public void SetUp()
+        {
+            UiBootstrap.InitializeSingleton();
+            UiControl.InitializeSingleton(Locator.canvasPrefab);
+        }
+        
         [UnityTest]
         public IEnumerator ModelessViewSet()
         {

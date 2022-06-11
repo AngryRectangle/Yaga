@@ -19,6 +19,8 @@ namespace Yaga
     public interface IView<TModel> : IView
     {
         bool HasModel { get; set; }
-        TModel Model { get; set; }
+        TModel Model { get; internal set; }
+        void Set(TModel model);
+        void Unset(TModel model);
     }
 }

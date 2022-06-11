@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Yaga.Exceptions;
 using Yaga.Utils;
 
 namespace Yaga
@@ -16,6 +17,7 @@ namespace Yaga
 
         private bool _modelWasSet;
         private List<TChild> _children = new List<TChild>();
+        private IObservableEnumerable<TModel> _model;
         public override IEnumerable<IView> Children => _children;
 
         private void OnItemAdd(int index, TModel added) => AddChild(added);
@@ -38,14 +40,31 @@ namespace Yaga
 
             protected override void OnModelUnset(ListView<TChild, TModel> view)
             {
-                view.Model.ItemAdded -= view.OnItemAdd;
-                view.Model.ItemRemoved -= view.OnItemRemove;
+                view._model.ItemAdded -= view.OnItemAdd;
+                view._model.ItemRemoved -= view.OnItemRemove;
                 foreach (var child in view.Children) child.Close();
                 view._children.Clear();
             }
         }
 
         public bool HasModel { get; set; }
-        public IObservableEnumerable<TModel> Model { get; set; }
+        public IObservableEnumerable<TModel> Model
+        {
+            get
+            {
+                if (!HasModel)
+                    throw new ModelIsNotSetException();
+                return _model;
+            }
+        }
+
+        IObservableEnumerable<TModel> IView<IObservableEnumerable<TModel>>.Model
+        {
+            get => _model;
+            set => _model = value;
+        }
+        
+        public void Set(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Set(this, model);
+        public void Unset(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Unset(this);
     }
 }

@@ -9,7 +9,7 @@ namespace Yaga.Utils
     public class Beacon
     {
         private Action _action;
-
+        
         public Beacon()
         {
             _action = delegate { };
@@ -59,7 +59,7 @@ namespace Yaga.Utils
         public void Remove(Action<T1> action) => _action -= action;
         public static Reflector operator +(Beacon<T1> a, Action<T1> action) => a.Add(action);
     }
-    
+
     /// <summary>
     /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
     /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.
@@ -88,7 +88,7 @@ namespace Yaga.Utils
         public void Remove(Action<T1, T2> action) => _action -= action;
         public static Reflector operator +(Beacon<T1, T2> a, Action<T1, T2> action) => a.Add(action);
     }
-    
+
     /// <summary>
     /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
     /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.

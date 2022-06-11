@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5127358367823028141}
   - component: {fileID: 8968568899754426605}
+  - component: {fileID: 5608603166210426316}
   m_Layer: 5
   m_Name: ModelessView
   m_TagString: Untagged
@@ -51,6 +52,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bindings: []
   PressButton: {fileID: 7148222211769745019}
+--- !u!114 &5608603166210426316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4504773838167470464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76eb178c1040432cb0d86ce272955881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _bindings: []
+  text: {fileID: 536564730476232171}
+  button: {fileID: 7148222211769745019}
 --- !u!1 &4581523722996296719
 GameObject:
   m_ObjectHideFlags: 0

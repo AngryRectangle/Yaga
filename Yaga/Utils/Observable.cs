@@ -8,6 +8,47 @@ namespace Yaga.Utils
         IDisposable Subscribe(Action<T> action);
     }
 
+    public static class Observable
+    {
+        public static Beacon<T2> Bind<T1, T2>(Beacon<T1> observable1, Func<T1, T2> selector)
+        {
+            var result = new Beacon<T2>();
+            observable1.Add(data => result.Execute(selector(data)));
+            return result;
+        }
+        
+        public static Beacon<T2> Bind<T1, T2>(IObservable<T1> observable1, Func<T1, T2> selector)
+        {
+            var result = new Beacon<T2>();
+            observable1.Subscribe(data => result.Execute(selector(data)));
+            return result;
+        }
+
+        public static Beacon<T3> Bind<T1, T2, T3>(
+            IObservable<T1> observable1,
+            Observable<T2> observable2,
+            Func<T1, T2, T3> selector)
+        {
+            var result = new Beacon<T3>();
+            observable1.Subscribe(data => result.Execute(selector(data, observable2.Data)));
+            observable2.Subscribe(data => result.Execute(selector(observable1.Data, data)));
+            return result;
+        }
+
+        public static Beacon<T4> Bind<T1, T2, T3, T4>(
+            IObservable<T1> observable1,
+            Observable<T2> observable2,
+            Observable<T3> observable3,
+            Func<T1, T2, T3, T4> selector)
+        {
+            var result = new Beacon<T4>();
+            observable1.Subscribe(data => result.Execute(selector(data, observable2.Data, observable3.Data)));
+            observable2.Subscribe(data => result.Execute(selector(observable1.Data, data, observable3.Data)));
+            observable3.Subscribe(data => result.Execute(selector(observable1.Data, observable2.Data, data)));
+            return result;
+        }
+    }
+
     /// <summary>
     /// Provider of notification information with disposable subscription.
     /// </summary>
@@ -43,40 +84,6 @@ namespace Yaga.Utils
         {
             OnChange += action;
             return new Reflector(() => OnChange -= action);
-        }
-
-        public IDisposable Bind<T1>(IObservable<T1> observable1, Func<T1, T> selector)
-            => observable1.Subscribe(data => Data = selector(data));
-
-        public IDisposable Bind<T1, T2>(
-            IObservable<T1> observable1,
-            IObservable<T2> observable2,
-            Func<T1, T2, T> selector)
-        {
-            var firstDisposer = observable1.Subscribe(data => Data = selector(data, observable2.Data));
-            var secondDisposer = observable2.Subscribe(data => Data = selector(observable1.Data, data));
-            return new Reflector(() =>
-            {
-                firstDisposer.Dispose();
-                secondDisposer.Dispose();
-            });
-        }
-        
-        public IDisposable Bind<T1, T2, T3>(
-            IObservable<T1> observable1,
-            IObservable<T2> observable2,
-            IObservable<T3> observable3,
-            Func<T1, T2, T3, T> selector)
-        {
-            var firstDisposer = observable1.Subscribe(data => Data = selector(data, observable2.Data, observable3.Data));
-            var secondDisposer = observable2.Subscribe(data => Data = selector(observable1.Data, data, observable3.Data));
-            var thirdDisposer = observable3.Subscribe(data => Data = selector(observable1.Data, observable2.Data, data));
-            return new Reflector(() =>
-            {
-                firstDisposer.Dispose();
-                secondDisposer.Dispose();
-                thirdDisposer.Dispose();
-            });
         }
     }
 }

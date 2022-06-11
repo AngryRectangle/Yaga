@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Yaga.Test.Documentation;
 
 namespace Yaga.Test
 {
@@ -7,5 +8,6 @@ namespace Yaga.Test
     {
         public Canvas canvasPrefab;
         public ModelessView modelessView;
+        public SimpleTextButtonView simpleTextButtonView;
     }
 }
