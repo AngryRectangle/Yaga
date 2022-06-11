@@ -113,8 +113,18 @@ namespace Yaga
 
     public abstract class View<TModel> : View, IView<TModel>
     {
+        private TModel _model;
         public bool HasModel { get; set; }
-        public TModel Model { get; set; }
+
+        public TModel Model => _model;
+        TModel IView<TModel>.Model
+        {
+            get => _model;
+            set => _model = value;
+        }
+
+        public void Set(TModel model) => UiBootstrap.Instance.Set(this, model);
+        public void Unset(TModel model) => UiBootstrap.Instance.Unset(this);
         public bool Equals(View<TModel> other) => other.GetInstanceID() == GetInstanceID();
     }
 }
