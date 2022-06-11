@@ -1,3 +1,39 @@
+#### 0.4.0 (2022-06-11)
+
+##### BREAKING CHANGES
+
+*  move observable binding logic to other classes ([3e164702](https://github.com/AngryRectangle/Yaga/commit/3e164702c15358335e0c856872ea0ad6d6234fef))
+
+##### Continuous Integration
+
+*  add code coverage report ([9a0715d9](https://github.com/AngryRectangle/Yaga/commit/9a0715d9100b465d39f42f9676a190ef497b565e))
+
+##### Documentation Changes
+
+*  actual coverage badge fix ([c6d58dcb](https://github.com/AngryRectangle/Yaga/commit/c6d58dcb9c0a6d0626b500c8204c73fc4202c3f7))
+*  attempt to fix coverage badge ([d4810e4f](https://github.com/AngryRectangle/Yaga/commit/d4810e4fbccc0624ff8cd4f11357d87f076cd7bc))
+*  update observable docs corresponding to changes ([dd46e4de](https://github.com/AngryRectangle/Yaga/commit/dd46e4deee3b80286d03447918e668158d806cdc))
+*  add sections about data structures for observer pattern ([470109be](https://github.com/AngryRectangle/Yaga/commit/470109bed6bfb9c69886bec3eb0929f635f6b6b2))
+*  add presenters and models section ([77b6cee6](https://github.com/AngryRectangle/Yaga/commit/77b6cee68b10c6fb3681f453a760c2b0c64634f7))
+*  add view section ([bf86aa86](https://github.com/AngryRectangle/Yaga/commit/bf86aa86d494361fd16284e63bb82a87f6afbca2))
+*  add initialization info to readme ([70a3b55e](https://github.com/AngryRectangle/Yaga/commit/70a3b55e825f69b7b7980dd77546d36cdb36ca45))
+*  type in readme ([c0083339](https://github.com/AngryRectangle/Yaga/commit/c0083339dd18c36717a4e081218a7eba0e81bc89))
+*  add getting started part ([d0632537](https://github.com/AngryRectangle/Yaga/commit/d06325378f1772e6e2f68b74ee21636e04ef2a63))
+
+##### New Features
+
+*  add dispose check for Reflector.cs ([6da9b93a](https://github.com/AngryRectangle/Yaga/commit/6da9b93a984c75736c302d6e4830a8a8f444c29c))
+*  add empty data check to OptionalObservable.cs ([b79d5f27](https://github.com/AngryRectangle/Yaga/commit/b79d5f27eb57e5bbffd652a1b088b923cdd463e3))
+*  add '+' operator subscription for observable ([cb1d1cd3](https://github.com/AngryRectangle/Yaga/commit/cb1d1cd3a03f56eff060cb27ba8fcada8d93edf1))
+*  add exception on access of unsetted model ([b39a116f](https://github.com/AngryRectangle/Yaga/commit/b39a116f1e9e5f4065f15c2881255e5d6581e703))
+*  add set/unset methods for view ([498a57eb](https://github.com/AngryRectangle/Yaga/commit/498a57eba061a2e6b355a46fcc5bb56f0fb319ed))
+
+##### Tests
+
+*  add tests on documentation examples ([9e04031f](https://github.com/AngryRectangle/Yaga/commit/9e04031f8ee27e2bdd18664c0b78ca8f06771720))
+*  add test for example from getting started ([bff92fe5](https://github.com/AngryRectangle/Yaga/commit/bff92fe51df9b8f45344d18b3212215f1ef23581))
+*  Add UiBootstrap testing ([c285272e](https://github.com/AngryRectangle/Yaga/commit/c285272e08cad53d72d85ccb4066816eef2138c4))
+
 #### 0.4.0 (2022-06-05)
 
 ##### BREAKING CHANGES
