@@ -1,4 +1,5 @@
 ﻿using System;
+using Yaga.Utils.Exceptions;
 
 namespace Yaga.Utils
 {
@@ -78,7 +79,12 @@ namespace Yaga.Utils
 
         public T Data
         {
-            get => _data;
+            get
+            {
+                if (IsDefault)
+                    throw new EmptyDataAccessException();
+                return _data;
+            }
             set
             {
                 if (value.Equals(_data) && !IsDefault)
