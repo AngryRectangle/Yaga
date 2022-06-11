@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Yaga.Binding;
+using Yaga.Exceptions;
 using Yaga.Utils;
 
 namespace Yaga
@@ -116,7 +117,16 @@ namespace Yaga
         private TModel _model;
         public bool HasModel { get; set; }
 
-        public TModel Model => _model;
+        public TModel Model
+        {
+            get
+            {
+                if (!HasModel)
+                    throw new ModelIsNotSetException();
+                return _model;
+            }
+        }
+
         TModel IView<TModel>.Model
         {
             get => _model;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Yaga.Exceptions;
 using Yaga.Utils;
 
 namespace Yaga
@@ -47,7 +48,15 @@ namespace Yaga
         }
 
         public bool HasModel { get; set; }
-        public IObservableEnumerable<TModel> Model => _model;
+        public IObservableEnumerable<TModel> Model
+        {
+            get
+            {
+                if (!HasModel)
+                    throw new ModelIsNotSetException();
+                return _model;
+            }
+        }
 
         IObservableEnumerable<TModel> IView<IObservableEnumerable<TModel>>.Model
         {
