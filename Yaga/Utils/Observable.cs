@@ -44,6 +44,8 @@ namespace Yaga.Utils
             OnChange += action;
             return new Reflector(() => OnChange -= action);
         }
+        
+        public static IDisposable operator +(Observable<T> a, Action<T> action) => a.Subscribe(action);
 
         public IDisposable Bind<T1>(IObservable<T1> observable1, Func<T1, T> selector)
             => observable1.Subscribe(data => Data = selector(data));
