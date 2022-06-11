@@ -7,6 +7,7 @@ namespace Yaga.Utils
     /// </summary>
     public class Reflector : IDisposable
     {
+        private bool _disposed;
         private Action _onDispose;
 
         public Reflector(Action onDispose)
@@ -14,6 +15,13 @@ namespace Yaga.Utils
             _onDispose = onDispose;
         }
 
-        public void Dispose() => _onDispose?.Invoke();
+        public void Dispose()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(Reflector));
+            
+            _disposed = true;
+            _onDispose?.Invoke();
+        }
     }
 }
