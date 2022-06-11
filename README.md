@@ -1,3 +1,4 @@
+[![Coverage Status](./Reports/CodeCoverage/Report/badge_shieldsio_linecoverage_red?dummy=8484744)](./Reports/CodeCoverage/Report//index.html)
 Yaga
 ====
 **Yaga** is a simple UI lib for Unity3D.

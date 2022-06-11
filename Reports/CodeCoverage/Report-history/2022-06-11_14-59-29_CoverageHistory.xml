@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2022-06-11_14-59-29" tag="">
+  <assembly name="Yaga">
+    <class name="Yaga.BaseView" coveredlines="17" coverablelines="30" totallines="55" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Bind" coveredlines="0" coverablelines="194" totallines="359" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.BindAccessor" coveredlines="0" coverablelines="7" totallines="72" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.BindingContext" coveredlines="1" coverablelines="17" totallines="72" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.Observable.BindBeacon" coveredlines="0" coverablelines="19" totallines="41" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.Observable.BindObservable[T]" coveredlines="0" coverablelines="34" totallines="66" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.Observable.ConcreteObservables.BindIntObservable" coveredlines="0" coverablelines="43" totallines="72" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.Observable.ConcreteObservables.BindStringObservable" coveredlines="0" coverablelines="13" totallines="31" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.Observable.ConvertedObservable[T]" coveredlines="0" coverablelines="10" totallines="26" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.OptionalObservable.BindOptionalObservable[T]" coveredlines="0" coverablelines="47" totallines="89" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Binding.OptionalObservable.ConvertedOptionalObservable[T]" coveredlines="0" coverablelines="18" totallines="35" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.BindPresenter[TView,TModel]" coveredlines="0" coverablelines="6" totallines="16" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.InitializationException" coveredlines="0" coverablelines="9" totallines="19" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.IsNotPrefabException" coveredlines="0" coverablelines="5" totallines="18" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.MultiplePresenterException" coveredlines="3" coverablelines="3" totallines="15" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.NoDefaultConstructorForPresenterException" coveredlines="4" coverablelines="4" totallines="18" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.PresenterNotFoundException" coveredlines="3" coverablelines="3" totallines="14" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.UiBootstrapInitializationException" coveredlines="0" coverablelines="3" totallines="13" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Exceptions.UiControlInitializationException" coveredlines="0" coverablelines="3" totallines="13" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.ListExtension" coveredlines="0" coverablelines="9" totallines="23" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.ListView[TChild,TModel]" coveredlines="0" coverablelines="24" totallines="60" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Presenter[TView,TModel]" coveredlines="8" coverablelines="25" totallines="102" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Presenter[TView]" coveredlines="13" coverablelines="17" totallines="102" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.UiBootstrap" coveredlines="60" coverablelines="86" totallines="229" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.UiControl" coveredlines="39" coverablelines="52" totallines="131" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.UiViewExtension" coveredlines="4" coverablelines="9" totallines="28" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.View" coveredlines="11" coverablelines="45" totallines="129" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.View[TModel]" coveredlines="2" coverablelines="6" totallines="129" coveredbranches="0" totalbranches="0" />
+  </assembly>
+  <assembly name="Yaga.Utils">
+    <class name="Yaga.Utils.Beacon" coveredlines="0" coverablelines="15" totallines="120" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.Beacon[T1,T2,T3]" coveredlines="0" coverablelines="15" totallines="120" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.Beacon[T1,T2]" coveredlines="0" coverablelines="15" totallines="120" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.Beacon[T1]" coveredlines="0" coverablelines="15" totallines="120" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.Observable[T]" coveredlines="0" coverablelines="39" totallines="82" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.ObservableArray[T]" coveredlines="0" coverablelines="15" totallines="43" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.ObservableEnumerable[T]" coveredlines="0" coverablelines="41" totallines="87" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.OptionalObservable[T]" coveredlines="0" coverablelines="69" totallines="121" coveredbranches="0" totalbranches="0" />
+    <class name="Yaga.Utils.Reflector" coveredlines="4" coverablelines="5" totallines="19" coveredbranches="0" totalbranches="0" />
+  </assembly>
+</coverage>
