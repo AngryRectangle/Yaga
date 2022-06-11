@@ -129,6 +129,18 @@ and order violation is strongly not recommended.
 Also Open method should be called after model set and clos after unset
 but about it in Presenters section.
 
+## Presenter
+Presenter is a bridge between view and model.
+In presenter you can subscribe on changes in model and update view
+or subscribe on player input and update model.
+
+Presenter have two main methods: `OnModelSet` and `OnModelUnset`.
+In those you can react on model setting or unsetting and, for example,
+subscribe on event in `OnModelSet` and unsubscribe in `OnModelUnset`.
+
+## Model
+Model is structure where you can store your data, events or properties.
+You can use any type as model, like int, string, IEnumerable or your own custom class.
 
 Особенности Yaga
 -
