@@ -8,8 +8,8 @@ namespace Yaga
     public abstract class BaseView : MonoBehaviour, IView
     {
         public abstract IEnumerable<IView> Children { get; }
+        public bool IsPrefab => gameObject.scene.name is null;
         public bool IsOpened { protected set; get; }
-        public bool IsInstanced { protected set; get; }
         bool IView.IsSetted { get; set; }
 
         public virtual void Open()
@@ -30,16 +30,14 @@ namespace Yaga
             gameObject.SetActive(false);
         }
 
-        public virtual void Create()
+        public virtual IView Create(Transform parent)
         {
-            IsInstanced = true;
-            gameObject.SetActive(false);
+            var result = Instantiate(this, parent);
+            result.gameObject.SetActive(false);
+            return result;
         }
 
-        public virtual void Destroy()
-        {
-            Destroy(gameObject);
-        }
+        public virtual void Destroy() => Destroy(gameObject);
 
         public void OnDestroy()
         {

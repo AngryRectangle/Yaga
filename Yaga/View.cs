@@ -95,12 +95,6 @@ namespace Yaga
             Context.Dispose();
         }
 
-        public override void Create()
-        {
-            base.Create();
-            foreach (var bind in _bindings) bind.View.Create();
-        }
-
         public override void Open()
         {
             base.Open();

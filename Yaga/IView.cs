@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Yaga
 {
@@ -8,11 +9,11 @@ namespace Yaga
         internal bool IsSetted { get; set; }
         IEnumerable<IView> Children { get; }
         int GetInstanceID();
+        bool IsPrefab { get; }
         bool IsOpened { get; }
-        bool IsInstanced { get; }
         void Open();
         void Close();
-        void Create();
+        IView Create(Transform parent);
         void Destroy();
     }
 

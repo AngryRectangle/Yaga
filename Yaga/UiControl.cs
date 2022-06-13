@@ -68,11 +68,10 @@ namespace Yaga
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            if (prefab.gameObject.scene.isLoaded)
+            if (!prefab.IsPrefab)
                 throw new IsNotPrefabException(prefab.gameObject);
 
-            var instance = MonoBehaviour.Instantiate(prefab, parent);
-            instance.Create();
+            var instance = (TView)prefab.Create(parent);
             UiBootstrap.Instance.Set(instance, model);
             instance.Open();
             return instance;
@@ -105,11 +104,10 @@ namespace Yaga
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            if (prefab.gameObject.scene.isLoaded)
+            if (!prefab.IsPrefab)
                 throw new IsNotPrefabException(prefab.gameObject);
 
             var instance = MonoBehaviour.Instantiate(prefab, parent);
-            instance.Create();
             UiBootstrap.Instance.Set(instance);
             instance.Open();
             return instance;

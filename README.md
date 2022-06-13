@@ -121,7 +121,7 @@ Relation scheme between view, presenter and model:
 `View ⇆ Presenter ⇆ Model`
 
 Each view is going through these stages:
-1. Create - initializes game object and make it inactive after instantiation
+1. Create - instantiates game object and make it inactive after instantiation
 2. Open - shows view after model was set
 3. Close - hides view after model unset
 4. Destroy - preparing view for destroy and call Destroy method on it.

@@ -45,15 +45,11 @@ namespace Yaga.Binding.OptionalObservable
             
             var accessor = new BindAccessor(() =>
             {
-                if (!view.IsInstanced)
-                    view.Create();
-
                 if (!_defaultAccessor())
                 {
+                    view.Set(_dataAccessor());
                     if (!view.IsOpened)
                         view.Open();
-                    
-                    UiBootstrap.Instance.Set(view, _dataAccessor());
                 }
                 else
                 {
