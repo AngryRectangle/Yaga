@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Yaga.Utils
@@ -26,6 +27,9 @@ namespace Yaga.Utils
 
         public ObservableArray(int count)
         {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+            
             _array = new T[count];
         }
         
@@ -33,6 +37,8 @@ namespace Yaga.Utils
         {
             _array = array;
         }
+
+        public int Length => _array.Length;
 
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
 
