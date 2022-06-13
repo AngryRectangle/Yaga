@@ -153,7 +153,7 @@ namespace Yaga
 
             var controller
                 = (IPresenter<ListView<TChild, TModel>, IObservableEnumerable<TModel>>)GetController(view.GetType());
-            controller.Set(view, new ObservableEnumerable<TModel>(model));
+            controller.Set(view, new ObservableList<TModel>(model));
         }
 
         /// <summary>

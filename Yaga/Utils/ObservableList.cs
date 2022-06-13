@@ -1,32 +1,31 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace Yaga.Utils
 {
-    public interface IObservableEnumerable<out T> : IEnumerable<T>
+    public interface IObservableEnumerable<T> : IEnumerable<T>
     {
-        event Action<int, T> ItemAdded;
-        event Action<int, T> ItemRemoved;
-        event Action<int, T, T> ItemSet;
+        Beacon<int, T> ItemAdded { get; }
+        Beacon<int, T> ItemRemoved { get; }
+        Beacon<int, T, T> ItemSet { get; }
     }
 
     /// <summary>
     /// Wrapper around list that allows to track any changes in that list.
     /// </summary>
-    public class ObservableEnumerable<T> : IObservableEnumerable<T>, IList<T>
+    public class ObservableList<T> : IObservableEnumerable<T>, IList<T>
     {
-        public event Action<int, T> ItemAdded;
-        public event Action<int, T> ItemRemoved;
-        public event Action<int, T, T> ItemSet;
+        public Beacon<int, T> ItemAdded { get; } = new Beacon<int, T>();
+        public Beacon<int, T> ItemRemoved { get; } = new Beacon<int, T>();
+        public Beacon<int, T, T> ItemSet { get; } = new Beacon<int, T, T>();
         private List<T> _list;
 
-        public ObservableEnumerable()
+        public ObservableList()
         {
             _list = new List<T>();
         }
 
-        public ObservableEnumerable(IEnumerable<T> enumerable) => _list = new List<T>(enumerable);
+        public ObservableList(IEnumerable<T> enumerable) => _list = new List<T>(enumerable);
 
         public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
@@ -35,13 +34,13 @@ namespace Yaga.Utils
         public void Add(T item)
         {
             _list.Add(item);
-            ItemAdded?.Invoke(_list.Count - 1, item);
+            ItemAdded.Execute(_list.Count - 1, item);
         }
 
         public void Clear()
         {
             for (var i = _list.Count - 1; i != 0; i--)
-                ItemRemoved?.Invoke(i, _list[i]);
+                ItemRemoved.Execute(i, _list[i]);
             _list.Clear();
         }
 
@@ -65,13 +64,13 @@ namespace Yaga.Utils
         public void Insert(int index, T item)
         {
             _list.Insert(index, item);
-            ItemAdded?.Invoke(index, item);
+            ItemAdded.Execute(index, item);
         }
 
         public void RemoveAt(int index)
         {
             _list.RemoveAt(index);
-            ItemRemoved?.Invoke(index, _list[index]);
+            ItemRemoved.Execute(index, _list[index]);
         }
 
         public T this[int index]
@@ -79,7 +78,7 @@ namespace Yaga.Utils
             get => _list[index];
             set
             {
-                ItemSet?.Invoke(index, _list[index], value);
+                ItemSet.Execute(index, _list[index], value);
                 _list[index] = value;
             }
         }

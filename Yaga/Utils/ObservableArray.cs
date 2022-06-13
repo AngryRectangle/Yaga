@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Yaga.Utils
 {
     public interface IObservableArray<T> : IEnumerable<T>
     {
-        event Action<int, T, T> ItemSet;
+        Beacon<int, T, T> ItemSet { get; }
         T this[int i] { get; set; }
     }
 
     public class ObservableArray<T> : IObservableArray<T>
     {
         private readonly T[] _array;
-        public event Action<int, T, T> ItemSet;
+        public Beacon<int, T, T> ItemSet { get; } = new Beacon<int, T, T>();
 
         public T this[int i]
         {
             get => _array[i];
             set
             {
-                ItemSet?.Invoke(i, _array[i], value);
+                ItemSet.Execute(i, _array[i], value);
                 _array[i] = value;
             }
         }
