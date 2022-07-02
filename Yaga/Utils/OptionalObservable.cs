@@ -18,6 +18,10 @@ namespace Yaga.Utils
         {
             var result = new BoundOptionalObservable<T2>();
             observable1.Subscribe(data => result.Data = selector(data), result.SetDefault);
+            if (observable1.IsDefault)
+                result.SetDefault();
+            else
+                result.Data = selector(observable1.Data);
             return result;
         }
 
