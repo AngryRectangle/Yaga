@@ -12,7 +12,7 @@ namespace Yaga
         public static void Subscribe(this View view, Button button, UnityAction action)
         {
             button.onClick.AddListener(action);
-            view._disposables.Add(new Reflector(() => button.onClick.RemoveListener(action)));
+            view.Disposables.Add(new Reflector(() => button.onClick.RemoveListener(action)));
         }
         
         /// <summary>
@@ -21,7 +21,7 @@ namespace Yaga
         public static void SubscribeAndCall(this View view, Button button, UnityAction action)
         {
             button.onClick.AddListener(action);
-            view._disposables.Add(new Reflector(() => button.onClick.RemoveListener(action)));
+            view.Disposables.Add(new Reflector(() => button.onClick.RemoveListener(action)));
             action();
         }
     }

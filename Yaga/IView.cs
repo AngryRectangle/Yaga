@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Yaga
 {
-    public interface IView : IEquatable<IView>, IEnumerable<IView>
+    public interface IView : IEquatable<IView>, IEnumerable<IView>, IDisposable
     {
         internal bool IsSetted { get; set; }
         IEnumerable<IView> Children { get; }
