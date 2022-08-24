@@ -32,9 +32,9 @@ namespace Yaga
             }
         }
 
-        public override void Dispose()
+        protected override void OnUnsubscribe()
         {
-            base.Dispose();
+            base.OnUnsubscribe();
             _context.Dispose();
         }
     }

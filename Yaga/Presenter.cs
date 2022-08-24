@@ -50,7 +50,7 @@ namespace Yaga
             foreach (var child in view)
                 UiBootstrap.Instance.Unset(child);
 
-            view.Dispose();
+            view.OnUnsubscribe();
             OnModelUnset(view);
             view.IsSetted = false;
         }

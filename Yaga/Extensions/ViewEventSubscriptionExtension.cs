@@ -13,7 +13,7 @@ namespace Yaga.Extensions
             Action action)
         {
             @event += action;
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Yaga.Extensions
             Action<T1> action)
         {
             @event += action;
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Yaga.Extensions
             Action<Action<T1, T2>> unsubscription, Action<T1, T2> action)
         {
             @event += action;
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Yaga.Extensions
             Action<Action<T1, T2, T3>> unsubscription, Action<T1, T2, T3> action)
         {
             @event += action;
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Yaga.Extensions
             Action<Action<T1, T2, T3, T4>> unsubscription, Action<T1, T2, T3, T4> action)
         {
             @event += action;
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Yaga.Extensions
             Action<TEvent> unsubscription, TEvent action)
         {
             subscription(action);
-            view.AddDisposable(new Reflector(() => unsubscription(action)));
+            view.AddUnsubscription(() => unsubscription(action));
         }
     }
 }
