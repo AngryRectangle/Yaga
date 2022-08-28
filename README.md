@@ -1,26 +1,40 @@
 [![Coverage Status](./Reports/CodeCoverage/Report/badge_shieldsio_linecoverage_red.svg?dummy=8484744)](./Reports/CodeCoverage/Report//index.html)
 
-Yaga
-====
+# Yaga
+
 **Yaga** is a simple UI lib for Unity3D.
 Paradigm of the lib is *MVPb Via MfD* (MVP but View is also Model for Data).
 Just joking, it is MVVM library.
 
-Attention! Achtung! Внимание!
--
+### Attention! Achtung! Внимание!
+
 Breaking changes alert!
 Breaking changes are possible due to early development stage.
 
-Installation guide
--
+## Table of Contents
+* [Installation guide](#installation-guide)
+* [Getting Started](#getting-started)
+* [Initialization](#initialization)
+  * [Singletons](#singletons)
+  * [Presenters binding](#presenters-binding)
+* [View](#view)
+* [Presenter](#presenter)
+* [Model](#model)
+* [Beacon](#beacon)
+* [Observables](#observables)
+  * [Observable](#observable)
+  * [Binding chains](#binding-chains)
+  * [OptionalObservable](#OptionalObservable)
+
+## Installation guide
+
 Click on top panel "Window > PackageManager".
 Click "+" on the top left and paste link to repository:
 ```https://github.com/AngryRectangle/Yaga.git```
 
 ![Installation screenshot](https://i.postimg.cc/zfmXHrSk/img.png)
 
-Getting Started
--
+## Getting Started
 Firstly you need to create view class which will be in inspector 
 and create presenter class which will help you to change your view depending
 on values in model.
@@ -218,6 +232,7 @@ amount.Data = 5;
 
 disposable.Dispose();
 ```
+
 ### OptionalObservable
 You should use optional observables when your observable data can be empty.
 With OptionalObservable you can organise data processing
