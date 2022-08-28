@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
+using Tests.Presenters;
 using Yaga;
 using Yaga.Extensions;
 using Yaga.Test;
@@ -9,12 +11,16 @@ namespace Tests.ViewSubscription
 {
     public class SubscriptionTest : BaseUiTest
     {
-        [Test]
-        public void EventSubscription()
+        [SetUp]
+        public void SetUp()
         {
             UiBootstrap.InitializeSingleton();
             UiControl.InitializeSingleton(Locator.canvasPrefab);
+        }
 
+        [Test]
+        public void EventSubscription()
+        {
             var invoked = false;
             var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
@@ -29,9 +35,6 @@ namespace Tests.ViewSubscription
         [Test]
         public void EventUnsubscription()
         {
-            UiBootstrap.InitializeSingleton();
-            UiControl.InitializeSingleton(Locator.canvasPrefab);
-
             var invoked = false;
             var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
@@ -47,9 +50,6 @@ namespace Tests.ViewSubscription
         [Test]
         public void CustomEventUnsubscription()
         {
-            UiBootstrap.InitializeSingleton();
-            UiControl.InitializeSingleton(Locator.canvasPrefab);
-
             var invoked = false;
             var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
@@ -63,19 +63,55 @@ namespace Tests.ViewSubscription
             Assert.False(invoked);
         }
 
-
-        private class TestPresenter : Presenter<SimpleTextButtonView, string>
+        [Test]
+        public void ModelUnsetOnChildren()
         {
-            private readonly Action<View> _onModelSet;
+            var unsetOnViewWithModel = false;
+            var setOnViewWithModel = false;
+            var unsetOnViewWithoutModel = false;
+            var setOnViewWithoutModel = false;
+            var presenterWithModel =
+                new TestPresenter(_ => setOnViewWithModel = true, _ => unsetOnViewWithModel = true);
+            var presenterWithoutModel =
+                new ModelessPresenter(_ => setOnViewWithoutModel = true, _ => unsetOnViewWithoutModel = true);
 
-            public TestPresenter(Action<View> onModelSet)
+            UiBootstrap.Bind(presenterWithModel);
+            UiBootstrap.Bind(presenterWithoutModel);
+            UiBootstrap.Bind<ChildrenViewPresenter>();
+
+            var view = UiControl.Instance.Create(Locator.viewWithChild);
+
+            Assert.True(setOnViewWithModel);
+            Assert.True(setOnViewWithoutModel);
+
+            UiBootstrap.Instance.Unset(view);
+
+            Assert.True(unsetOnViewWithModel);
+            Assert.True(unsetOnViewWithoutModel);
+        }
+
+        private class TestPresenter : ObservablePresenter<SimpleTextButtonView, string>
+        {
+            public TestPresenter(Action<SimpleTextButtonView> onModelSet = null,
+                Action<SimpleTextButtonView> onModelUnset = null) : base(onModelSet, onModelUnset)
             {
-                _onModelSet = onModelSet;
             }
+        }
 
-            protected override void OnModelSet(SimpleTextButtonView view, string model)
+        private class ModelessPresenter : ObservableModelessPresenter<ModelessView>
+        {
+            public ModelessPresenter(Action<ModelessView> onModelSet = null, Action<ModelessView> onModelUnset = null) :
+                base(onModelSet, onModelUnset)
             {
-                _onModelSet(view);
+            }
+        }
+
+        private class ChildrenViewPresenter : Presenter<ViewWithChild>
+        {
+            protected override void OnSet(ViewWithChild view)
+            {
+                UiBootstrap.Instance.Set(view.modelessView);
+                view.viewWithModel.Set("text");
             }
         }
     }
