@@ -2,9 +2,9 @@
 
 # Yaga
 
-**Yaga** is a simple UI lib for Unity3D.
-Paradigm of the lib is *MVPb Via MfD* (MVP but View is also Model for Data).
-Just joking, it is MVVM library.
+**Yaga** is a simple UI lib for Unity.
+The main goal of the lib is to minimize amount of code you need to write for proper MVVM UI and keep it simple and
+reliable.
 
 ### Attention! Achtung! Внимание!
 
