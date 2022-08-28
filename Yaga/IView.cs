@@ -23,6 +23,6 @@ namespace Yaga
         bool HasModel { get; set; }
         TModel Model { get; internal set; }
         void Set(TModel model);
-        void Unset(TModel model);
+        void Unset();
     }
 }

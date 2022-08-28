@@ -65,6 +65,6 @@ namespace Yaga
         }
         
         public void Set(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Set(this, model);
-        public void Unset(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Unset(this);
+        public void Unset() => UiBootstrap.Instance.Unset(this);
     }
 }

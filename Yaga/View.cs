@@ -61,7 +61,7 @@ namespace Yaga
         }
 
         public void Set(TModel model) => UiBootstrap.Instance.Set(this, model);
-        public void Unset(TModel model) => UiBootstrap.Instance.Unset(this);
+        public void Unset() => UiBootstrap.Instance.Unset(this);
         public bool Equals(View<TModel> other) => other.GetInstanceID() == GetInstanceID();
     }
 }

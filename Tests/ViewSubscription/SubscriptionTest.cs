@@ -42,7 +42,7 @@ namespace Tests.ViewSubscription
             UiBootstrap.Bind(presenter);
             var view = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             Assert.False(invoked);
-            view.Unset("OnClick");
+            view.Unset();
             testAction.Invoke();
             Assert.False(invoked);
         }
@@ -58,7 +58,7 @@ namespace Tests.ViewSubscription
             UiBootstrap.Bind(presenter);
             var view = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             Assert.False(invoked);
-            view.Unset("OnClick");
+            view.Unset();
             testAction.Invoke();
             Assert.False(invoked);
         }
