@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Yaga.Exceptions;
+using Yaga.Extensions;
 using Yaga.Utils;
 
 namespace Yaga
@@ -37,7 +38,7 @@ namespace Yaga
         {
             _presenters = presenters ?? throw new ArgumentNullException(nameof(presenters));
         }
-        
+
         /// <summary>
         /// Set instance of <see cref="UiBootstrap"/> to <see cref="Instance"/> property.
         /// </summary>
@@ -56,23 +57,31 @@ namespace Yaga
         }
 
         /// <summary>
-        /// Binds presenter to view. Remember that presenter and view has to has single-to-single relation.
+        /// Binds presenter to view. Remember that presenter and view have to have single-to-single relation.
         /// <exception cref="ArgumentNullException">If presenter is null</exception>
         /// </summary>
         /// <inheritdoc cref="Instance"/>
+        /// <inheritdoc cref="CheckPresenterInterface"/>
         public static void Bind(IPresenter presenter)
         {
-            Instance._presenters.Add(presenter ?? throw new ArgumentNullException(nameof(presenter)));
+            if (presenter == null)
+                throw new ArgumentNullException(nameof(presenter));
+
+            CheckPresenterInterface(presenter.GetType());
+            Instance._presenters.Add(presenter);
         }
 
         /// <summary>
-        /// Binds presenter with default constructor to view. Remember that presenter and view has to has single-to-single relation.
+        /// Binds presenter with default constructor to view. Remember that presenter and view have to have single-to-single relation.
         /// </summary>
         /// <exception cref="NoDefaultConstructorForPresenterException">If presenter has no default constructor.</exception>
         /// <inheritdoc cref="Instance"/>
+        /// <inheritdoc cref="CheckPresenterInterface"/>
         public static void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
+            CheckPresenterInterface(typeof(TPresenter));
+
             try
             {
                 var instance = Activator.CreateInstance<TPresenter>();
@@ -86,7 +95,42 @@ namespace Yaga
         }
 
         /// <summary>
-        /// Clear all binded presenters.
+        /// Check if presenters implements correct interfaces.
+        /// </summary>
+        /// <exception cref="PresenterBindingException">If presenter doesn't implement correct interfaces.</exception>
+        private static void CheckPresenterInterface(Type presenterType)
+        {
+            var interfaces = presenterType.GetInterfaces();
+            var modelessInterface = interfaces.SingleOrDefault(e =>
+                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<>));
+            var modelInterface = interfaces.SingleOrDefault(e =>
+                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>));
+
+            if (modelessInterface is null && modelInterface is null)
+                throw new PresenterBindingException(
+                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> or I{nameof(IPresenter)}<{nameof(IView)}, Model> interface but it doesn't.",
+                    presenterType);
+
+            var viewType = modelInterface?.GetGenericArguments()[0] ?? modelessInterface.GetGenericArguments()[0];
+            var viewHasModel = viewType.IsAssignableToGenericType(typeof(IView<>));
+            if (viewHasModel && modelessInterface is object)
+            {
+                throw new PresenterBindingException(
+                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}, Model> interface because {viewType.FullName} has model.",
+                    presenterType);
+            }
+
+            if (!viewHasModel && modelInterface is object)
+            {
+                // Actually this impossible to happen because of generic constraints for IPresenter<TView,TModel>.
+                throw new PresenterBindingException(
+                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> interface because {viewType.FullName} doesn't have model.",
+                    presenterType);
+            }
+        }
+
+        /// <summary>
+        /// Clear all bound presenters.
         /// </summary>
         /// <inheritdoc cref="Instance"/>
         public static void ClearPresenters()
