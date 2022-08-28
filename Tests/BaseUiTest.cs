@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
-using UnityEditor;
+﻿using UnityEditor;
+using Yaga.Test;
 
-namespace Yaga.Test
+namespace Tests
 {
     public class BaseUiTest
     {

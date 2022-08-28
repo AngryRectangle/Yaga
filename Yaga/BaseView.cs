@@ -14,6 +14,7 @@ namespace Yaga
         public bool IsPrefab => gameObject.scene.name is null;
         public bool IsOpened { protected set; get; }
         bool IView.IsSetted { get; set; }
+        private Transform _rootParent;
 
         public virtual void Open()
         {
@@ -40,7 +41,10 @@ namespace Yaga
             return result;
         }
 
-        public virtual void Destroy() => Destroy(gameObject);
+        public virtual void Destroy()
+        {
+            Destroy(_rootParent is null ? gameObject : _rootParent.gameObject);
+        }
 
         public void OnDestroy()
         {
@@ -55,12 +59,17 @@ namespace Yaga
             OnUnsubscribe();
         }
 
+        void IView.SetAsRootParent(Transform parent)
+        {
+            _rootParent = parent;
+        }
+
         protected virtual void OnUnsubscribe()
         {
             foreach (var disposable in _onUnsubscriptionActions) disposable();
             _onUnsubscriptionActions.Clear();
         }
-        
+
         public void AddUnsubscription(IDisposable disposable) => _onUnsubscriptionActions.Add(disposable.Dispose);
         public void AddUnsubscription(Action onDispose) => _onUnsubscriptionActions.Add(onDispose);
 

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using Yaga;
 using Yaga.Exceptions;
+using Yaga.Test;
 using Yaga.Test.Documentation;
 
-namespace Yaga.Test
+namespace Tests
 {
     public class UiBootstrapTest : BaseUiTest
     {

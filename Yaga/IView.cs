@@ -16,6 +16,7 @@ namespace Yaga
         IView Create(Transform parent);
         void Destroy();
         internal void OnUnsubscribe();
+        internal void SetAsRootParent(Transform parent);
     }
 
     public interface IView<TModel> : IView

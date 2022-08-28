@@ -45,7 +45,7 @@ namespace Yaga
             where TView : IView<TModel>
         {
             var canvas = MonoBehaviour.Instantiate(_canvasPrefab);
-            return Create(prefab, model, canvas.transform);
+            return Create(prefab, model, canvas.transform, true);
         }
 
         /// <summary>
@@ -55,10 +55,12 @@ namespace Yaga
         /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <param name="parent">Transform of object that will be parent for view</param>
+        /// <param name="rootParent">If true, provided parent transform will be destroyed when view will</param>
         /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
         /// <exception cref="ArgumentNullException">If prefab, parent or model is null.</exception>
         /// <inheritdoc cref="UiBootstrap.Set{TView, TModel}(TView, TModel)"/>
-        public TView Create<TView, TModel>(TView prefab, TModel model, Transform parent)
+        public TView Create<TView, TModel>(TView prefab, TModel model, Transform parent, bool rootParent = false)
             where TView : IView<TModel>
         {
             if (prefab is null)
@@ -72,6 +74,9 @@ namespace Yaga
                 throw new IsNotPrefabException(prefab);
 
             var instance = (TView)prefab.Create(parent);
+            if (rootParent)
+                instance.SetAsRootParent(parent);
+
             UiBootstrap.Instance.Set(instance, model);
             instance.Open();
             return instance;
@@ -83,7 +88,7 @@ namespace Yaga
             where TView : IView
         {
             var canvas = MonoBehaviour.Instantiate(_canvasPrefab);
-            return Create(prefab, canvas.transform);
+            return Create(prefab, canvas.transform, true);
         }
 
         /// <summary>
@@ -92,10 +97,12 @@ namespace Yaga
         /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <param name="parent">Transform of object that will be parent for view</param>
+        /// <param name="rootParent">If true, provided parent transform will be destroyed when view will</param>
         /// <exception cref="ArgumentNullException">If prefab or parent is null.</exception>
         /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
         /// <inheritdoc cref="UiBootstrap.Set{TView}(TView)"/>
-        public TView Create<TView>(TView prefab, Transform parent)
+        public TView Create<TView>(TView prefab, Transform parent, bool rootParent = false)
             where TView : IView
         {
             if (prefab is null)
@@ -108,6 +115,9 @@ namespace Yaga
                 throw new IsNotPrefabException(prefab);
 
             var instance = (TView)prefab.Create(parent);
+            if (rootParent)
+                instance.SetAsRootParent(parent);
+
             UiBootstrap.Instance.Set(instance);
             instance.Open();
             return instance;
