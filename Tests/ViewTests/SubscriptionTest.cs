@@ -10,24 +10,26 @@ namespace Tests.ViewSubscription
 {
     public class SubscriptionTest : BaseUiTest
     {
+        private event Action _testEvent;
         [SetUp]
         public void SetUp()
         {
             UiBootstrap.InitializeSingleton();
             UiControl.InitializeSingleton(Locator.canvasPrefab);
+            _testEvent = null;
         }
 
         [Test]
         public void EventSubscription()
         {
             var invoked = false;
-            var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
-                view.SubscribeEvent(ref testAction, action => testAction -= action, () => invoked = true));
+                view.SubscribeEvent(ref _testEvent, action => _testEvent -= action, () => invoked = true));
             UiBootstrap.Bind(presenter);
             var view = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             Assert.False(invoked);
-            testAction.Invoke();
+            Assert.NotNull(_testEvent);
+            _testEvent.Invoke();
             Assert.True(invoked);
         }
 
@@ -35,14 +37,15 @@ namespace Tests.ViewSubscription
         public void EventUnsubscription()
         {
             var invoked = false;
-            var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
-                view.SubscribeEvent(ref testAction, action => testAction -= action, () => invoked = true));
+                view.SubscribeEvent(ref _testEvent, action => _testEvent -= action, () => invoked = true));
             UiBootstrap.Bind(presenter);
             var view = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             Assert.False(invoked);
+            Assert.NotNull(_testEvent);
             view.Unset();
-            testAction.Invoke();
+            Assert.Null(_testEvent);
+            _testEvent?.Invoke();
             Assert.False(invoked);
         }
 
@@ -50,15 +53,16 @@ namespace Tests.ViewSubscription
         public void CustomEventUnsubscription()
         {
             var invoked = false;
-            var testAction = new Action(() => { });
             var presenter = new TestPresenter(view =>
-                view.SubscribeEvent<Action>(action => testAction += action, action => testAction -= action,
+                view.SubscribeEvent<Action>(action => _testEvent += action, action => _testEvent -= action,
                     () => invoked = true));
             UiBootstrap.Bind(presenter);
             var view = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             Assert.False(invoked);
+            Assert.NotNull(_testEvent);
             view.Unset();
-            testAction.Invoke();
+            Assert.Null(_testEvent);
+            _testEvent?.Invoke();
             Assert.False(invoked);
         }
 
