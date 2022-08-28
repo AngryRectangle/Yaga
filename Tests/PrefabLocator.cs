@@ -9,5 +9,6 @@ namespace Yaga.Test
         public Canvas canvasPrefab;
         public ModelessView modelessView;
         public SimpleTextButtonView simpleTextButtonView;
+        public ViewWithChild viewWithChild;
     }
 }

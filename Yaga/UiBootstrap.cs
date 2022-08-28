@@ -155,7 +155,17 @@ namespace Yaga
             if (view.HasModel && view.Model.Equals(model))
                 return;
 
-            var controller = (IPresenter<TView, TModel>)GetController(view.GetType());
+            /*
+             * Previously there was this line of code:
+             * var controller = (IPresenter<TView, TModel>)GetController(view.GetType());
+             * But due to c# generics stupidity it's not possible to cast presenter to (IPresenter<TView, TModel>)
+             * because you can call this method on type "View<string>" which would be correct,
+             * but it leads to InvalidCastException.
+             * So to fix it, I've created IPresenterWithUnspecifiedView interface
+             * to avoid reflection and boilerplate with Set method call.
+             */
+            
+            var controller = (IPresenterWithUnspecifiedView)GetController(view.GetType());
             controller.Set(view, model);
         }
 

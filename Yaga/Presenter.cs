@@ -2,7 +2,13 @@
 
 namespace Yaga
 {
-    public interface IPresenter<in TView, in TModel> : IPresenter
+    // This interfaces is needed to avoid c# generics stupidity on UiBootstrap.Set method.
+    public interface IPresenterWithUnspecifiedView : IPresenter
+    {
+        void Set(IView view, object model);
+    }
+    
+    public interface IPresenter<in TView, in TModel> : IPresenterWithUnspecifiedView
         where TView : IView<TModel>
     {
         void Set(TView view, TModel model);
@@ -25,6 +31,8 @@ namespace Yaga
     public abstract class Presenter<TView, TModel> : IPresenter<TView, TModel>
         where TView : IView<TModel>
     {
+        public void Set(IView view, object model) => Set((TView)view, (TModel)model);
+
         public void Set(TView view, TModel model)
         {
             if (view.HasModel)
