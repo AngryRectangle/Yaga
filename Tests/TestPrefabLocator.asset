@@ -15,3 +15,4 @@ MonoBehaviour:
   canvasPrefab: {fileID: 6260849216048020886, guid: f7b248ed04dd7d44e898165302c1becd, type: 3}
   modelessView: {fileID: 8968568899754426605, guid: 339931e5b0d49a84e9e7c2e2df55052c, type: 3}
   simpleTextButtonView: {fileID: 5608603166210426316, guid: 339931e5b0d49a84e9e7c2e2df55052c, type: 3}
+  viewWithChild: {fileID: 8201298362869184760, guid: 5066a202b6c07e54dac714dffb9a9080, type: 3}

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using Yaga;
 using Yaga.Exceptions;
+using Yaga.Test;
+using Yaga.Test.Documentation;
 
-namespace Yaga.Test
+namespace Tests
 {
     public class UiBootstrapTest : BaseUiTest
     {
@@ -14,7 +17,7 @@ namespace Yaga.Test
             UiBootstrap.InitializeSingleton();
             UiControl.InitializeSingleton(Locator.canvasPrefab);
         }
-        
+
         [Test]
         public void CheckModelessNullSetView()
         {
@@ -70,6 +73,18 @@ namespace Yaga.Test
         }
 
         [Test]
+        public void ExceptionOnModelessPresenterForViewWithModel()
+        {
+            Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<ModellesPresenterForModelView>);
+        }
+
+        [Test]
+        public void ExceptionOnPresenterWithoutView()
+        {
+            Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<PresenterWithoutView>);
+        }
+
+        [Test]
         public void BootstrapConstructorNullTest()
         {
             Assert.Catch<ArgumentNullException>(() => new UiBootstrap(null));
@@ -81,6 +96,19 @@ namespace Yaga.Test
 
         private class PresenterB : Presenter<ModelessView>
         {
+        }
+
+        private class ModellesPresenterForModelView : Presenter<SimpleTextButtonView>
+        {
+        }
+
+        private class PresenterWithoutView : IPresenter
+        {
+            public bool AcceptableView(Type viewType) => true;
+
+            public void Unset(IView view)
+            {
+            }
         }
 
         private class PresenterWithConstructor : Presenter<ModelessView>

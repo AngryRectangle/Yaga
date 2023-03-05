@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using NUnit.Framework;
+using Tests;
 using UnityEngine.TestTools;
 
 namespace Yaga.Test.Documentation

@@ -5,7 +5,7 @@ namespace Yaga.Binding.Observable
 {
     public class BindObservable<T>
     {
-        protected readonly Binding.BindingContext Context;
+        protected readonly BindingContext Context;
         private readonly Utils.IObservable<T> _observable;
         private readonly Func<T> _dataAccessor;
         protected Action OnDispose;
@@ -13,7 +13,7 @@ namespace Yaga.Binding.Observable
         public T Data => _dataAccessor();
 
         public BindObservable(
-            Binding.BindingContext context,
+            BindingContext context,
             Utils.IObservable<T> observable,
             Action onDispose = default)
         {
@@ -27,13 +27,9 @@ namespace Yaga.Binding.Observable
         {
             var accessor = new BindAccessor(() =>
             {
-                if (!view.IsInstanced)
-                    view.Create();
-
+                view.Set(_dataAccessor());
                 if (!view.IsOpened)
                     view.Open();
-
-                UiBootstrap.Instance.Set(view, _dataAccessor());
             }, OnDispose);
             Context._bindings.Add(accessor);
             return accessor;

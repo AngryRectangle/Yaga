@@ -8,11 +8,11 @@ namespace Yaga.Exceptions
     /// </summary>
     public class IsNotPrefabException : Exception
     {
-        public GameObject GameObject { get; }
+        public IView View { get; }
 
-        public IsNotPrefabException(GameObject gameObject) : base($"Game object {gameObject} is not prefab.")
+        public IsNotPrefabException(IView view) : base($"View {view} is not prefab.")
         {
-            GameObject = gameObject;
+            View = view;
         }
     }
 }

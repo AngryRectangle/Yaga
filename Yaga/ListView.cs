@@ -33,15 +33,15 @@ namespace Yaga
         {
             protected override void OnModelSet(ListView<TChild, TModel> view, IObservableEnumerable<TModel> model)
             {
-                model.ItemAdded += view.OnItemAdd;
-                model.ItemRemoved += view.OnItemRemove;
+                model.ItemAdded.Add(view.OnItemAdd);
+                model.ItemRemoved.Add(view.OnItemRemove);
                 foreach (var current in model) view.AddChild(current);
             }
 
             protected override void OnModelUnset(ListView<TChild, TModel> view)
             {
-                view._model.ItemAdded -= view.OnItemAdd;
-                view._model.ItemRemoved -= view.OnItemRemove;
+                view._model.ItemAdded.Remove(view.OnItemAdd);
+                view._model.ItemRemoved.Remove(view.OnItemRemove);
                 foreach (var child in view.Children) child.Close();
                 view._children.Clear();
             }
@@ -65,6 +65,6 @@ namespace Yaga
         }
         
         public void Set(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Set(this, model);
-        public void Unset(IObservableEnumerable<TModel> model) => UiBootstrap.Instance.Unset(this);
+        public void Unset() => UiBootstrap.Instance.Unset(this);
     }
 }

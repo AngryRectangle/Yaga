@@ -42,10 +42,10 @@ namespace Yaga
         /// <inheritdoc cref="UiControl.Create{TView, TModel}(TView, TModel, Transform)"/>
         /// <remarks>Parent for view is created from <see cref="UiControl"/> Canvas</remarks>
         public TView Create<TView, TModel>(TView prefab, TModel model)
-            where TView : MonoBehaviour, IView<TModel>
+            where TView : IView<TModel>
         {
             var canvas = MonoBehaviour.Instantiate(_canvasPrefab);
-            return Create(prefab, model, canvas.transform);
+            return Create(prefab, model, canvas.transform, true);
         }
 
         /// <summary>
@@ -55,11 +55,13 @@ namespace Yaga
         /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <param name="parent">Transform of object that will be parent for view</param>
+        /// <param name="rootParent">If true, provided parent transform will be destroyed when view will</param>
         /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
         /// <exception cref="ArgumentNullException">If prefab, parent or model is null.</exception>
         /// <inheritdoc cref="UiBootstrap.Set{TView, TModel}(TView, TModel)"/>
-        public TView Create<TView, TModel>(TView prefab, TModel model, Transform parent)
-            where TView : MonoBehaviour, IView<TModel>
+        public TView Create<TView, TModel>(TView prefab, TModel model, Transform parent, bool rootParent = false)
+            where TView : IView<TModel>
         {
             if (prefab is null)
                 throw new ArgumentNullException(nameof(prefab));
@@ -68,11 +70,13 @@ namespace Yaga
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            if (prefab.gameObject.scene.isLoaded)
-                throw new IsNotPrefabException(prefab.gameObject);
+            if (!prefab.IsPrefab)
+                throw new IsNotPrefabException(prefab);
 
-            var instance = MonoBehaviour.Instantiate(prefab, parent);
-            instance.Create();
+            var instance = (TView)prefab.Create(parent);
+            if (rootParent)
+                instance.SetAsRootParent(parent);
+
             UiBootstrap.Instance.Set(instance, model);
             instance.Open();
             return instance;
@@ -81,10 +85,10 @@ namespace Yaga
         /// <inheritdoc cref="UiControl.Create{TView}(TView, Transform)"/>
         /// <remarks>Parent for view is created from <see cref="UiControl"/> Canvas</remarks>
         public TView Create<TView>(TView prefab)
-            where TView : MonoBehaviour, IView
+            where TView : IView
         {
             var canvas = MonoBehaviour.Instantiate(_canvasPrefab);
-            return Create(prefab, canvas.transform);
+            return Create(prefab, canvas.transform, true);
         }
 
         /// <summary>
@@ -93,11 +97,13 @@ namespace Yaga
         /// and <see cref="IView.Open"/> under hood.
         /// It is recommended to use this method if you are outside of presenter's code.
         /// </summary>
+        /// <param name="parent">Transform of object that will be parent for view</param>
+        /// <param name="rootParent">If true, provided parent transform will be destroyed when view will</param>
         /// <exception cref="ArgumentNullException">If prefab or parent is null.</exception>
         /// <exception cref="IsNotPrefabException">If provided prefab was not an actual prefab.</exception>
         /// <inheritdoc cref="UiBootstrap.Set{TView}(TView)"/>
-        public TView Create<TView>(TView prefab, Transform parent)
-            where TView : MonoBehaviour, IView
+        public TView Create<TView>(TView prefab, Transform parent, bool rootParent = false)
+            where TView : IView
         {
             if (prefab is null)
                 throw new ArgumentNullException(nameof(prefab));
@@ -105,11 +111,13 @@ namespace Yaga
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            if (prefab.gameObject.scene.isLoaded)
-                throw new IsNotPrefabException(prefab.gameObject);
+            if (!prefab.IsPrefab)
+                throw new IsNotPrefabException(prefab);
 
-            var instance = MonoBehaviour.Instantiate(prefab, parent);
-            instance.Create();
+            var instance = (TView)prefab.Create(parent);
+            if (rootParent)
+                instance.SetAsRootParent(parent);
+
             UiBootstrap.Instance.Set(instance);
             instance.Open();
             return instance;
