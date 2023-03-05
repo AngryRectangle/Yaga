@@ -1,3 +1,32 @@
+#### 0.6.0 (2023-03-05)
+
+##### BREAKING CHANGES
+
+  * replace events with beacons for observers ([3a82d61c](https://github.com/AngryRectangle/Yaga/commit/3a82d61cf37ea4a73bffd5c2d0d06d4e6749cf0f))
+  * removed model argument from View.Unset ([edd8fcf8](https://github.com/AngryRectangle/Yaga/commit/edd8fcf819c9a35d27e38c4e6c87b9b128c68baf))
+
+##### Documentation Changes
+
+  * add table of contents ([ad2e046d](https://github.com/AngryRectangle/Yaga/commit/ad2e046d73c4e4cafd4cbe2fbb4793534c092d99))
+  * translate best practices and editor binding part ([6f73a006](https://github.com/AngryRectangle/Yaga/commit/6f73a006e34c54559bf737bc7e89b1bce1498fb3))
+  * update introduction ([bb839c5a](https://github.com/AngryRectangle/Yaga/commit/bb839c5a335cff17fe1a00def6be2a4f8a317ef7))
+
+##### New Features
+
+  * move instantiation logic to view ([6ede35d5](https://github.com/AngryRectangle/Yaga/commit/6ede35d5717b0d9fa48759e71c89a990d7280b1f))
+  * remove mono behaviour constraints ([894c42b1](https://github.com/AngryRectangle/Yaga/commit/894c42b1bbe75d4418bf9fbcda6edfef28cdbd35))
+  * add event subscription ([a4933102](https://github.com/AngryRectangle/Yaga/commit/a4933102b4ec820cbf67dd6bc6df9277ef8c9032))
+  * add presenter interface checking on binding ([b19e8c0d](https://github.com/AngryRectangle/Yaga/commit/b19e8c0de007aa47b749e5284f05c2de0985fa8e))
+  * add IPresenterWithUnspecifiedView to avoid c# generics problem with Set method ([cb7ba3cf](https://github.com/AngryRectangle/Yaga/commit/cb7ba3cf24da47f91a0bf6f4d9446f047f193ec8))
+  * add canvas destroying after view destroying ([24d1ac14](https://github.com/AngryRectangle/Yaga/commit/cb7ba3cf24da47f91a0bf6f4d9446f047f193ec8))
+
+##### Tests
+
+  * add tests for observable array ([2f76d939](https://github.com/AngryRectangle/Yaga/commit/2f76d93965a3bde562c8e4bea074770ad54578b0))
+  * add child model unset test ([45ab7363](https://github.com/AngryRectangle/Yaga/commit/45ab7363a9c1fa31ea0d735821241833a93fb0ca))
+  * add tests on model property for View ([2dd84e51](https://github.com/AngryRectangle/Yaga/commit/2dd84e51345ccf917f5b1b7d03fd8515bf331665))
+  * add null event checking for SubscriptionTest.cs ([369eb7ec](https://github.com/AngryRectangle/Yaga/commit/369eb7eceed9dcdb19b91165afa07d1527409a64))
+
 #### 0.5.0 (2022-06-11)
 
 ##### BREAKING CHANGES
