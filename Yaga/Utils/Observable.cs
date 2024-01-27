@@ -2,10 +2,14 @@
 
 namespace Yaga.Utils
 {
-    public interface IObservable<T>
+    public interface IReadOnlyObservable<T>
     {
         T Data { get; }
         IDisposable Subscribe(Action<T> action);
+    }
+    public interface IObservable<T> : IReadOnlyObservable<T>
+    {
+        T Data { set; get; }
     }
 
     public static class Observable

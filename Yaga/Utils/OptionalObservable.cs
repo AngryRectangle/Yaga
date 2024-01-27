@@ -3,11 +3,17 @@ using Yaga.Utils.Exceptions;
 
 namespace Yaga.Utils
 {
-    public interface IOptionalObservable<T>
+    public interface IReadOnlyOptionalObservable<T>
     {
         T Data { get; }
         bool IsDefault { get; }
         IDisposable Subscribe(Action<T> action, Action onNull);
+    }
+    
+    public interface IOptionalObservable<T> : IReadOnlyOptionalObservable<T>
+    {
+        new T Data { get; set; }
+        void SetDefault();
     }
 
     public static class OptionalObservable
@@ -121,7 +127,7 @@ namespace Yaga.Utils
         }
     }
 
-    public class BoundOptionalObservable<T> : IOptionalObservable<T>
+    public class BoundOptionalObservable<T> : IReadOnlyOptionalObservable<T>
     {
         private event Action<T> OnChange;
         private event Action OnNull;

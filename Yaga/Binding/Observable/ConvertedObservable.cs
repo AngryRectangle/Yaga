@@ -3,7 +3,7 @@ using Yaga.Utils;
 
 namespace Yaga.Binding.Observable
 {
-    internal class ConvertedObservable<T> : Utils.IObservable<T>
+    internal class ConvertedObservable<T> : IReadOnlyObservable<T>
     {
         private readonly Func<T> _dataAccessor;
 

@@ -3,7 +3,7 @@ using Yaga.Utils;
 
 namespace Yaga.Binding.OptionalObservable
 {
-    public class ConvertedOptionalObservable<T> : IOptionalObservable<T>
+    public class ConvertedOptionalObservable<T> : IReadOnlyOptionalObservable<T>
     {
         private readonly Func<T> _dataAccessor;
         private readonly Func<bool> _isDefaultAccessor;

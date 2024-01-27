@@ -13,7 +13,7 @@ namespace Yaga.Binding.OptionalObservable
     public class BindOptionalObservable<T> : IBindOptionalObservable<T>
     {
         private readonly BindingContext _context;
-        private readonly Utils.IOptionalObservable<T> _observable;
+        private readonly Utils.IReadOnlyOptionalObservable<T> _observable;
         private readonly Func<T> _dataAccessor;
         private readonly Func<bool> _defaultAccessor;
         private Action _onDispose;
@@ -22,7 +22,7 @@ namespace Yaga.Binding.OptionalObservable
 
         public BindOptionalObservable(
             BindingContext context,
-            Utils.IOptionalObservable<T> observable,
+            Utils.IReadOnlyOptionalObservable<T> observable,
             Action onDispose = default
         )
         {
