@@ -12,27 +12,8 @@ namespace Yaga
     {
         public abstract IEnumerable<IView> Children { get; }
         public bool IsPrefab => gameObject.scene.name is null;
-        public bool IsOpened { protected set; get; }
         bool IView.IsSetted { get; set; }
         private Transform _rootParent;
-
-        public virtual void Open()
-        {
-            if (IsOpened)
-                return;
-
-            IsOpened = true;
-            gameObject.SetActive(true);
-        }
-
-        public virtual void Close()
-        {
-            if (!IsOpened)
-                return;
-
-            IsOpened = false;
-            gameObject.SetActive(false);
-        }
 
         public virtual IView Create(Transform parent)
         {

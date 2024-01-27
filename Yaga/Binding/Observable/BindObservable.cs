@@ -28,8 +28,6 @@ namespace Yaga.Binding.Observable
             var accessor = new BindAccessor(() =>
             {
                 view.Set(_dataAccessor());
-                if (!view.IsOpened)
-                    view.Open();
             }, OnDispose);
             Context._bindings.Add(accessor);
             return accessor;

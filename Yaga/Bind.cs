@@ -147,7 +147,6 @@ namespace Yaga
                             action, new Action(() =>
                             {
                                 UiBootstrap.Instance.Unset(View);
-                                View.Close();
                             })
                         });
 
@@ -168,7 +167,6 @@ namespace Yaga
         private void OpenView<T>(T value)
         {
             SetView(value);
-            View.Open();
         }
 
         public void DeApply() => _deApply?.Dispose();

@@ -10,9 +10,6 @@ namespace Yaga
         IEnumerable<IView> Children { get; }
         int GetInstanceID();
         bool IsPrefab { get; }
-        bool IsOpened { get; }
-        void Open();
-        void Close();
         IView Create(Transform parent);
         void Destroy();
         internal void OnUnsubscribe();

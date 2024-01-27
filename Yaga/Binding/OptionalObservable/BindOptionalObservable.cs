@@ -37,7 +37,6 @@ namespace Yaga.Binding.OptionalObservable
         {
             void Action()
             {
-                if (view.IsOpened) view.Close();
                 UiBootstrap.Instance.Unset(view);
             }
 
@@ -48,8 +47,6 @@ namespace Yaga.Binding.OptionalObservable
                 if (!_defaultAccessor())
                 {
                     view.Set(_dataAccessor());
-                    if (!view.IsOpened)
-                        view.Open();
                 }
                 else
                 {

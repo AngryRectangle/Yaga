@@ -78,7 +78,6 @@ namespace Yaga
                 instance.SetAsRootParent(parent);
 
             UiBootstrap.Instance.Set(instance, model);
-            instance.Open();
             return instance;
         }
 
@@ -119,7 +118,6 @@ namespace Yaga
                 instance.SetAsRootParent(parent);
 
             UiBootstrap.Instance.Set(instance);
-            instance.Open();
             return instance;
         }
 
@@ -131,7 +129,6 @@ namespace Yaga
         public void Destroy<TView>(TView view)
             where TView : IView
         {
-            view.Close();
             UiBootstrap.Instance.Unset(view);
             view.Destroy();
         }

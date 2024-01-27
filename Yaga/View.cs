@@ -16,22 +16,6 @@ namespace Yaga
 
         public override IEnumerable<IView> Children => Array.Empty<IView>();
 
-        public override void Close()
-        {
-            base.Close();
-            foreach (var bind in _bindings) bind.View.Close();
-        }
-
-        public override void Open()
-        {
-            base.Open();
-            foreach (var bind in _bindings)
-            {
-                if (bind.Type != Bind.BindType.OptionalObservableField)
-                    bind.View.Open();
-            }
-        }
-
         protected override void OnUnsubscribe()
         {
             base.OnUnsubscribe();
