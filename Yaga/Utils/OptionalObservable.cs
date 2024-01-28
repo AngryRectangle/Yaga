@@ -5,7 +5,7 @@ namespace Yaga.Utils
 {
     public interface IReadOnlyOptionalObservable<T> : IReadOnlyObservable<Option<T>>
     {
-        bool IsDefault { get; }
+        bool HasValue { get; }
         IDisposable Subscribe(Action<T> action, Action onNull);
     }
     
@@ -19,7 +19,7 @@ namespace Yaga.Utils
         {
         }
 
-        public bool IsDefault => !Data.HasValue;
+        public bool HasValue => Data.HasValue;
         public IDisposable Subscribe(Action<T> action, Action onNull)
         {
             return Subscribe(data => data.Match(action, onNull));

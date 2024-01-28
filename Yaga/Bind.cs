@@ -150,7 +150,7 @@ namespace Yaga
                             })
                         });
 
-                    if (!(bool) followType.GetRuntimeProperty(nameof(OptionalObservable<object>.IsDefault))
+                    if ((bool) followType.GetRuntimeProperty(nameof(OptionalObservable<object>.HasValue))
                         .GetValue(dataToFollow))
                         action.DynamicInvoke(followType.GetRuntimeProperty("Data").GetValue(dataToFollow));
                     break;
