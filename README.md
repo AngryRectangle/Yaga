@@ -266,6 +266,8 @@ disposable.Dispose();
 ### OptionalObservable
 
 You should use optional observables when your observable data can be empty.
+OptionalObservable&lt;T> is wrapper around Observable&lt;Option&lt;T>>. 
+Option works as described <a href="https://github.com/nlkl/Optional/">here</a>.
 With OptionalObservable you can organise data processing
 which will guarantee correct processing of empty values.
 In subscription method you should provide methods which will process data in two scenarios:
@@ -278,22 +280,6 @@ var disposable = someObservable
 
 someObservable.SetDefault(); // Will trigger "No count" message.
 someObservable.Data = 5; // Will trigger "5" message.
-
-disposable.Dispose();
-```
-
-You can create chains with OptionalObervables too.
-If one of parent observables gets default value,
-all children will also get it.
-
-```c#
-var amount = new OptionalObservable<int>(100);
-var itemName = new OptionalObservable<string>("cake");
-var itemInfo = OptionalObservable.Bind(amount, itemName, (count, name) => $"{name} {count}");
-var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"));
-
-itemName.Data = "apple"; // Will trigger message to console "apple 100"
-amount.SetDefault(); // Will trigger message to console "No valid info"
 
 disposable.Dispose();
 ```
