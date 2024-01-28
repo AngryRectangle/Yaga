@@ -64,6 +64,30 @@ namespace Yaga
         /// </summary>
         public void Subscribe<T>(Utils.IObservable<T> observable, Action<T> action)
             => AddUnsubscription(observable.Subscribe(action));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, null, null)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action<Exception> onError)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, onError, null)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action<Exception> onError, Action onCompleted)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, onError, onCompleted)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action onCompleted)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, null, onCompleted)));
 
         /// <summary>
         /// Subscribe on observable value change and dispose subscription when needed.
