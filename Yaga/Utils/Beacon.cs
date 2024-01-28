@@ -3,8 +3,8 @@
 namespace Yaga.Utils
 {
     /// <summary>
-    /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
-    /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.
+    /// Wrapper around event, allows easily unsubscribe using <see cref="Disposable"/>.
+    /// Dispose <see cref="Disposable"/> to unsubscribe from beacon.
     /// </summary>
     public class Beacon
     {
@@ -20,20 +20,20 @@ namespace Yaga.Utils
             _action = action;
         }
 
-        public Reflector Add(Action action)
+        public Disposable Add(Action action)
         {
             _action += action;
-            return new Reflector(() => _action -= action);
+            return new Disposable(() => _action -= action);
         }
 
         public void Execute() => _action?.Invoke();
         public void Remove(Action action) => _action -= action;
-        public static Reflector operator +(Beacon a, Action action) => a.Add(action);
+        public static Disposable operator +(Beacon a, Action action) => a.Add(action);
     }
 
     /// <summary>
-    /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
-    /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.
+    /// Wrapper around event, allows easily unsubscribe using <see cref="Disposable"/>.
+    /// Dispose <see cref="Disposable"/> to unsubscribe from beacon.
     /// </summary>
     public class Beacon<T1>
     {
@@ -49,20 +49,20 @@ namespace Yaga.Utils
             _action = action;
         }
 
-        public Reflector Add(Action<T1> action)
+        public Disposable Add(Action<T1> action)
         {
             _action += action;
-            return new Reflector(() => _action -= action);
+            return new Disposable(() => _action -= action);
         }
 
         public void Execute(T1 arg1) => _action?.Invoke(arg1);
         public void Remove(Action<T1> action) => _action -= action;
-        public static Reflector operator +(Beacon<T1> a, Action<T1> action) => a.Add(action);
+        public static Disposable operator +(Beacon<T1> a, Action<T1> action) => a.Add(action);
     }
 
     /// <summary>
-    /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
-    /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.
+    /// Wrapper around event, allows easily unsubscribe using <see cref="Disposable"/>.
+    /// Dispose <see cref="Disposable"/> to unsubscribe from beacon.
     /// </summary>
     public class Beacon<T1, T2>
     {
@@ -78,20 +78,20 @@ namespace Yaga.Utils
             _action = action;
         }
 
-        public Reflector Add(Action<T1, T2> action)
+        public Disposable Add(Action<T1, T2> action)
         {
             _action += action;
-            return new Reflector(() => _action -= action);
+            return new Disposable(() => _action -= action);
         }
 
         public void Execute(T1 arg1, T2 arg2) => _action?.Invoke(arg1, arg2);
         public void Remove(Action<T1, T2> action) => _action -= action;
-        public static Reflector operator +(Beacon<T1, T2> a, Action<T1, T2> action) => a.Add(action);
+        public static Disposable operator +(Beacon<T1, T2> a, Action<T1, T2> action) => a.Add(action);
     }
 
     /// <summary>
-    /// Wrapper around event, allows easily unsubscribe using <see cref="Reflector"/>.
-    /// Dispose <see cref="Reflector"/> to unsubscribe from beacon.
+    /// Wrapper around event, allows easily unsubscribe using <see cref="Disposable"/>.
+    /// Dispose <see cref="Disposable"/> to unsubscribe from beacon.
     /// </summary>
     public class Beacon<T1, T2, T3>
     {
@@ -107,14 +107,14 @@ namespace Yaga.Utils
             _action = action;
         }
 
-        public Reflector Add(Action<T1, T2, T3> action)
+        public Disposable Add(Action<T1, T2, T3> action)
         {
             _action += action;
-            return new Reflector(() => _action -= action);
+            return new Disposable(() => _action -= action);
         }
 
         public void Execute(T1 arg1, T2 arg2, T3 arg3) => _action?.Invoke(arg1, arg2, arg3);
         public void Remove(Action<T1, T2, T3> action) => _action -= action;
-        public static Reflector operator +(Beacon<T1, T2, T3> a, Action<T1, T2, T3> action) => a.Add(action);
+        public static Disposable operator +(Beacon<T1, T2, T3> a, Action<T1, T2, T3> action) => a.Add(action);
     }
 }

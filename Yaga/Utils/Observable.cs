@@ -44,7 +44,7 @@ namespace Yaga.Utils
         public IDisposable Subscribe(Action<T> action)
         {
             OnChange += action;
-            return new Reflector(() => OnChange -= action);
+            return new Disposable(() => OnChange -= action);
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
@@ -235,11 +235,7 @@ namespace Yaga.Utils
             var secondUnsubscription = _source2.Subscribe(option =>
                 action(option.Map(value2 => _combiner(_source1.Data, value2))));
 
-            return new Reflector(() =>
-            {
-                firstUnsubscription.Dispose();
-                secondUnsubscription.Dispose();
-            });
+            return new Disposable(firstUnsubscription, secondUnsubscription);
         }
 
         public IDisposable Subscribe(Action<TOut> action, Action onNull)

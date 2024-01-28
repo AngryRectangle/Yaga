@@ -167,11 +167,7 @@ namespace Yaga.Utils
             var secondSubscription = _source2.Subscribe(value2 =>
                 action(value2.FlatMap(value => _source1.Data.Map(value1 => _combiner(value1, value)))));
 
-            return new Reflector(() =>
-            {
-                firstSubscription.Dispose();
-                secondSubscription.Dispose();
-            });
+            return new Disposable(firstSubscription, secondSubscription);
         }
 
         public IDisposable Subscribe(Action<TOut> action, Action onNull)
