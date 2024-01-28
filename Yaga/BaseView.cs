@@ -119,10 +119,7 @@ namespace Yaga
         public void SubscribeAndCall<T>(IOptionalObservable<T> observable, Action<T> action, Action onNull)
         {
             AddUnsubscription(observable.Subscribe(action, onNull));
-            if (observable.IsDefault)
-                onNull();
-            else
-                action(observable.Data);
+            observable.Data.Match(action, onNull);
         }
     }
 }

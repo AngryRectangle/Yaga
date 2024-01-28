@@ -4,7 +4,6 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Yaga.Binding.Observable;
 using Yaga.Binding.Observable.ConcreteObservables;
-using Yaga.Binding.OptionalObservable;
 using Yaga.Utils;
 
 namespace Yaga.Binding
@@ -38,9 +37,6 @@ namespace Yaga.Binding
             => new BindStringObservable(this, observable);
         public BindIntObservable Bind(Utils.IObservable<int> observable)
             => new BindIntObservable(this, observable);
-
-        public IBindOptionalObservable<T> Bind<T>(IOptionalObservable<T> observable)
-            => new BindOptionalObservable<T>(this, observable);
 
         public void Dispose()
         {

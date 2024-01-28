@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Optional;
 using UnityEngine;
 using Yaga.Utils;
 
@@ -68,42 +69,14 @@ namespace Yaga.Test.Documentation
 
             Assert.AreEqual(false, nullCalled);
             Assert.AreEqual(false, valueCalled);
-            someObservable.SetDefault();
+            someObservable.Data = Option.None<int>();
             Assert.AreEqual(true, nullCalled);
             Assert.AreEqual(false, valueCalled);
-            someObservable.Data = 5;
+            someObservable.Data = Option.Some(5);
             Assert.AreEqual(true, valueCalled);
 
             disposable.Dispose();
-            someObservable.Data = 6;
-        }
-
-        [Test]
-        public void OptionalObservableChainExample()
-        {
-            var nullCalled = false;
-            var valueCalled = false;
-            
-            var amount = new OptionalObservable<int>(100);
-            var itemName = new OptionalObservable<string>("cake");
-            var itemInfo = OptionalObservable.Bind(amount, itemName, (count, name) => $"{name} {count}");
-
-            var disposable = itemInfo.Subscribe(info =>
-            {
-                valueCalled = true;
-                Assert.AreEqual("apple 100", info);
-            }, () => nullCalled = true);
-            
-            Assert.AreEqual(false, nullCalled);
-            Assert.AreEqual(false, valueCalled);
-            itemName.Data = "apple";
-            Assert.AreEqual(false, nullCalled);
-            Assert.AreEqual(true, valueCalled);
-            amount.SetDefault();
-            Assert.AreEqual(true, nullCalled);
-
-            disposable.Dispose();
-            amount.Data = 6;
+            someObservable.Data = Option.Some(6);
         }
     }
 }
