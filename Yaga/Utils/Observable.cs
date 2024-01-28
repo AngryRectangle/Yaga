@@ -1,4 +1,5 @@
 ﻿using System;
+using Optional;
 
 namespace Yaga.Utils
 {
@@ -7,50 +8,10 @@ namespace Yaga.Utils
         T Data { get; }
         IDisposable Subscribe(Action<T> action);
     }
+
     public interface IObservable<T> : IReadOnlyObservable<T>
     {
         T Data { set; get; }
-    }
-
-    public static class Observable
-    {
-        public static Beacon<T2> Bind<T1, T2>(Beacon<T1> observable1, Func<T1, T2> selector)
-        {
-            var result = new Beacon<T2>();
-            observable1.Add(data => result.Execute(selector(data)));
-            return result;
-        }
-        
-        public static Beacon<T2> Bind<T1, T2>(IObservable<T1> observable1, Func<T1, T2> selector)
-        {
-            var result = new Beacon<T2>();
-            observable1.Subscribe(data => result.Execute(selector(data)));
-            return result;
-        }
-
-        public static Beacon<T3> Bind<T1, T2, T3>(
-            IObservable<T1> observable1,
-            Observable<T2> observable2,
-            Func<T1, T2, T3> selector)
-        {
-            var result = new Beacon<T3>();
-            observable1.Subscribe(data => result.Execute(selector(data, observable2.Data)));
-            observable2.Subscribe(data => result.Execute(selector(observable1.Data, data)));
-            return result;
-        }
-
-        public static Beacon<T4> Bind<T1, T2, T3, T4>(
-            IObservable<T1> observable1,
-            Observable<T2> observable2,
-            Observable<T3> observable3,
-            Func<T1, T2, T3, T4> selector)
-        {
-            var result = new Beacon<T4>();
-            observable1.Subscribe(data => result.Execute(selector(data, observable2.Data, observable3.Data)));
-            observable2.Subscribe(data => result.Execute(selector(observable1.Data, data, observable3.Data)));
-            observable3.Subscribe(data => result.Execute(selector(observable1.Data, observable2.Data, data)));
-            return result;
-        }
     }
 
     /// <summary>
@@ -58,17 +19,18 @@ namespace Yaga.Utils
     /// </summary>
     public class Observable<T> : IObservable<T>
     {
+        private event Action<T> OnChange;
+        private T _data;
+
         public T Data
         {
             get => _data;
             set
             {
-                OnChange?.Invoke(value);
                 _data = value;
+                OnChange?.Invoke(_data);
             }
         }
-
-        private T _data;
 
         public Observable(T data)
         {
@@ -79,8 +41,6 @@ namespace Yaga.Utils
         {
         }
 
-        private event Action<T> OnChange;
-
         public IDisposable Subscribe(Action<T> action)
         {
             OnChange += action;
@@ -90,6 +50,265 @@ namespace Yaga.Utils
         public IDisposable Subscribe(IObserver<T> observer)
         {
             return Subscribe(observer.OnNext);
+        }
+    }
+
+    internal class Observable_DistinctUntilChanged<T> : IReadOnlyObservable<T>
+        where T : class
+    {
+        private readonly IReadOnlyObservable<T> _source;
+
+        public Observable_DistinctUntilChanged(IReadOnlyObservable<T> source)
+        {
+            _source = source;
+        }
+
+        public T Data => _source.Data;
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<T> action)
+        {
+            var lastValue = default(T);
+            var hadValue = false;
+            return _source.Subscribe(value =>
+            {
+                if (hadValue && lastValue.Equals(value))
+                    return;
+
+                lastValue = value;
+                hadValue = true;
+                action(value);
+            });
+        }
+    }
+
+    internal class Observable_DistinctUntilChangedEquitable<T> : IReadOnlyObservable<T>
+        where T : struct, IEquatable<T>
+    {
+        private readonly IReadOnlyObservable<T> _source;
+
+        public Observable_DistinctUntilChangedEquitable(IReadOnlyObservable<T> source)
+        {
+            _source = source;
+        }
+
+        public T Data => _source.Data;
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<T> action)
+        {
+            var lastValue = default(T);
+            var hadValue = false;
+            return _source.Subscribe(value =>
+            {
+                if (hadValue && lastValue.Equals(value))
+                    return;
+
+                lastValue = value;
+                hadValue = true;
+                action(value);
+            });
+        }
+    }
+
+    internal class Observable_Select<TIn, TOut> : IReadOnlyObservable<TOut>
+    {
+        private readonly IReadOnlyObservable<TIn> _source;
+        private readonly Func<TIn, TOut> _selector;
+
+        public Observable_Select(IReadOnlyObservable<TIn> source, Func<TIn, TOut> selector)
+        {
+            _source = source;
+            _selector = selector;
+        }
+
+        public TOut Data => _selector(_source.Data);
+
+        public IDisposable Subscribe(IObserver<TOut> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<TOut> action)
+        {
+            return _source.Subscribe(value => action(_selector(value)));
+        }
+    }
+
+    internal class Observable_WhereNone<T> : IReadOnlyOptionalObservable<T>
+    {
+        private readonly IReadOnlyObservable<T> _source;
+        private readonly Predicate<T> _predicate;
+
+        public Option<T> Data => _predicate(_source.Data) ? _source.Data.Some() : Option.None<T>();
+        public bool HasValue => _predicate(_source.Data);
+
+        public Observable_WhereNone(IReadOnlyObservable<T> source, Predicate<T> predicate)
+        {
+            _source = source;
+            _predicate = predicate;
+        }
+
+        public IDisposable Subscribe(IObserver<Option<T>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<T>> action)
+        {
+            return _source.Subscribe(value => action(_predicate(value) ? value.Some() : Option.None<T>()));
+        }
+
+        public IDisposable Subscribe(Action<T> action, Action onNull)
+        {
+            return _source.Subscribe(value =>
+            {
+                if (_predicate(value))
+                    action(value);
+                else
+                    onNull();
+            });
+        }
+    }
+
+    internal class Observable_CombineLatest<T1, T2, TOut> : IReadOnlyObservable<TOut>
+    {
+        private readonly IReadOnlyObservable<T1> _source1;
+        private readonly IReadOnlyObservable<T2> _source2;
+        private readonly Func<T1, T2, TOut> _combiner;
+
+        public TOut Data => _combiner(_source1.Data, _source2.Data);
+
+        public Observable_CombineLatest(IReadOnlyObservable<T1> source1, IReadOnlyObservable<T2> source2,
+            Func<T1, T2, TOut> combiner)
+        {
+            _source1 = source1;
+            _source2 = source2;
+            _combiner = combiner;
+        }
+
+        public IDisposable Subscribe(IObserver<TOut> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<TOut> action)
+        {
+            return _source1.Subscribe(value1 => action(_combiner(value1, _source2.Data)));
+        }
+    }
+
+    internal class Observable_CombineLatestWithOptional<T1, T2, TOut> : IReadOnlyOptionalObservable<TOut>
+    {
+        private readonly IReadOnlyObservable<T1> _source1;
+        private readonly IReadOnlyOptionalObservable<T2> _source2;
+        private readonly Func<T1, T2, TOut> _combiner;
+        public Option<TOut> Data => _source2.Data.Map(value2 => _combiner(_source1.Data, value2));
+        public bool HasValue => _source2.HasValue;
+
+        public Observable_CombineLatestWithOptional(IReadOnlyObservable<T1> source1,
+            IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            _source1 = source1;
+            _source2 = source2;
+            _combiner = combiner;
+        }
+
+        public IDisposable Subscribe(IObserver<Option<TOut>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<TOut>> action)
+        {
+            var firstUnsubscription = _source1.Subscribe(value1 =>
+                action(_source2.Data.Map(value2 => _combiner(value1, value2))));
+
+            var secondUnsubscription = _source2.Subscribe(option =>
+                action(option.Map(value2 => _combiner(_source1.Data, value2))));
+
+            return new Reflector(() =>
+            {
+                firstUnsubscription.Dispose();
+                secondUnsubscription.Dispose();
+            });
+        }
+
+        public IDisposable Subscribe(Action<TOut> action, Action onNull)
+        {
+            return Subscribe(option => option.Match(action, onNull));
+        }
+    }
+
+    public static class ObservableExtensions
+    {
+        /// <summary>
+        /// Returns an observable that only notifies when the value changes.
+        /// </summary>
+        public static IReadOnlyObservable<T> DistinctUntilChanged<T>(this IReadOnlyObservable<T> source)
+            where T : class
+        {
+            return new Observable_DistinctUntilChanged<T>(source);
+        }
+
+        /// <summary>
+        /// Projects each element of an observable sequence into a new form with the specified source and selector.
+        /// </summary>
+        public static IReadOnlyObservable<TOut> Select<TIn, TOut>(this IReadOnlyObservable<TIn> source,
+            Func<TIn, TOut> selector)
+        {
+            return new Observable_Select<TIn, TOut>(source, selector);
+        }
+
+        /// <summary>
+        /// If the value satisfies the predicate, returns the value. Otherwise, returns None.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<T> WhereOrNone<T>(this IReadOnlyObservable<T> source,
+            Predicate<T> predicate)
+        {
+            return new Observable_WhereNone<T>(source, predicate);
+        }
+
+        /// <summary>
+        /// Returns an observable that combines the latest values of two observables using the specified combiner
+        /// and notifies when any of the values changes.
+        /// </summary>
+        public static IReadOnlyObservable<TOut> CombineLatest<T1, T2, TOut>(this IReadOnlyObservable<T1> source1,
+            IReadOnlyObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            return new Observable_CombineLatest<T1, T2, TOut>(source1, source2, combiner);
+        }
+        
+        /// <summary>
+        /// Returns an observable that combines the latest values of two observables using the specified combiner
+        /// and notifies when any of the values changes. If any of the observables has no value, the resulting
+        /// observable will also have no value.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> CombineLatest<T1, T2, TOut>(
+            this IReadOnlyObservable<T1> source1,
+            IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            return new Observable_CombineLatestWithOptional<T1, T2, TOut>(source1, source2, combiner);
+        }
+    }
+
+    public static class ObservableExtensionsAvoidAmbiguity
+    {
+        /// <summary>
+        /// Returns an observable that only notifies when the value changes.
+        /// </summary>
+        public static IReadOnlyObservable<T> DistinctUntilChanged<T>(this IReadOnlyObservable<T> source)
+            where T : struct, IEquatable<T>
+        {
+            return new Observable_DistinctUntilChangedEquitable<T>(source);
         }
     }
 }

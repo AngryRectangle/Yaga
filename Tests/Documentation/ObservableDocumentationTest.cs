@@ -31,8 +31,8 @@ namespace Yaga.Test.Documentation
         public void BindingChainsExample()
         {
             var amount = new Observable<int>(100);
-            var itemInfo = Observable.Bind(amount, count => $"Current amount is {count}");
-            var disposable = itemInfo.Add(info => Assert.AreEqual("Current amount is 5", info));
+            var itemInfo = amount.Select(count => $"Current amount is {count}");
+            var disposable = itemInfo.Subscribe(info => Assert.AreEqual("Current amount is 5", info));
             amount.Data = 5;
 
             disposable.Dispose();
@@ -44,11 +44,11 @@ namespace Yaga.Test.Documentation
         {
             var amount = new Observable<int>(100);
             var itemName = new Observable<string>("cake");
-            var itemInfo = Observable.Bind(amount, itemName, (count, name) => $"{name} {count}");
-            var disposable = itemInfo.Add(info => Assert.AreEqual("apple 100", info));
+            var itemInfo = amount.CombineLatest(itemName, (count, name) => $"{name} {count}");
+            var disposable = itemInfo.Subscribe(info => Assert.AreEqual("apple 100", info));
             itemName.Data = "apple";
             disposable.Dispose();
-            disposable = itemInfo.Add(info => Assert.AreEqual("apple 5", info));
+            disposable = itemInfo.Subscribe(info => Assert.AreEqual("apple 5", info));
             amount.Data = 5;
             disposable.Dispose();
         }
