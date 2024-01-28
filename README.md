@@ -228,7 +228,7 @@ observable.Data = "second";
 disposable.Dispose();
 ```
 
-### Binding chains
+### Observable chains
 
 You can chain observables to combine data from several sources and process it.
 Example of simple chain where each next observable reacts on changes in previous.
@@ -237,9 +237,9 @@ Example of simple chain where each next observable reacts on changes in previous
 // Observale that will trigger itemInfo on change
 var amount = new Observable<int>(100);
 // Specify binding rule for data from amount to itemInfo
-var itemInfo = Observable.Bind(amount, count => $"Current amount is {count}");
+var itemInfo = amount.Select(count => $"Current amount is {count}");
 //Specify logic that will be invoked when itemInfo changes
-var disposable = itemInfo.Add(info => Debug.Log(info));
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
 // Will trigger itemInfo that will trigger message "Current amount is 5"
 amount.Data = 5;
 
@@ -252,9 +252,9 @@ When one of the parent observables changes it will trigger changes in all child 
 ```c#
 var amount = new Observable<int>(100);
 var itemName = new Observable<string>("cake");
-var itemInfo = Observable.Bind(amount, itemName, (count, name) => $"{name} {count}");
+var itemInfo = amount.CombineLatest(itemName, (count, name) => $"{name} {count}");
     
-var disposable = itemInfo.Add(info => Debug.Log(info));
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
 // Will trigger message to console "apple 100"
 itemName.Data = "apple";
 // Will trigger message to console "apple 5"
