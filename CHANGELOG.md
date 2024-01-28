@@ -1,3 +1,28 @@
+#### 0.7.0 (2024-01-28)
+
+##### BREAKING CHANGES
+
+* remove close/open logic to simplify ui flow ([bc15446c](https://github.com/AngryRectangle/Yaga/commit/bc15446c6deb1c37b30d8441b498f77dd40b3123))
+* add readonly interfaces for observables ([1b02bab1](https://github.com/AngryRectangle/Yaga/commit/1b02bab199bcfa1d486943b57d6641c070f7a885))
+* make OptionalObservable derive from Observable using Option type ([3f3ade2f](https://github.com/AngryRectangle/Yaga/commit/3f3ade2f9b8df00c0d8787594c25836137c6120d))
+* rename IsDefault to HasValue ([c1c1dd96](https://github.com/AngryRectangle/Yaga/commit/c1c1dd966384aaf330a4d747c3ccc25401f6862f))
+* make Observable fire event even if value isn't changed ([a6b4c1bd](https://github.com/AngryRectangle/Yaga/commit/a6b4c1bd8e4a3b42bdd317afc81f4ebcf3e14c89))
+* replace bind methods with rx style methods ([04778497](https://github.com/AngryRectangle/Yaga/commit/047784976f72a88d2a69b44e7b2fe69b0b9fc026))
+* rename reflector to Disposable ([4e0c39ba](https://github.com/AngryRectangle/Yaga/commit/4e0c39ba15397ec5d51f04a46c4a7ff12892c4d7))
+* get rid of unused exception ([8a0b1423](https://github.com/AngryRectangle/Yaga/commit/8a0b142334f26e48782b513177daac9b01a0d875))
+
+##### Documentation Changes
+
+* reflect changes of OptionalObservable ([67ed7684](https://github.com/AngryRectangle/Yaga/commit/67ed76841600aaff50ee4c312aaddc9e347aef02))
+* update docs to reflect changes in observables ([4b370505](https://github.com/AngryRectangle/Yaga/commit/4b3705057c71991397832d4b6c7ba3044640af83))
+* exclude info about open/close stages ([c1ee141d](https://github.com/AngryRectangle/Yaga/commit/c1ee141d0d498ef5f7e28eec1228908b0f87090a))
+
+##### New Features
+
+* add Option type dll ([1f4154a4](https://github.com/AngryRectangle/Yaga/commit/1f4154a4c519d8b711adba69a599e91e133ef76b))
+* implement System.IObservable for Yaga.Utils.Observable ([6622d8b5](https://github.com/AngryRectangle/Yaga/commit/6622d8b54590dcc567d18e9ffb45f7a53c77a2b0))
+* add view subscription methods for System.IObservable ([ebe06108](https://github.com/AngryRectangle/Yaga/commit/ebe0610866576c2584085b15ee4e9d1e8d6d9918))
+
 #### 0.6.0 (2023-03-05)
 
 ##### BREAKING CHANGES

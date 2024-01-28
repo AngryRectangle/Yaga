@@ -42,7 +42,6 @@ namespace Yaga
             {
                 view._model.ItemAdded.Remove(view.OnItemAdd);
                 view._model.ItemRemoved.Remove(view.OnItemRemove);
-                foreach (var child in view.Children) child.Close();
                 view._children.Clear();
             }
         }

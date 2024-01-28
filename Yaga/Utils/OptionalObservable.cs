@@ -1,165 +1,236 @@
 ﻿using System;
-using Yaga.Utils.Exceptions;
+using Optional;
 
 namespace Yaga.Utils
 {
-    public interface IOptionalObservable<T>
+    public interface IReadOnlyOptionalObservable<T> : IReadOnlyObservable<Option<T>>
     {
-        T Data { get; }
-        bool IsDefault { get; }
+        bool HasValue { get; }
         IDisposable Subscribe(Action<T> action, Action onNull);
     }
 
-    public static class OptionalObservable
+    public interface IOptionalObservable<T> : IReadOnlyOptionalObservable<T>, IObservable<Option<T>>
     {
-        public static BoundOptionalObservable<T2> Bind<T1, T2>(
-            IOptionalObservable<T1> observable1,
-            Func<T1, T2> selector)
+    }
+
+    public class OptionalObservable<T> : Observable<Option<T>>, IOptionalObservable<T>
+    {
+        public OptionalObservable(T value) : base(value.Some())
         {
-            var result = new BoundOptionalObservable<T2>();
-            observable1.Subscribe(data => result.Data = selector(data), result.SetDefault);
-            if (observable1.IsDefault)
-                result.SetDefault();
-            else
-                result.Data = selector(observable1.Data);
-            return result;
         }
 
-        public static BoundOptionalObservable<T3> Bind<T1, T2, T3>(
-            IOptionalObservable<T1> observable1,
-            IOptionalObservable<T2> observable2,
-            Func<T1, T2, T3> selector)
+        public bool HasValue => Data.HasValue;
+
+        public IDisposable Subscribe(Action<T> action, Action onNull)
         {
-            var result = new BoundOptionalObservable<T3>();
-            observable1.Subscribe(data =>
-            {
-                if (!observable2.IsDefault)
-                    result.Data = selector(data, observable2.Data);
-            }, result.SetDefault);
-
-            observable2.Subscribe(data =>
-            {
-                if (!observable1.IsDefault)
-                    result.Data = selector(observable1.Data, data);
-            }, result.SetDefault);
-
-            return result;
-        }
-
-        public static BoundOptionalObservable<T3> Bind<T1, T2, T3>(
-            IObservable<T1> observable1,
-            IOptionalObservable<T2> observable2,
-            Func<T1, T2, T3> selector)
-        {
-            var result = new BoundOptionalObservable<T3>();
-            observable1.Subscribe(data =>
-            {
-                if (!observable2.IsDefault)
-                    result.Data = selector(data, observable2.Data);
-            });
-
-            observable2.Subscribe(data => result.Data = selector(observable1.Data, data), result.SetDefault);
-
-            return result;
+            return Subscribe(data => data.Match(action, onNull));
         }
     }
 
-    public class OptionalObservable<T> : IOptionalObservable<T>
+    internal class OptionalObservable_Where<T> : IReadOnlyOptionalObservable<T>
     {
-        public OptionalObservable()
+        private readonly IReadOnlyOptionalObservable<T> _source;
+        private readonly Predicate<T> _predicate;
+
+        public OptionalObservable_Where(IReadOnlyOptionalObservable<T> source, Predicate<T> predicate)
         {
-            IsDefault = true;
+            _source = source;
+            _predicate = predicate;
         }
 
-        public OptionalObservable(T value)
-        {
-            _data = value;
-        }
-
-        private event Action<T> OnChange;
-        private event Action OnNull;
-
-        private T _data;
-
-        public T Data
+        public bool HasValue
         {
             get
             {
-                if (IsDefault)
-                    throw new EmptyDataAccessException();
-                return _data;
-            }
-            set
-            {
-                if (value.Equals(_data) && !IsDefault)
-                    return;
-
-                IsDefault = false;
-                OnChange?.Invoke(value);
-                _data = value;
+                return _source.Data.Match(
+                    value => _predicate(value),
+                    () => false
+                );
             }
         }
 
-        public void SetDefault()
-        {
-            _data = default;
-            IsDefault = true;
-            OnNull?.Invoke();
-        }
-
-        public bool IsDefault { private set; get; }
+        public Option<T> Data => _source.Data.FlatMap(value => _predicate(value) ? value.Some() : Option.None<T>());
 
         public IDisposable Subscribe(Action<T> action, Action onNull)
         {
-            OnChange += action;
-            OnNull += onNull;
-            return new Reflector(() =>
-            {
-                OnChange -= action;
-                OnNull -= onNull;
-            });
+            return Subscribe(value => value.Match(action, onNull));
+        }
+
+        public IDisposable Subscribe(IObserver<Option<T>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<T>> action)
+        {
+            return _source.Subscribe(option =>
+                option.FlatMap(value => _predicate(value) ? value.Some() : Option.None<T>()));
         }
     }
 
-    public class BoundOptionalObservable<T> : IOptionalObservable<T>
+    internal class OptionalObservable_Select<TIn, TOut> : IReadOnlyOptionalObservable<TOut>
     {
-        private event Action<T> OnChange;
-        private event Action OnNull;
+        private readonly IReadOnlyOptionalObservable<TIn> _source;
+        private readonly Func<TIn, TOut> _selector;
 
-        private T _data;
-
-        public T Data
+        public OptionalObservable_Select(IReadOnlyOptionalObservable<TIn> source, Func<TIn, TOut> selector)
         {
-            get => _data;
-            internal set
-            {
-                if (value.Equals(_data) && !IsDefault)
-                    return;
-
-                IsDefault = false;
-                OnChange?.Invoke(value);
-                _data = value;
-            }
+            _source = source;
+            _selector = selector;
         }
 
-        public bool IsDefault { private set; get; }
+        public Option<TOut> Data => _source.Data.Map(_selector);
+        public bool HasValue => _source.HasValue;
 
-        internal void SetDefault()
+        public IDisposable Subscribe(IObserver<Option<TOut>> observer)
         {
-            _data = default;
-            IsDefault = true;
-            OnNull?.Invoke();
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<TOut>> action)
+        {
+            return _source.Subscribe(option => action(option.Map(_selector)));
+        }
+
+        public IDisposable Subscribe(Action<TOut> action, Action onNull)
+        {
+            return Subscribe(value => value.Match(action, onNull));
+        }
+    }
+
+    internal class OptionalObservable_DistinctUntilChanged<T> : IReadOnlyOptionalObservable<T>
+    {
+        private readonly IReadOnlyOptionalObservable<T> _source;
+
+        public OptionalObservable_DistinctUntilChanged(IReadOnlyOptionalObservable<T> source)
+        {
+            _source = source;
+        }
+
+        public Option<T> Data => _source.Data;
+        public bool HasValue => _source.HasValue;
+
+        public IDisposable Subscribe(IObserver<Option<T>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<T>> action)
+        {
+            var hadValue = false;
+            var lastValue = default(Option<T>);
+            return _source.Subscribe(option =>
+            {
+                if (hadValue && lastValue.Equals(option))
+                    return;
+
+                lastValue = option;
+                hadValue = true;
+                action(option);
+            });
         }
 
         public IDisposable Subscribe(Action<T> action, Action onNull)
         {
-            OnChange += action;
-            OnNull += onNull;
-            return new Reflector(() =>
-            {
-                OnChange -= action;
-                OnNull -= onNull;
-            });
+            return _source.Subscribe(value => value.Match(action, onNull));
+        }
+    }
+
+    internal class OptionalObservable_CombineLatestWithOptional<T1, T2, TOut> : IReadOnlyOptionalObservable<TOut>
+    {
+        private readonly IReadOnlyOptionalObservable<T1> _source1;
+        private readonly IReadOnlyOptionalObservable<T2> _source2;
+        private readonly Func<T1, T2, TOut> _combiner;
+
+        public Option<TOut> Data =>
+            _source1.Data.FlatMap(value1 => _source2.Data.Map(value2 => _combiner(value1, value2)));
+
+        public bool HasValue => _source1.HasValue && _source2.HasValue;
+
+        public OptionalObservable_CombineLatestWithOptional(IReadOnlyOptionalObservable<T1> source1,
+            IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            _source1 = source1;
+            _source2 = source2;
+            _combiner = combiner;
+        }
+
+        public IDisposable Subscribe(IObserver<Option<TOut>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<TOut>> action)
+        {
+            var firstSubscription = _source1.Subscribe(value1 =>
+                action(value1.FlatMap(value => _source2.Data.Map(value2 => _combiner(value, value2)))));
+            var secondSubscription = _source2.Subscribe(value2 =>
+                action(value2.FlatMap(value => _source1.Data.Map(value1 => _combiner(value1, value)))));
+
+            return new Disposable(firstSubscription, secondSubscription);
+        }
+
+        public IDisposable Subscribe(Action<TOut> action, Action onNull)
+        {
+            return Subscribe(value => value.Match(action, onNull));
+        }
+    }
+
+    public static class OptionalObservableExtensions
+    {
+        /// <summary>
+        /// If the value satisfies the predicate and is not none, then the value is passed to the observer.
+        /// Otherwise, none is passed to the observer.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<T> Where<T>(this IReadOnlyOptionalObservable<T> observable,
+            Predicate<T> predicate)
+        {
+            return new OptionalObservable_Where<T>(observable, predicate);
+        }
+
+        /// <summary>
+        /// Projects each element of an observable sequence into a new form with the specified source and selector.
+        /// If the source is none, then the result is none.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> Select<TIn, TOut>(
+            this IReadOnlyOptionalObservable<TIn> observable,
+            Func<TIn, TOut> selector)
+        {
+            return new OptionalObservable_Select<TIn, TOut>(observable, selector);
+        }
+
+        /// <summary>
+        /// Returns an observable that only notifies when the value changes.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<T> DistinctUntilChanged<T>(this IReadOnlyOptionalObservable<T> source)
+            where T : class
+        {
+            return new OptionalObservable_DistinctUntilChanged<T>(source);
+        }
+
+        /// <summary>
+        /// Returns an observable that combines the latest values of two observables using the specified combiner
+        /// and notifies when any of the values changes. If any of the observables has no value, the resulting
+        /// observable will also have no value.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> CombineLatest<T1, T2, TOut>(
+            this IReadOnlyOptionalObservable<T1> source1,
+            IReadOnlyObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            return new Observable_CombineLatestWithOptional<T2, T1, TOut>(source2, source1,
+                (first, second) => combiner(second, first));
+        }
+
+        /// <summary>
+        /// Returns an observable that combines the latest values of two observables using the specified combiner
+        /// and notifies when any of the values changes. If any of the observables has no value, the resulting
+        /// observable will also have no value.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> CombineLatest<T1, T2, TOut>(
+            this IReadOnlyOptionalObservable<T1> source1,
+            IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
+        {
+            return new OptionalObservable_CombineLatestWithOptional<T1, T2, TOut>(source1, source2, combiner);
         }
     }
 }

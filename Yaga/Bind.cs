@@ -147,11 +147,10 @@ namespace Yaga
                             action, new Action(() =>
                             {
                                 UiBootstrap.Instance.Unset(View);
-                                View.Close();
                             })
                         });
 
-                    if (!(bool) followType.GetRuntimeProperty(nameof(OptionalObservable<object>.IsDefault))
+                    if ((bool) followType.GetRuntimeProperty(nameof(OptionalObservable<object>.HasValue))
                         .GetValue(dataToFollow))
                         action.DynamicInvoke(followType.GetRuntimeProperty("Data").GetValue(dataToFollow));
                     break;
@@ -168,7 +167,6 @@ namespace Yaga
         private void OpenView<T>(T value)
         {
             SetView(value);
-            View.Open();
         }
 
         public void DeApply() => _deApply?.Dispose();

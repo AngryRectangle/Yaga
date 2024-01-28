@@ -8,7 +8,7 @@ namespace Yaga.Binding.Observable.ConcreteObservables
     {
         public BindStringObservable(
             BindingContext context,
-            Utils.IObservable<string> observable,
+            Utils.IReadOnlyObservable<string> observable,
             Action onDispose = default
         ) : base(context, observable, onDispose)
         {

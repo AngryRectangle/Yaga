@@ -3,7 +3,7 @@ using Yaga.Utils;
 
 namespace Yaga.Binding.Observable
 {
-    internal class ConvertedObservable<T> : Utils.IObservable<T>
+    internal class ConvertedObservable<T> : IReadOnlyObservable<T>
     {
         private readonly Func<T> _dataAccessor;
 
@@ -20,7 +20,12 @@ namespace Yaga.Binding.Observable
         public IDisposable Subscribe(Action<T> action)
         {
             OnDataChange += action;
-            return new Reflector(() => OnDataChange -= action);
+            return new Disposable(() => OnDataChange -= action);
+        }
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
         }
     }
 }

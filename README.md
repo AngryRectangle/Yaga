@@ -143,7 +143,7 @@ UiBootstrap.Bind(new Presenter(param1, param2));
 
 ## View
 
-View is monobehaviours which is used to show your data to player and handler player input.
+View is a MonoBehaviour which is used to show your data to player and handler player input.
 Each view can have concrete model type like int, string, our your custom type.
 Or it can have no model. Also each view has one and only one Presenter.
 
@@ -153,14 +153,12 @@ Relation scheme between view, presenter and model:
 Each view is going through these stages:
 
 1. Create - instantiates game object and make it inactive after instantiation
-2. Open - shows view after model was set
-3. Close - hides view after model unset
+2. Set - shows view after model was set
+3. Unset - hides view after model unset
 4. Destroy - preparing view for destroy and call Destroy method on it.
 
 Each stage should be called in represented order
-and order violation is strongly not recommended.
-Also Open method should be called after model set and clos after unset
-but about it in Presenters section.
+and order violation is not recommended.
 
 ## Presenter
 
@@ -228,7 +226,7 @@ observable.Data = "second";
 disposable.Dispose();
 ```
 
-### Binding chains
+### Observable chains
 
 You can chain observables to combine data from several sources and process it.
 Example of simple chain where each next observable reacts on changes in previous.
@@ -237,9 +235,9 @@ Example of simple chain where each next observable reacts on changes in previous
 // Observale that will trigger itemInfo on change
 var amount = new Observable<int>(100);
 // Specify binding rule for data from amount to itemInfo
-var itemInfo = Observable.Bind(amount, count => $"Current amount is {count}");
+var itemInfo = amount.Select(count => $"Current amount is {count}");
 //Specify logic that will be invoked when itemInfo changes
-var disposable = itemInfo.Add(info => Debug.Log(info));
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
 // Will trigger itemInfo that will trigger message "Current amount is 5"
 amount.Data = 5;
 
@@ -252,9 +250,9 @@ When one of the parent observables changes it will trigger changes in all child 
 ```c#
 var amount = new Observable<int>(100);
 var itemName = new Observable<string>("cake");
-var itemInfo = Observable.Bind(amount, itemName, (count, name) => $"{name} {count}");
+var itemInfo = amount.CombineLatest(itemName, (count, name) => $"{name} {count}");
     
-var disposable = itemInfo.Add(info => Debug.Log(info));
+var disposable = itemInfo.Subscribe(info => Debug.Log(info));
 // Will trigger message to console "apple 100"
 itemName.Data = "apple";
 // Will trigger message to console "apple 5"
@@ -266,6 +264,8 @@ disposable.Dispose();
 ### OptionalObservable
 
 You should use optional observables when your observable data can be empty.
+OptionalObservable&lt;T> is wrapper around Observable&lt;Option&lt;T>>. 
+Option works as described <a href="https://github.com/nlkl/Optional/">here</a>.
 With OptionalObservable you can organise data processing
 which will guarantee correct processing of empty values.
 In subscription method you should provide methods which will process data in two scenarios:
@@ -278,22 +278,6 @@ var disposable = someObservable
 
 someObservable.SetDefault(); // Will trigger "No count" message.
 someObservable.Data = 5; // Will trigger "5" message.
-
-disposable.Dispose();
-```
-
-You can create chains with OptionalObervables too.
-If one of parent observables gets default value,
-all children will also get it.
-
-```c#
-var amount = new OptionalObservable<int>(100);
-var itemName = new OptionalObservable<string>("cake");
-var itemInfo = OptionalObservable.Bind(amount, itemName, (count, name) => $"{name} {count}");
-var disposable = itemInfo.Subscribe(info => Debug.Log(info), () => Debug.Log("No valid info"));
-
-itemName.Data = "apple"; // Will trigger message to console "apple 100"
-amount.SetDefault(); // Will trigger message to console "No valid info"
 
 disposable.Dispose();
 ```

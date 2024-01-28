@@ -12,27 +12,8 @@ namespace Yaga
     {
         public abstract IEnumerable<IView> Children { get; }
         public bool IsPrefab => gameObject.scene.name is null;
-        public bool IsOpened { protected set; get; }
         bool IView.IsSetted { get; set; }
         private Transform _rootParent;
-
-        public virtual void Open()
-        {
-            if (IsOpened)
-                return;
-
-            IsOpened = true;
-            gameObject.SetActive(true);
-        }
-
-        public virtual void Close()
-        {
-            if (!IsOpened)
-                return;
-
-            IsOpened = false;
-            gameObject.SetActive(false);
-        }
 
         public virtual IView Create(Transform parent)
         {
@@ -83,6 +64,30 @@ namespace Yaga
         /// </summary>
         public void Subscribe<T>(Utils.IObservable<T> observable, Action<T> action)
             => AddUnsubscription(observable.Subscribe(action));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, null, null)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action<Exception> onError)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, onError, null)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action<Exception> onError, Action onCompleted)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, onError, onCompleted)));
+        
+        /// <summary>
+        /// Subscribe on observable value change and dispose subscription when needed.
+        /// </summary>
+        public void Subscribe<T>(System.IObservable<T> observable, Action<T> onNext, Action onCompleted)
+            => AddUnsubscription(observable.Subscribe(new ActionObserver<T>(onNext, null, onCompleted)));
 
         /// <summary>
         /// Subscribe on observable value change and dispose subscription when needed.
@@ -138,10 +143,7 @@ namespace Yaga
         public void SubscribeAndCall<T>(IOptionalObservable<T> observable, Action<T> action, Action onNull)
         {
             AddUnsubscription(observable.Subscribe(action, onNull));
-            if (observable.IsDefault)
-                onNull();
-            else
-                action(observable.Data);
+            observable.Data.Match(action, onNull);
         }
     }
 }
