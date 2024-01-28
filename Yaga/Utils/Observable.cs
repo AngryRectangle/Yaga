@@ -63,9 +63,6 @@ namespace Yaga.Utils
             get => _data;
             set
             {
-                if (value.Equals(_data))
-                    return;
-
                 OnChange?.Invoke(value);
                 _data = value;
             }
