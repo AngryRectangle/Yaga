@@ -22,5 +22,10 @@ namespace Yaga.Binding.Observable
             OnDataChange += action;
             return new Reflector(() => OnDataChange -= action);
         }
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
     }
 }

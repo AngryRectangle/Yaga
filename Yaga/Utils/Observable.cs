@@ -2,7 +2,7 @@
 
 namespace Yaga.Utils
 {
-    public interface IReadOnlyObservable<T>
+    public interface IReadOnlyObservable<out T> : System.IObservable<T>
     {
         T Data { get; }
         IDisposable Subscribe(Action<T> action);
@@ -88,6 +88,11 @@ namespace Yaga.Utils
         {
             OnChange += action;
             return new Reflector(() => OnChange -= action);
+        }
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
         }
     }
 }
