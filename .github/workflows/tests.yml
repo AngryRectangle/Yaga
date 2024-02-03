@@ -28,7 +28,7 @@ jobs:
           projectPath: ./copiedProject/Yaga
           unityVersion: "2020.3.48f1"
           testMode: all
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+trudeaua.EasyAccessibility.*,-*Tests*'
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Yaga.*,-*Tests*'
           packageMode: true
 
       # Upload coverage
