@@ -4,7 +4,6 @@ using NUnit.Framework;
 using UnityEngine;
 using Yaga;
 using Yaga.Exceptions;
-using Yaga.Reactive;
 using Yaga.Test;
 
 namespace Tests
@@ -19,13 +18,39 @@ namespace Tests
         }
 
         [Test]
-        public void CheckModelessNullSetView()
+        public void Bind_PresenterIsNull_ThrowsException()
         {
-            Assert.Catch<ArgumentNullException>(() => UiBootstrap.Instance.Set<ModelessView, Unit>(null, Unit.Instance));
+            Assert.Catch<ArgumentNullException>(() => UiBootstrap.Bind(null));
         }
 
         [Test]
-        public void MultiplePresentersTest()
+        public void Bind_PresenterWithoutDefaultConstructor_ThrowsException()
+        {
+            Assert.Catch<NoDefaultConstructorForPresenterException>(() => UiBootstrap.Bind<PresenterWithConstructor>());
+        }
+
+        [Test]
+        public void Bind_PresenterWithoutView_ThrowsException()
+        {
+            Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<PresenterWithoutView>);
+        }
+
+        [Test]
+        public void Set_ViewIsNull_ThrowsException()
+        {
+            Assert.Catch<ArgumentNullException>(() =>
+                UiBootstrap.Instance.Set<ModelessView, Unit>(null, Unit.Instance));
+        }
+
+        [Test]
+        public void Set_ModelIsNull_ThrowsException()
+        {
+            Assert.Catch<ArgumentNullException>(() =>
+                UiBootstrap.Instance.Set(Locator.simpleTextButtonView, default(string)));
+        }
+
+        [Test]
+        public void Set_MultiplePresentersTest_ThrowsException()
         {
             var view = GameObject.Instantiate(Locator.modelessView);
             UiBootstrap.Bind<PresenterA>();
@@ -34,14 +59,14 @@ namespace Tests
         }
 
         [Test]
-        public void PresenterNotFoundTest()
+        public void Set_NoPresenter_ThrowsException()
         {
             var view = GameObject.Instantiate(Locator.modelessView);
             Assert.Catch<PresenterNotFoundException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
         }
 
         [Test]
-        public void ClearPresentersTest()
+        public void ClearPresenters_NoPresentersAfter()
         {
             var view = GameObject.Instantiate(Locator.modelessView);
             UiBootstrap.Bind<PresenterA>();
@@ -51,13 +76,7 @@ namespace Tests
         }
 
         [Test]
-        public void NoDefaultConstructorParameterTest()
-        {
-            Assert.Catch<NoDefaultConstructorForPresenterException>(() => UiBootstrap.Bind<PresenterWithConstructor>());
-        }
-
-        [Test]
-        public void BootstrapConstructorTest()
+        public void Constructor_PresentersFromConstructorFound()
         {
             var view = GameObject.Instantiate(Locator.modelessView);
             var bootstrap = new UiBootstrap(new List<IPresenter> { new PresenterA() });
@@ -67,13 +86,7 @@ namespace Tests
         }
 
         [Test]
-        public void ExceptionOnPresenterWithoutView()
-        {
-            Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<PresenterWithoutView>);
-        }
-
-        [Test]
-        public void BootstrapConstructorNullTest()
+        public void Constructor_NullPresenters_ThrowsException()
         {
             Assert.Catch<ArgumentNullException>(() => new UiBootstrap(null));
         }
