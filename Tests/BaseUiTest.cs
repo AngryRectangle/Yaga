@@ -18,8 +18,7 @@ namespace Tests
         private T GetFirstWithName<T>(string name)
             where T : Object
         {
-            Debug.Log(Application.dataPath.Substring(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length));
-            var files = Directory.GetFiles(Application.dataPath.Substring(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length), name, SearchOption.TopDirectoryOnly);
+            var files = Directory.GetFiles(Application.dataPath.Substring(Application.dataPath.Length - Application.dataPath.Split('/').Last().Length), "*",SearchOption.TopDirectoryOnly);
             throw new Exception(Application.dataPath + $" {files.Length} " +string.Join(", ", files));
             foreach (var file in files.Select(file => file.Replace("\\", "/")
                          .Remove(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length)))
