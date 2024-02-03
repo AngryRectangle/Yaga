@@ -83,6 +83,10 @@ namespace Tests
         private class PresenterWithoutView : IPresenter
         {
             public bool AcceptableView(Type viewType) => true;
+            Subscriptions IPresenter.Set(IView view, object model)
+            {
+                return new Subscriptions();
+            }
         }
 
         private class PresenterWithConstructor : Presenter<ModelessView>

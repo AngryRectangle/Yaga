@@ -6,15 +6,10 @@ namespace Yaga
     public interface IPresenter
     {
         bool AcceptableView(Type viewType);
+        internal Subscriptions Set(IView view, object model);
     }
 
-    // This interfaces is needed to avoid c# generics stupidity on UiBootstrap.Set method.
-    public interface IPresenterWithUnspecifiedView : IPresenter
-    {
-        Subscriptions Set(IView view, object model);
-    }
-
-    public interface IPresenter<in TView, in TModel> : IPresenterWithUnspecifiedView
+    public interface IPresenter<in TView, in TModel> : IPresenter
         where TView : IView<TModel>
     {
         Subscriptions Set(TView view, TModel model);
@@ -23,7 +18,7 @@ namespace Yaga
     public abstract class Presenter<TView, TModel> : IPresenter<TView, TModel>
         where TView : IView<TModel>
     {
-        public Subscriptions Set(IView view, object model)
+        Subscriptions IPresenter.Set(IView view, object model)
         {
             return Set((TView)view, (TModel)model);
         }
@@ -55,7 +50,7 @@ namespace Yaga
     public abstract class Presenter<TView> : IPresenter<TView, Unit>
         where TView : IView<Unit>
     {
-        public Subscriptions Set(IView view, object model)
+        Subscriptions IPresenter.Set(IView view, object model)
         {
             return Set((TView)view, (Unit)model);
         }

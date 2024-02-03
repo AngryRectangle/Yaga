@@ -51,10 +51,10 @@ namespace Yaga
 
         /// <summary>
         /// Binds presenter to view. Remember that presenter and view have to have single-to-single relation.
-        /// <exception cref="ArgumentNullException">If presenter is null</exception>
         /// </summary>
-        /// <inheritdoc cref="Instance"/>
-        /// <inheritdoc cref="CheckPresenterInterface"/>
+        /// <exception cref="ArgumentNullException">If presenter is null</exception>
+        /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
+        /// <inheritdoc cref="GetAcceptableViewTypes"/>
         public static void Bind(IPresenter presenter)
         {
             if (presenter == null)
@@ -63,9 +63,9 @@ namespace Yaga
             var acceptableViews = GetAcceptableViewTypes(presenter);
             foreach (var viewType in acceptableViews)
             {
-                if(Instance._presenters.TryGetValue(viewType, out var existingPresenter))
+                if (Instance._presenters.TryGetValue(viewType, out var existingPresenter))
                     throw new MultiplePresenterException(viewType, existingPresenter.GetType(), presenter.GetType());
-                
+
                 Instance._presenters.Add(viewType, presenter);
             }
         }
@@ -74,8 +74,8 @@ namespace Yaga
         /// Binds presenter with default constructor to view. Remember that presenter and view have to have single-to-single relation.
         /// </summary>
         /// <exception cref="NoDefaultConstructorForPresenterException">If presenter has no default constructor.</exception>
-        /// <inheritdoc cref="Instance"/>
-        /// <inheritdoc cref="CheckPresenterInterface"/>
+        /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
+        /// <inheritdoc cref="GetAcceptableViewTypes"/>
         public static void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
@@ -124,12 +124,14 @@ namespace Yaga
              * to avoid reflection and boilerplate with Set method call.
              */
 
-            if(_presenters.TryGetValue(view.GetType(), out var presenter))
-                return ((IPresenterWithUnspecifiedView)presenter).Set(view, model);
-            
+            if (_presenters.TryGetValue(view.GetType(), out var presenter))
+                return presenter.Set(view, model);
+
             throw new PresenterNotFoundException(view.GetType());
         }
 
+        /// <exception cref="PresenterBindingException">if presenter doesn't implement <see cref="IPresenter{TView,TModel}"/>
+        /// interface or implements more then one.</exception>
         private static IEnumerable<Type> GetAcceptableViewTypes(IPresenter presenter)
         {
             var presenterType = presenter.GetType();
