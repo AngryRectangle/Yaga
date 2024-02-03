@@ -40,12 +40,11 @@ Click "+" on the top left and paste link to repository:
 
 ## Getting Started
 
-Firstly you need to create view class which will be in inspector
-and create presenter class which will help you to change your view depending
-on values in model.
+First, create a view class in the inspector and a presenter class 
+to dynamically update the view based on model values.
 
 In this example SimpleTextButtonView is just a wrapper for button with text.
-It will allow you change text on button and do something when button is clicked.
+It will allow you to change the text on the button and do something when the button is clicked.
 
 ```c#
 // Create class for view with string model.
@@ -58,12 +57,12 @@ public class SimpleTextButtonView : View<string>
     // Create presenter for view, which will handle input from view and apply data from model.
     public class Presenter : Presenter<SimpleTextButtonView, string>
     {
-        protected override void OnModelSet(SimpleTextButtonView view, string model)
+        protected override void OnSet(SimpleTextButtonView view, string model, ISubscriptionsOwner subs)
         {
             // Set string value to text on button.
             view.buttonText.text = model;
             // Subscribe on button onClick and log messages after every click.
-            view.Subscribe(view.button, () => Debug.Log("Click"));
+            subs.Subscribe(view.button, () => Debug.Log("Click"));
         }
     }
 }
@@ -78,12 +77,11 @@ UiBootstrap.InitializeSingleton();
 UiControl.InitializeSingleton(canvasPrefab);
 
 // Bind presenter to make library call its method when it needed.
-UiBootstrap.Bind(new SimpleTextButtonView.Presenter());
+UiBootstrap.Instance.Bind(new SimpleTextButtonView.Presenter());
 ```
 
-After initialization you only have write single line to create instance of view
-with "Sample text" on button. Also, when you click button, you will see "Click"
-in the console.
+After initialization, you only need to write a single line
+to create an instance of the view with 'Sample text' on the button.
 
 ```c#
 // Create instance of sample view with "Sample text" on button.
@@ -130,46 +128,44 @@ UiBootstrap.InitializeSingleton(_uiBootstrap);
 
 ### Presenters binding
 
-You have to put your presenter for every view type you have created.
+You have to put your presenter for every view type you will use.
 It is possible either with shortcut method for presenters with
 parameterless constructors or just with binding instance of your presenter.
 
 ```c#
 // For presenter with parameterless constructor.
-UiBootstrap.Bind<Presenter>();
+UiBootstrap.Instance.Bind<Presenter>();
 
 // For presenters with parameters in constructor.
-UiBootstrap.Bind(new Presenter(param1, param2));
+UiBootstrap.Instance.Bind(new Presenter(param1, param2));
 ```
 
 ## View
 
-View is a MonoBehaviour which is used to show your data to player and handler player input.
-Each view can have concrete model type like int, string, our your custom type.
-Or it can have no model. Also each view has one and only one Presenter.
+A View is a MonoBehaviour used to display data to the player and handle player input.
+Each view has a concrete model type like int, string, or your custom type.
+If you want to have view without model you can, but it will be just a wrapper around Unit as a model.
+Also each view has one and only one Presenter.
 
 Relation scheme between view, presenter and model:
 `View ⇆ Presenter ⇆ Model`
 
 Each view is going through these stages:
 
-1. Create - instantiates game object and make it inactive after instantiation
-2. Set - shows view after model was set
-3. Unset - hides view after model unset
-4. Destroy - preparing view for destroy and call Destroy method on it.
-
-Each stage should be called in represented order
-and order violation is not recommended.
+1. Create - instantiates game object
+2. Set - sets the model for view, creating subscriptions and view update
+3. Unset - unsubscribe from model and end all active subscriptions
+4. Destroy - destroying views game object
 
 ## Presenter
 
 Presenter is a bridge between view and model.
-In presenter you can subscribe on changes in model and update view
+In the presenter you can subscribe on changes in model and update view
 or subscribe on player input and update model.
 
-Presenter have two main methods: `OnModelSet` and `OnModelUnset`.
+Presenter have two main methods: `OnSet` and `OnUnset`.
 In those you can react on model setting or unsetting and, for example,
-subscribe on event in `OnModelSet` and unsubscribe in `OnModelUnset`.
+subscribe on event in `OnSet` and unsubscribe in `OnUnset`.
 
 ## Model
 
@@ -178,11 +174,11 @@ You can use any type as model, like int, string, IEnumerable or your own custom 
 
 ## Beacon
 
-Beacons is an useful replacement for events.
+Beacons are a useful replacement for events.
 One of the main benefits of using beacons is much simpler
 unsubscription logic for lambdas compared to events.
 After subscription beacon returns to you IDisposable which you can dispose to unsubscribe.
-Just compare event realisation:
+Just compare code with events:
 
 ```c#
 event Action<string> TextEvent;
@@ -195,7 +191,7 @@ TextEvent += action;
 TextEvent -= action;
 ```
 
-And Beacon realisation:
+And same code but with Beacon
 
 ```c#
 Beacon<string> TextBeacon = new Beacon<string>();
@@ -209,8 +205,7 @@ disposable.Dispose();
 
 ## Observables
 
-Observer pattern in Yaga implemented with using of IObservable, IOptionalObservable,
-IObservableEnumerable and IObservableArray.
+Observer pattern in Yaga implemented with using of IObservable and IOptionalObservable.
 
 ### Observable
 
@@ -229,11 +224,11 @@ disposable.Dispose();
 
 ### Observable chains
 
-You can chain observables to combine data from several sources and process it.
+You can chain observables to combine and process data from several sources.
 Example of simple chain where each next observable reacts on changes in previous.
 
 ```c#
-// Observale that will trigger itemInfo on change
+// Observable that will trigger itemInfo on change
 var amount = new Observable<int>(100);
 // Specify binding rule for data from amount to itemInfo
 var itemInfo = amount.Select(count => $"Current amount is {count}");
@@ -264,9 +259,9 @@ disposable.Dispose();
 
 ### OptionalObservable
 
-You should use optional observables when your observable data can be empty.
+Use optional observables when your observable data might be empty.
 OptionalObservable&lt;T> is wrapper around Observable&lt;Option&lt;T>>. 
-Option works as described <a href="https://github.com/nlkl/Optional/">here</a>.
+Option works as described in <a href="https://github.com/nlkl/Optional/">GitHub repository</a>.
 With OptionalObservable you can organise data processing
 which will guarantee correct processing of empty values.
 In subscription method you should provide methods which will process data in two scenarios:
@@ -283,23 +278,15 @@ someObservable.Data = 5; // Will trigger "5" message.
 disposable.Dispose();
 ```
 
-### Editor binding
-
-You can bind model fields and properties to views even from editor. You can select needed type and attack view you want
-to bind to.
-**This functionality is not properly tested yet, don't rely on it**
-
-![Editor binding](https://i.imgur.com/KLXRb4S.png)
-
 ## Best practices
 
-1. Declare your presenter class inside View class, to make View class fields private and have access to them only from
-   presenter. With that you will ba able to avoid extra boilerplate of properties. But your presenter will be more
-   coupled to view.
+1. Declare your presenter class inside the View class to keep View class fields private and ensure they're only accessed by the presenter. 
+   With that you will be able to avoid extra boilerplate of properties. But your presenter will be more coupled to view.
 2. Inherit your Presenter class from abstract class [Presenter<View, Model>](Yaga/Presenter.cs) it will help you to
    avoid boilerplate code.
 3. Inherit your View class from abstract class [View<Model>](Yaga/View.cs) it will help you to avoid boilerplate code.
 4. Use [Observable](Utils/Observable.cs) and Subscribe or SubscribeAndCall method inside [View](View.cs) to track
-5. Use [Beacon](Utils/Beacon.cs) instead of event to track user input inside [View](View.cs) with Subscribe or
+changes of some value over time.
+5. Use [Beacon](Utils/Beacon.cs) instead of events to track user input inside [View](View.cs) with Subscribe or
    SubscribeAndCall methods.
    changes in your model. It will unsubscribe when needed and you won't have bother about it.
