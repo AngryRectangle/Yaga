@@ -1,9 +1,0 @@
-name: RequestLicense
-on: [pull_request, workflow_dispatch]
-  
-jobs:
-  request:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Unity - Request Activation File
-        uses: uses: game-ci/unity-activate@v2.0.0
