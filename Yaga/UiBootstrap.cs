@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Yaga.Exceptions;
-using Yaga.Extensions;
-using Yaga.Utils;
 
 namespace Yaga
 {
@@ -95,41 +93,6 @@ namespace Yaga
         }
 
         /// <summary>
-        /// Check if presenters implements correct interfaces.
-        /// </summary>
-        /// <exception cref="PresenterBindingException">If presenter doesn't implement correct interfaces.</exception>
-        private static void CheckPresenterInterface(Type presenterType)
-        {
-            var interfaces = presenterType.GetInterfaces();
-            var modelessInterface = interfaces.SingleOrDefault(e =>
-                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<>));
-            var modelInterface = interfaces.SingleOrDefault(e =>
-                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>));
-
-            if (modelessInterface is null && modelInterface is null)
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> or I{nameof(IPresenter)}<{nameof(IView)}, Model> interface but it doesn't.",
-                    presenterType);
-
-            var viewType = modelInterface?.GetGenericArguments()[0] ?? modelessInterface.GetGenericArguments()[0];
-            var viewHasModel = viewType.IsAssignableToGenericType(typeof(IView<>));
-            if (viewHasModel && modelessInterface is object)
-            {
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}, Model> interface because {viewType.FullName} has model.",
-                    presenterType);
-            }
-
-            if (!viewHasModel && modelInterface is object)
-            {
-                // Actually this impossible to happen because of generic constraints for IPresenter<TView,TModel>.
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> interface because {viewType.FullName} doesn't have model.",
-                    presenterType);
-            }
-        }
-
-        /// <summary>
         /// Clear all bound presenters.
         /// </summary>
         /// <inheritdoc cref="Instance"/>
@@ -143,7 +106,7 @@ namespace Yaga
         /// </summary>
         /// <exception cref="ArgumentNullException">If view or model is null.</exception>
         /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TView, TModel>(TView view, TModel model)
+        internal Subscriptions Set<TView, TModel>(TView view, TModel model)
             where TView : IView<TModel>
         {
             if (view is null)
@@ -151,9 +114,6 @@ namespace Yaga
 
             if (model is null)
                 throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
 
             /*
              * Previously there was this line of code:
@@ -166,83 +126,7 @@ namespace Yaga
              */
             
             var controller = (IPresenterWithUnspecifiedView)GetController(view.GetType());
-            controller.Set(view, model);
-        }
-
-        /// <summary>
-        /// Call set method for presenter for view without model.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view is null.</exception>
-        /// <exception cref="ArgumentException">If TView requires model</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TView>(TView view)
-            where TView : IView
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            var controller = GetController(view.GetType()) as IPresenter<TView>;
-            if (controller is null)
-                throw new ArgumentException($"{typeof(TView)} require model", nameof(view));
-
-            controller.Set(view);
-        }
-
-        /// <summary>
-        /// Sets model to provided view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view or model is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : View<TModel>
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            if (model is null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
-
-            var controller
-                = (IPresenter<ListView<TChild, TModel>, IObservableEnumerable<TModel>>)GetController(view.GetType());
-            controller.Set(view, new ObservableList<TModel>(model));
-        }
-
-        /// <summary>
-        /// Sets model to provided view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view or model is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TChild, TModel>(ListView<TChild, TModel> view, IObservableEnumerable<TModel> model)
-            where TChild : View<TModel>
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            if (model is null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
-
-            var controller
-                = (IPresenter<ListView<TChild, TModel>, IObservableEnumerable<TModel>>)GetController(view.GetType());
-            controller.Set(view, model);
-        }
-
-        /// <summary>
-        /// Calls unset method for certain view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Unset(IView view)
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            GetController(view.GetType()).Unset(view);
+            return controller.Set(view, model);
         }
 
         /// <summary>
@@ -271,12 +155,21 @@ namespace Yaga
         private void SetView<TView, TModel>(TView view, TModel model)
             where TView : IView<TModel>
             => Set(view, model);
-
+        
         /// <summary>
-        /// Method for reflection for bindings. Don't use, don't rename, don't delete.
+        /// Check if presenters implements correct interfaces.
         /// </summary>
-        private void SetList<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : View<TModel>
-            => Set(view, model);
+        /// <exception cref="PresenterBindingException">If presenter doesn't implement correct interfaces.</exception>
+        private static void CheckPresenterInterface(Type presenterType)
+        {
+            var interfaces = presenterType.GetInterfaces();
+            var modelInterface = interfaces.SingleOrDefault(e =>
+                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>));
+
+            if (modelInterface is null)
+                throw new PresenterBindingException(
+                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> or I{nameof(IPresenter)}<{nameof(IView)}, Model> interface but it doesn't.",
+                    presenterType);
+        }
     }
 }

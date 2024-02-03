@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
-using Yaga.Utils;
+using Yaga.Reactive;
 
 namespace Tests.Observables
 {

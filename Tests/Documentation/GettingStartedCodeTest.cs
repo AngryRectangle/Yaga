@@ -15,13 +15,13 @@ namespace Yaga.Test.Documentation
             UiControl.InitializeSingleton(Locator.canvasPrefab);
 
             UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
-            var instance = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+            var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             yield return null;
 
             // Testing part.
-            Assert.AreEqual("Sample text", instance.Text.text);
-            instance.Subscribe(instance.Button, Assert.Pass);
-            instance.Button.onClick.Invoke();
+            Assert.AreEqual("Sample text", viewControl.View.Text.text);
+            viewControl.Subscribe(viewControl.View.Button, Assert.Pass);
+            viewControl.View.Button.onClick.Invoke();
             Assert.Fail("Button action was not executed");
         }
     }

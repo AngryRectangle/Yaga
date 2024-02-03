@@ -14,10 +14,10 @@ namespace Yaga.Test.Documentation
          */
         public class Presenter : Presenter<SimpleTextButtonView, string>
         {
-            protected override void OnModelSet(SimpleTextButtonView view, string model)
+            protected override void OnSet(SimpleTextButtonView view, string model, ISubscriptionsOwner subs)
             {
                 view.text.text = model;
-                view.Subscribe(view.button, () => Debug.Log("Click"));
+                subs.Subscribe(view.button, () => Debug.Log("Click"));
             }
         }
         

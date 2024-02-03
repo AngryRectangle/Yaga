@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Optional;
 using UnityEngine;
-using Yaga.Utils;
+using Yaga.Reactive;
 
 namespace Yaga.Test.Documentation
 {
