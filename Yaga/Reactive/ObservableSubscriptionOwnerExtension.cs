@@ -32,7 +32,7 @@ namespace Yaga.Reactive
             Action<T> action)
         {
             owner.Add(observable.Subscribe(action));
-            action(observable.Data);
+            action(observable.Value);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Yaga.Reactive
             Action<T> action, Action onNull)
         {
             owner.Add(observable.Subscribe(action, onNull));
-            observable.Data.Match(action, onNull);
+            observable.Value.Match(action, onNull);
         }
         
         /// <summary>

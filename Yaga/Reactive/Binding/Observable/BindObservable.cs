@@ -20,7 +20,7 @@ namespace Yaga.Reactive.Binding.Observable
             Context = context;
             _observable = observable;
             OnDispose = onDispose;
-            _dataAccessor = () => observable.Data;
+            _dataAccessor = () => observable.Value;
         }
 
         public IBindAccessor To(Action<T> action)

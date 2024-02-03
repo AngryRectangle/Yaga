@@ -5,13 +5,13 @@ namespace Yaga.Reactive
 {
     public interface IReadOnlyObservable<out T> : System.IObservable<T>
     {
-        T Data { get; }
+        T Value { get; }
         IDisposable Subscribe(Action<T> action);
     }
 
     public interface IObservable<T> : IReadOnlyObservable<T>
     {
-        T Data { set; get; }
+        T Value { set; get; }
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ namespace Yaga.Reactive
         private event Action<T> OnChange;
         private T _data;
 
-        public T Data
+        public T Value
         {
             get => _data;
             set
@@ -63,7 +63,7 @@ namespace Yaga.Reactive
             _source = source;
         }
 
-        public T Data => _source.Data;
+        public T Value => _source.Value;
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
@@ -96,7 +96,7 @@ namespace Yaga.Reactive
             _source = source;
         }
 
-        public T Data => _source.Data;
+        public T Value => _source.Value;
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
@@ -130,7 +130,7 @@ namespace Yaga.Reactive
             _selector = selector;
         }
 
-        public TOut Data => _selector(_source.Data);
+        public TOut Value => _selector(_source.Value);
 
         public IDisposable Subscribe(IObserver<TOut> observer)
         {
@@ -148,8 +148,8 @@ namespace Yaga.Reactive
         private readonly IReadOnlyObservable<T> _source;
         private readonly Predicate<T> _predicate;
 
-        public Option<T> Data => _predicate(_source.Data) ? _source.Data.Some() : Option.None<T>();
-        public bool HasValue => _predicate(_source.Data);
+        public Option<T> Value => _predicate(_source.Value) ? _source.Value.Some() : Option.None<T>();
+        public bool HasValue => _predicate(_source.Value);
 
         public Observable_WhereNone(IReadOnlyObservable<T> source, Predicate<T> predicate)
         {
@@ -185,7 +185,7 @@ namespace Yaga.Reactive
         private readonly IReadOnlyObservable<T2> _source2;
         private readonly Func<T1, T2, TOut> _combiner;
 
-        public TOut Data => _combiner(_source1.Data, _source2.Data);
+        public TOut Value => _combiner(_source1.Value, _source2.Value);
 
         public Observable_CombineLatest(IReadOnlyObservable<T1> source1, IReadOnlyObservable<T2> source2,
             Func<T1, T2, TOut> combiner)
@@ -202,7 +202,7 @@ namespace Yaga.Reactive
 
         public IDisposable Subscribe(Action<TOut> action)
         {
-            return _source1.Subscribe(value1 => action(_combiner(value1, _source2.Data)));
+            return _source1.Subscribe(value1 => action(_combiner(value1, _source2.Value)));
         }
     }
 
@@ -211,7 +211,7 @@ namespace Yaga.Reactive
         private readonly IReadOnlyObservable<T1> _source1;
         private readonly IReadOnlyOptionalObservable<T2> _source2;
         private readonly Func<T1, T2, TOut> _combiner;
-        public Option<TOut> Data => _source2.Data.Map(value2 => _combiner(_source1.Data, value2));
+        public Option<TOut> Value => _source2.Value.Map(value2 => _combiner(_source1.Value, value2));
         public bool HasValue => _source2.HasValue;
 
         public Observable_CombineLatestWithOptional(IReadOnlyObservable<T1> source1,
@@ -230,10 +230,10 @@ namespace Yaga.Reactive
         public IDisposable Subscribe(Action<Option<TOut>> action)
         {
             var firstUnsubscription = _source1.Subscribe(value1 =>
-                action(_source2.Data.Map(value2 => _combiner(value1, value2))));
+                action(_source2.Value.Map(value2 => _combiner(value1, value2))));
 
             var secondUnsubscription = _source2.Subscribe(option =>
-                action(option.Map(value2 => _combiner(_source1.Data, value2))));
+                action(option.Map(value2 => _combiner(_source1.Value, value2))));
 
             return new Disposable(firstUnsubscription, secondUnsubscription);
         }

@@ -14,7 +14,7 @@ namespace Yaga.Reactive.Binding.Observable
         private event Action<T> OnDataChange;
         public void Perform(T data) => OnDataChange?.Invoke(data);
 
-        public T Data => _dataAccessor();
+        public T Value => _dataAccessor();
 
         public IDisposable Subscribe(Action<T> action)
         {

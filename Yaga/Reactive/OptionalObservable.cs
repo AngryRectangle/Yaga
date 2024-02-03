@@ -19,7 +19,7 @@ namespace Yaga.Reactive
         {
         }
 
-        public bool HasValue => Data.HasValue;
+        public bool HasValue => Value.HasValue;
 
         public IDisposable Subscribe(Action<T> action, Action onNull)
         {
@@ -42,14 +42,14 @@ namespace Yaga.Reactive
         {
             get
             {
-                return _source.Data.Match(
+                return _source.Value.Match(
                     value => _predicate(value),
                     () => false
                 );
             }
         }
 
-        public Option<T> Data => _source.Data.FlatMap(value => _predicate(value) ? value.Some() : Option.None<T>());
+        public Option<T> Value => _source.Value.FlatMap(value => _predicate(value) ? value.Some() : Option.None<T>());
 
         public IDisposable Subscribe(Action<T> action, Action onNull)
         {
@@ -79,7 +79,7 @@ namespace Yaga.Reactive
             _selector = selector;
         }
 
-        public Option<TOut> Data => _source.Data.Map(_selector);
+        public Option<TOut> Value => _source.Value.Map(_selector);
         public bool HasValue => _source.HasValue;
 
         public IDisposable Subscribe(IObserver<Option<TOut>> observer)
@@ -107,7 +107,7 @@ namespace Yaga.Reactive
             _source = source;
         }
 
-        public Option<T> Data => _source.Data;
+        public Option<T> Value => _source.Value;
         public bool HasValue => _source.HasValue;
 
         public IDisposable Subscribe(IObserver<Option<T>> observer)
@@ -142,8 +142,8 @@ namespace Yaga.Reactive
         private readonly IReadOnlyOptionalObservable<T2> _source2;
         private readonly Func<T1, T2, TOut> _combiner;
 
-        public Option<TOut> Data =>
-            _source1.Data.FlatMap(value1 => _source2.Data.Map(value2 => _combiner(value1, value2)));
+        public Option<TOut> Value =>
+            _source1.Value.FlatMap(value1 => _source2.Value.Map(value2 => _combiner(value1, value2)));
 
         public bool HasValue => _source1.HasValue && _source2.HasValue;
 
@@ -163,9 +163,9 @@ namespace Yaga.Reactive
         public IDisposable Subscribe(Action<Option<TOut>> action)
         {
             var firstSubscription = _source1.Subscribe(value1 =>
-                action(value1.FlatMap(value => _source2.Data.Map(value2 => _combiner(value, value2)))));
+                action(value1.FlatMap(value => _source2.Value.Map(value2 => _combiner(value, value2)))));
             var secondSubscription = _source2.Subscribe(value2 =>
-                action(value2.FlatMap(value => _source1.Data.Map(value1 => _combiner(value1, value)))));
+                action(value2.FlatMap(value => _source1.Value.Map(value1 => _combiner(value1, value)))));
 
             return new Disposable(firstSubscription, secondSubscription);
         }
