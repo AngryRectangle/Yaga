@@ -19,7 +19,7 @@ namespace Tests
             where T : Object
         {
             var files = Directory.GetDirectories(".", "Tests", SearchOption.AllDirectories);
-            throw new Exception(Application.dataPath + $" {files.Length} " + string.Join(", ", files));
+            throw new Exception(Application.dataPath + $" {files.Length} " + string.Join(", ", files.Select(Path.GetFullPath)));
             foreach (var file in files.Select(file => file.Replace("\\", "/")
                          .Remove(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length)))
             {
