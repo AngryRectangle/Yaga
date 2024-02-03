@@ -41,7 +41,9 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
-          file: ${{ steps.runTests.outputs.coveragePath }}/Summary.xml
+          token: ${{ secrets.CODECOV_TOKEN }} # Not required for public repos
+          file: ${{ steps.runTests.outputs.coveragePath }}/CodeCoverage/Report/Summary.xml # Adjust the path as needed
           flags: unity-tests
           name: codecov-unity
+
 
