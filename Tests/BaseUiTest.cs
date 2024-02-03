@@ -20,7 +20,7 @@ namespace Tests
         {
             var files = Directory.GetFiles(Application.dataPath, name, SearchOption.AllDirectories);
             foreach (var file in files.Select(file => file.Replace("\\", "/")
-                         .Remove(0, Application.dataPath.Length - "Assets".Length)))
+                         .Remove(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length)))
             {
                 var t = AssetDatabase.LoadAssetAtPath<T>(file);
                 if (t != null)
