@@ -42,7 +42,7 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # Not required for public repos
-          file: ${{ steps.runTests.outputs.coveragePath }}/CodeCoverage/Report/Summary.xml # Adjust the path as needed
+          file: ${{ steps.runTests.outputs.coveragePath }}/Report/Summary.xml # Adjust the path as needed
           flags: unity-tests
           name: codecov-unity
 
