@@ -32,6 +32,15 @@ namespace Yaga
             _presenters = new Dictionary<Type, IPresenter>();
         }
 
+        public UiBootstrap(List<IPresenter> presenters) : this()
+        {
+            if (presenters is null)
+                throw new ArgumentNullException(nameof(presenters));
+            
+            foreach (var presenter in presenters) 
+                Bind(presenter);
+        }
+
         /// <summary>
         /// Set instance of <see cref="UiBootstrap"/> to <see cref="Instance"/> property.
         /// </summary>
