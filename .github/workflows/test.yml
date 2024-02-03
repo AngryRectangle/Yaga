@@ -23,7 +23,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           projectPath: ./copiedProject/Yaga
-          unityVersion: "2020.1"
+          unityVersion: "2020.3.48"
           testMode: all
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+trudeaua.EasyAccessibility.*,-*Tests*'
           packageMode: true
