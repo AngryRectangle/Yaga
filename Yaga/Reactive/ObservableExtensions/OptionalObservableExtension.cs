@@ -1,4 +1,5 @@
 ﻿using System;
+using Optional;
 
 namespace Yaga.Reactive
 {
@@ -23,6 +24,20 @@ namespace Yaga.Reactive
             Func<TIn, TOut> selector)
         {
             return new OptionalObservable_Select<TIn, TOut>(observable, selector);
+        }
+        
+        /// <summary>
+        /// If the value satisfies the predicate, returns the result value from <see cref="TryGet{TIn,TResult}"/>>. Otherwise, returns None.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> WhereSelect<TIn, TOut>(this IReadOnlyOptionalObservable<TIn> source, TryGet<TIn, TOut> selector)
+        {
+            return new Observable_WhereSelect<Option<TIn>, TOut>(source, (Option<TIn> from, out TOut result) =>
+            {
+                var tempResult = default(TOut);
+                var isMatched = from.Match(value => selector(value, out tempResult), () => false);
+                result = tempResult;
+                return isMatched;
+            });
         }
 
         /// <summary>

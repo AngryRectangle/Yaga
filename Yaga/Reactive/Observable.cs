@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Optional;
 
 namespace Yaga.Reactive
@@ -173,6 +174,42 @@ namespace Yaga.Reactive
             {
                 if (_predicate(value))
                     action(value);
+                else
+                    onNull();
+            });
+        }
+    }
+    public delegate bool TryGet<in TIn, TResult>(TIn from, out TResult to);
+    internal class Observable_WhereSelect<TIn, TOut> : IReadOnlyOptionalObservable<TOut>
+    {
+        private readonly IReadOnlyObservable<TIn> _source;
+        private readonly TryGet<TIn, TOut> _predicate;
+
+        public Option<TOut> Value => _predicate(_source.Value, out var result) ? result.Some() : Option.None<TOut>();
+        public bool HasValue => _predicate(_source.Value, out _);
+
+        public Observable_WhereSelect(IReadOnlyObservable<TIn> source, TryGet<TIn, TOut> predicate)
+        {
+            _source = source;
+            _predicate = predicate;
+        }
+
+        public IDisposable Subscribe(IObserver<Option<TOut>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<TOut>> action)
+        {
+            return _source.Subscribe(value => action(_predicate(value, out var result) ? result.Some() : Option.None<TOut>()));
+        }
+
+        public IDisposable Subscribe(Action<TOut> action, Action onNull)
+        {
+            return _source.Subscribe(value =>
+            {
+                if (_predicate(value, out var result))
+                    action(result);
                 else
                     onNull();
             });

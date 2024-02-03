@@ -23,6 +23,15 @@ namespace Yaga.Reactive
         }
 
         /// <summary>
+        /// If the value satisfies the predicate, returns the result value from <see cref="TryGet{TIn,TResult}"/>>. Otherwise, returns None.
+        /// </summary>
+        public static IReadOnlyOptionalObservable<TOut> WhereSelect<TIn, TOut>(this IReadOnlyObservable<TIn> source,
+            TryGet<TIn, TOut> selector)
+        {
+            return new Observable_WhereSelect<TIn, TOut>(source, selector);
+        }
+
+        /// <summary>
         /// If the value satisfies the predicate, returns the value. Otherwise, returns None.
         /// </summary>
         public static IReadOnlyOptionalObservable<T> WhereOrNone<T>(this IReadOnlyObservable<T> source,
@@ -40,7 +49,7 @@ namespace Yaga.Reactive
         {
             return new Observable_CombineLatest<T1, T2, TOut>(source1, source2, combiner);
         }
-        
+
         /// <summary>
         /// Returns an observable that combines the latest values of two observables using the specified combiner
         /// and notifies when any of the values changes. If any of the observables has no value, the resulting
