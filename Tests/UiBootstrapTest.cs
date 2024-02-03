@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Yaga;
@@ -15,30 +16,46 @@ namespace Tests
             UiBootstrap.InitializeSingleton();
             UiControl.InitializeSingleton(Locator.canvasPrefab);
         }
+        
+        [Test]
+        public void Constructor_PresentersFromConstructorFound()
+        {
+            var view = GameObject.Instantiate(Locator.modelessView);
+            var bootstrap = new UiBootstrap(new List<IPresenter> { new PresenterA() });
+            Assert.Catch<PresenterNotFoundException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
+            UiBootstrap.InitializeSingleton(bootstrap);
+            UiBootstrap.Instance.Set(view, Unit.Instance);
+        }
+
+        [Test]
+        public void Constructor_NullPresenters_ThrowsException()
+        {
+            Assert.Catch<ArgumentNullException>(() => new UiBootstrap(null));
+        }
 
         [Test]
         public void Bind_PresenterIsNull_ThrowsException()
         {
-            Assert.Catch<ArgumentNullException>(() => UiBootstrap.Bind(null));
+            Assert.Catch<ArgumentNullException>(() => UiBootstrap.Instance.Bind(null));
         }
 
         [Test]
         public void Bind_PresenterWithoutDefaultConstructor_ThrowsException()
         {
-            Assert.Catch<NoDefaultConstructorForPresenterException>(() => UiBootstrap.Bind<PresenterWithConstructor>());
+            Assert.Catch<NoDefaultConstructorForPresenterException>(() => UiBootstrap.Instance.Bind<PresenterWithConstructor>());
         }
 
         [Test]
         public void Bind_PresenterWithoutView_ThrowsException()
         {
-            Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<PresenterWithoutView>);
+            Assert.Catch<PresenterBindingException>(UiBootstrap.Instance.Bind<PresenterWithoutView>);
         }
         
         [Test]
         public void Bind_MultiplePresenters_ThrowsException()
         {
-            UiBootstrap.Bind<PresenterA>();
-            Assert.Catch<MultiplePresenterException>(UiBootstrap.Bind<PresenterB>);
+            UiBootstrap.Instance.Bind<PresenterA>();
+            Assert.Catch<MultiplePresenterException>(UiBootstrap.Instance.Bind<PresenterB>);
         }
 
         [Test]
@@ -66,9 +83,9 @@ namespace Tests
         public void ClearPresenters_NoPresentersAfter()
         {
             var view = GameObject.Instantiate(Locator.modelessView);
-            UiBootstrap.Bind<PresenterA>();
+            UiBootstrap.Instance.Bind<PresenterA>();
             UiBootstrap.Instance.Set(view, Unit.Instance);
-            UiBootstrap.ClearPresenters();
+            UiBootstrap.Instance.ClearPresenters();
             Assert.Catch<PresenterNotFoundException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
         }
 

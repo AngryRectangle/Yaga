@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using NUnit.Framework;
-using Tests;
 using UnityEngine.TestTools;
+using Yaga;
+using Yaga.Test.Documentation;
 
-namespace Yaga.Test.Documentation
+namespace Tests.Documentation
 {
     public class GettingStartedCodeTest : BaseUiTest
     {
@@ -14,7 +15,7 @@ namespace Yaga.Test.Documentation
             UiBootstrap.InitializeSingleton();
             UiControl.InitializeSingleton(Locator.canvasPrefab);
 
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
             yield return null;
 

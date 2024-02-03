@@ -18,8 +18,8 @@ namespace Tests
         public void SetUp()
         {
             UiBootstrap.InitializeSingleton();
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
-            UiBootstrap.Bind(new ObservablePresenter<ModelessView>());
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind(new ObservablePresenter<ModelessView>());
 
             // I should do it because static fields are shared between tests and null is default value for reference types
             UiControl.Instance = null;

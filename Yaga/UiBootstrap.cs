@@ -55,7 +55,7 @@ namespace Yaga
         /// <exception cref="ArgumentNullException">If presenter is null</exception>
         /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
         /// <inheritdoc cref="GetAcceptableViewTypes"/>
-        public static void Bind(IPresenter presenter)
+        public void Bind(IPresenter presenter)
         {
             if (presenter == null)
                 throw new ArgumentNullException(nameof(presenter));
@@ -63,10 +63,10 @@ namespace Yaga
             var acceptableViews = GetAcceptableViewTypes(presenter);
             foreach (var viewType in acceptableViews)
             {
-                if (Instance._presenters.TryGetValue(viewType, out var existingPresenter))
+                if (_presenters.TryGetValue(viewType, out var existingPresenter))
                     throw new MultiplePresenterException(viewType, existingPresenter.GetType(), presenter.GetType());
 
-                Instance._presenters.Add(viewType, presenter);
+                _presenters.Add(viewType, presenter);
             }
         }
 
@@ -76,7 +76,7 @@ namespace Yaga
         /// <exception cref="NoDefaultConstructorForPresenterException">If presenter has no default constructor.</exception>
         /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
         /// <inheritdoc cref="GetAcceptableViewTypes"/>
-        public static void Bind<TPresenter>()
+        public void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
             try
@@ -95,7 +95,7 @@ namespace Yaga
         /// Clear all bound presenters.
         /// </summary>
         /// <inheritdoc cref="Instance"/>
-        public static void ClearPresenters()
+        public void ClearPresenters()
         {
             Instance._presenters.Clear();
         }

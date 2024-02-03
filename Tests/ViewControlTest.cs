@@ -20,7 +20,7 @@ namespace Tests
         public void Set_ModelUpdated()
         {
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, "oldModel");
             viewControl.Set(testModel);
 
@@ -31,7 +31,7 @@ namespace Tests
         public void Unset_ModelUnset()
         {
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             viewControl.Unset();
 
@@ -43,7 +43,7 @@ namespace Tests
         public void Add_AfterUnset_ThrowsException()
         {
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             viewControl.Unset();
 
@@ -55,7 +55,7 @@ namespace Tests
         {
             var isInvoked = false;
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             viewControl.Add(new Disposable(()=>isInvoked = true));
             viewControl.Unset();
@@ -68,7 +68,7 @@ namespace Tests
         {
             var isInvoked = false;
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             var key = viewControl.Add(new Disposable(()=>isInvoked = true));
             var isRemoved = viewControl.Remove(key);
@@ -82,7 +82,7 @@ namespace Tests
         public void Remove_IncorrectKey_ReturnsFalse()
         {
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             var isRemoved = viewControl.Remove(new ISubscriptionsOwner.Key());
             Assert.IsFalse(isRemoved);
@@ -92,7 +92,7 @@ namespace Tests
         public void Remove_AfterUnset_ThrowsException()
         {
             const string testModel = "testModel";
-            UiBootstrap.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
             viewControl.Unset();
 

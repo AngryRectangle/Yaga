@@ -28,9 +28,9 @@ namespace Tests
             var presenterWithoutModel =
                 new ModelessPresenter(_ => setOnViewWithoutModel = true, _ => unsetOnViewWithoutModel = true);
 
-            UiBootstrap.Bind(presenterWithModel);
-            UiBootstrap.Bind(presenterWithoutModel);
-            UiBootstrap.Bind<ChildrenViewPresenter>();
+            UiBootstrap.Instance.Bind(presenterWithModel);
+            UiBootstrap.Instance.Bind(presenterWithoutModel);
+            UiBootstrap.Instance.Bind<ChildrenViewPresenter>();
 
             var viewControl = UiControl.Instance.Create(Locator.viewWithChild);
 
