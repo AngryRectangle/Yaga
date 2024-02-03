@@ -38,3 +38,10 @@ jobs:
           name: Package Coverage results (all)
           path: ${{ steps.runTests.outputs.coveragePath }}
           retention-days: 1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: ${{ steps.runTests.outputs.coveragePath }}/Summary.xml
+          flags: unity-tests
+          name: codecov-unity
+
