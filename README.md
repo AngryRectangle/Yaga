@@ -1,4 +1,5 @@
-[![Coverage Status](./Reports/CodeCoverage/Report/badge_shieldsio_linecoverage_red.svg?dummy=8484744)](./Reports/CodeCoverage/Report//index.html)
+[![test status](https://github.com/AngryRectangle/Yaga/actions/workflows/tests.yml/badge.svg?branch=main)](https://codecov.io/gh/AngryRectangle/Yaga)
+[![codecov](https://codecov.io/gh/AngryRectangle/Yaga/branch/main/graph/badge.svg)](https://codecov.io/gh/AngryRectangle/Yaga)
 
 # Yaga
 
