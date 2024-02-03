@@ -148,13 +148,6 @@ namespace Yaga
                 throw new MultiplePresenterException(viewType);
             }
         }
-
-        /// <summary>
-        /// Method for reflection for bindings. Don't use, don't rename, don't delete.
-        /// </summary>
-        private void SetView<TView, TModel>(TView view, TModel model)
-            where TView : IView<TModel>
-            => Set(view, model);
         
         /// <summary>
         /// Check if presenters implements correct interfaces.
