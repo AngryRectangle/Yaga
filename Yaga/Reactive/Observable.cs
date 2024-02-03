@@ -246,13 +246,13 @@ namespace Yaga.Reactive
     internal class Observable_CombineLatestWithOptional<T1, T2, TOut> : IReadOnlyOptionalObservable<TOut>
     {
         private readonly IReadOnlyObservable<T1> _source1;
-        private readonly IReadOnlyOptionalObservable<T2> _source2;
+        private readonly IReadOnlyObservable<Option<T2>> _source2;
         private readonly Func<T1, T2, TOut> _combiner;
         public Option<TOut> Value => _source2.Value.Map(value2 => _combiner(_source1.Value, value2));
-        public bool HasValue => _source2.HasValue;
+        public bool HasValue => _source2.Value.HasValue;
 
         public Observable_CombineLatestWithOptional(IReadOnlyObservable<T1> source1,
-            IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
+            IReadOnlyObservable<Option<T2>> source2, Func<T1, T2, TOut> combiner)
         {
             _source1 = source1;
             _source2 = source2;
