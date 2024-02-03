@@ -18,20 +18,8 @@ namespace Tests
         private T GetFirstWithName<T>(string name)
             where T : Object
         {
-            
-            var files = AssetDatabase.FindAssets("TestPrefabLocator");
-            throw new Exception(Application.dataPath + $" {files.Length} " + string.Join(", ", files.Select(AssetDatabase.GUIDToAssetPath)));
-            foreach (var file in files.Select(file => file.Replace("\\", "/")
-                         .Remove(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length)))
-            {
-                var t = AssetDatabase.LoadAssetAtPath<T>(file);
-                if (t == null)
-                    throw new Exception($"Asset with name {name} not found, and it's path is {file}");
-
-                return t;
-            }
-
-            throw new Exception($"Asset with name {name} not found");
+            var path = AssetDatabase.FindAssets("TestPrefabLocator").Select(AssetDatabase.GUIDToAssetPath).Single();
+            return AssetDatabase.LoadAssetAtPath<T>(path);
         }
     }
 }
