@@ -23,8 +23,10 @@ namespace Tests
                          .Remove(0, Application.dataPath.Length - Application.dataPath.Split('/').Last().Length)))
             {
                 var t = AssetDatabase.LoadAssetAtPath<T>(file);
-                if (t != null)
-                    return t;
+                if (t == null)
+                    throw new Exception($"Asset with name {name} not found, and it's path is {file}");
+
+                return t;
             }
 
             throw new Exception($"Asset with name {name} not found");
