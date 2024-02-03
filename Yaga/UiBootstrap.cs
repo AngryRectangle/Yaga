@@ -25,16 +25,11 @@ namespace Yaga
         /// <summary>
         /// List of all bound presenters.
         /// </summary>
-        private List<IPresenter> _presenters;
+        private readonly Dictionary<Type, IPresenter> _presenters;
 
         private UiBootstrap()
         {
-            _presenters = new List<IPresenter>();
-        }
-
-        public UiBootstrap(List<IPresenter> presenters)
-        {
-            _presenters = presenters ?? throw new ArgumentNullException(nameof(presenters));
+            _presenters = new Dictionary<Type, IPresenter>();
         }
 
         /// <summary>
@@ -65,8 +60,14 @@ namespace Yaga
             if (presenter == null)
                 throw new ArgumentNullException(nameof(presenter));
 
-            CheckPresenterInterface(presenter.GetType());
-            Instance._presenters.Add(presenter);
+            var acceptableViews = GetAcceptableViewTypes(presenter);
+            foreach (var viewType in acceptableViews)
+            {
+                if(Instance._presenters.TryGetValue(viewType, out var existingPresenter))
+                    throw new MultiplePresenterException(viewType, existingPresenter.GetType(), presenter.GetType());
+                
+                Instance._presenters.Add(viewType, presenter);
+            }
         }
 
         /// <summary>
@@ -78,12 +79,10 @@ namespace Yaga
         public static void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
-            CheckPresenterInterface(typeof(TPresenter));
-
             try
             {
                 var instance = Activator.CreateInstance<TPresenter>();
-                Instance._presenters.Add(instance);
+                Bind(instance);
             }
             catch (MissingMethodException _)
             {
@@ -124,45 +123,40 @@ namespace Yaga
              * So to fix it, I've created IPresenterWithUnspecifiedView interface
              * to avoid reflection and boilerplate with Set method call.
              */
+
+            if(_presenters.TryGetValue(view.GetType(), out var presenter))
+                return ((IPresenterWithUnspecifiedView)presenter).Set(view, model);
             
-            var controller = (IPresenterWithUnspecifiedView)GetController(view.GetType());
-            return controller.Set(view, model);
+            throw new PresenterNotFoundException(view.GetType());
         }
 
-        /// <summary>
-        /// Get acceptable presenter from presenters list for view.
-        /// </summary>
-        /// <exception cref="PresenterNotFoundException">If there is no acceptable presenter for view.</exception>
-        /// <exception cref="MultiplePresenterException">If there are more than one acceptable presenter for view.</exception>
-        internal IPresenter GetController(Type viewType)
+        private static IEnumerable<Type> GetAcceptableViewTypes(IPresenter presenter)
         {
+            var presenterType = presenter.GetType();
+            var interfaces = presenterType.GetInterfaces();
+            var viewTypesEnumerable = interfaces
+                .Where(e => e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>))
+                .Select(e => e.GetGenericArguments()[0]);
+
+            Type viewType;
             try
             {
-                var controller = _presenters.SingleOrDefault(e => e.AcceptableView(viewType));
-                if (controller == default)
-                    throw new PresenterNotFoundException(viewType);
-                return controller;
+                viewType = viewTypesEnumerable.SingleOrDefault();
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException _)
             {
-                throw new MultiplePresenterException(viewType);
-            }
-        }
-        
-        /// <summary>
-        /// Check if presenters implements correct interfaces.
-        /// </summary>
-        /// <exception cref="PresenterBindingException">If presenter doesn't implement correct interfaces.</exception>
-        private static void CheckPresenterInterface(Type presenterType)
-        {
-            var interfaces = presenterType.GetInterfaces();
-            var modelInterface = interfaces.SingleOrDefault(e =>
-                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>));
-
-            if (modelInterface is null)
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> or I{nameof(IPresenter)}<{nameof(IView)}, Model> interface but it doesn't.",
+                throw new PresenterBindingException("Presenter implements more then one IPresenter<,> interface.",
                     presenterType);
+            }
+
+            if (viewType is null)
+                throw new PresenterBindingException("Presenter doesn't implement IPresenter<,> interface.",
+                    presenterType);
+
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.DefinedTypes)
+                .Where(type => viewType.IsAssignableFrom(type))
+                .Select(e => e.AsType());
         }
     }
 }

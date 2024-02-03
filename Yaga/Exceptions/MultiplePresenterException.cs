@@ -7,9 +7,17 @@ namespace Yaga.Exceptions
     /// </summary>
     public class MultiplePresenterException : Exception
     {
-        public MultiplePresenterException(Type viewType) : base(
-            $"For view type {viewType} are more then one acceptable presenters")
+        public Type ViewType { get; }
+        public Type ExistingPresenterType { get; }
+        public Type ConflictingPresenterType { get; }
+
+        public MultiplePresenterException(Type viewType, Type existingPresenterType, Type conflictingPresenterType) :
+            base(
+                $"Multiple presenters for view {viewType} found. Existing presenter: {existingPresenterType}, conflicting presenter: {conflictingPresenterType}")
         {
+            ViewType = viewType;
+            ExistingPresenterType = existingPresenterType;
+            ConflictingPresenterType = conflictingPresenterType;
         }
     }
 }

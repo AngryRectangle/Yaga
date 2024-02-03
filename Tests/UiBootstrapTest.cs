@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Yaga;
@@ -34,6 +33,13 @@ namespace Tests
         {
             Assert.Catch<PresenterBindingException>(UiBootstrap.Bind<PresenterWithoutView>);
         }
+        
+        [Test]
+        public void Bind_MultiplePresenters_ThrowsException()
+        {
+            UiBootstrap.Bind<PresenterA>();
+            Assert.Catch<MultiplePresenterException>(UiBootstrap.Bind<PresenterB>);
+        }
 
         [Test]
         public void Set_ViewIsNull_ThrowsException()
@@ -47,15 +53,6 @@ namespace Tests
         {
             Assert.Catch<ArgumentNullException>(() =>
                 UiBootstrap.Instance.Set(Locator.simpleTextButtonView, default(string)));
-        }
-
-        [Test]
-        public void Set_MultiplePresentersTest_ThrowsException()
-        {
-            var view = GameObject.Instantiate(Locator.modelessView);
-            UiBootstrap.Bind<PresenterA>();
-            UiBootstrap.Bind<PresenterB>();
-            Assert.Catch<MultiplePresenterException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
         }
 
         [Test]
@@ -73,22 +70,6 @@ namespace Tests
             UiBootstrap.Instance.Set(view, Unit.Instance);
             UiBootstrap.ClearPresenters();
             Assert.Catch<PresenterNotFoundException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
-        }
-
-        [Test]
-        public void Constructor_PresentersFromConstructorFound()
-        {
-            var view = GameObject.Instantiate(Locator.modelessView);
-            var bootstrap = new UiBootstrap(new List<IPresenter> { new PresenterA() });
-            Assert.Catch<PresenterNotFoundException>(() => UiBootstrap.Instance.Set(view, Unit.Instance));
-            UiBootstrap.InitializeSingleton(bootstrap);
-            UiBootstrap.Instance.Set(view, Unit.Instance);
-        }
-
-        [Test]
-        public void Constructor_NullPresenters_ThrowsException()
-        {
-            Assert.Catch<ArgumentNullException>(() => new UiBootstrap(null));
         }
 
         private class PresenterA : Presenter<ModelessView>
