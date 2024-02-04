@@ -70,11 +70,11 @@ Breaking changes are possible due to early development stage.
 * [View](#view)
 * [Presenter](#presenter)
 * [Model](#model)
-* [Beacon](#beacon)
-* [Observables](#observables)
+* [Reactivity](#reactivity)
+    * [Beacon](#beacon)
     * [Observable](#observable)
-    * [Binding chains](#binding-chains)
-    * [OptionalObservable](#OptionalObservable)
+    * [Observable chains](#observable-chains)
+    * [OptionalObservable](#optionalobservable)
 * [Editor Binding](#editor-binding)
 * [Best Practices](#best-practices)
 
@@ -220,7 +220,9 @@ subscribe on event in `OnSet` and unsubscribe in `OnUnset`.
 Model is structure where you can store your data, events or properties.
 You can use any type as model, like int, string, IEnumerable or your own custom class.
 
-## Beacon
+Yaga provides minimal set of classes required for reactive programming.
+
+### Beacon
 
 Beacons are a useful replacement for events.
 One of the main benefits of using beacons is much simpler
@@ -250,10 +252,6 @@ var disposable = TextBeacon.Add(e => Debug.Log($"Text {e} with length {e.Length}
 // Unsubscription logic.
 disposable.Dispose();
 ```
-
-## Observables
-
-Observer pattern in Yaga implemented with using of IObservable and IOptionalObservable.
 
 ### Observable
 
