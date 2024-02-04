@@ -3,17 +3,65 @@
 
 # Yaga
 
-**Yaga** is a simple UI lib for Unity.
-The main goal of the lib is to minimize amount of code you need to write for proper MVVM UI and keep it simple and
-reliable.
+Yaga is a sleek and powerful UI library for Unity, designed for simplicity and reusability. 
+It eradicates the need for verbose boilerplate, providing a fluent API and ensuring code safety. 
+Yaga's architecture promotes effortless code reusability and seamless integration with DI frameworks like Zenject, 
+streamlining your development process. 
+Embrace a library that not only minimizes coding effort but also enriches your project with maintainable, 
+efficient, and reliable MVVM UI architecture.
 
-### Attention! Achtung! Внимание!
+Yaga stands out with its modular design, offering unparalleled flexibility. 
+It allows seamless integration or replacement of its internal reactivity system with UniRx, 
+catering to your project's specific needs. Whether you choose to harness the power of UniRx, 
+rely on Yaga's built-in reactivity, or combine both, Yaga ensures a tailored, 
+efficient approach to managing reactivity in your Unity projects.
+
+## Core concepts
+### Lifetime
+One of the main problems of using MonoBehaviours for UI logic is that you have to somehow access
+runtime data from them. It means that your MonoBehaviour view has runtime dependencies.
+There are also "editortime" dependencies like prefabs, scriptable objects, 
+basically everything that you can use in the inspector.
+But you can't, for example, assign as a editortime dependency your games state.
+To do that you would have to have it all in MonoBehaviours, but it would be a huge mess,
+because having all your logic in MonoBehaviours put a lot of restrictions on your code.
+But you can still pass those runtime dependencies to the view when you create it with a lot of boilerplate code.
+And there is a catch. Lifetime of your view is not the same as lifetime of your runtime dependencies.
+Your views are also editortime, because they are created as a prefab in editor.
+Runtime dependencies are created in runtime, after you press play button.
+It means that you have to pass runtime dependencies to the view after you instantiated it from prefab.
+It provokes a lot of errors, for example, forgetting to pass dependencies before using the view or passing them twice, etc.
+To solve this problems Presenters were introduced. They allow you to encapsulate all runtime dependencies inside runtime presenter.
+
+But there is also another problem. Lifetime of data that affects UI can be even shorter than lifetime of the view.
+For example, you have inventory view that shows items from inventory.
+You want to reuse inventory child views that represent items in inventory because it is much more performant,
+than creating new view every time new item added or removed from inventory.
+That means some views can exists without data assigned to them. It can also lead to a lot of errors,
+such as memory leaking due to not unsubscribing from data changes or something like that.
+To solve this problem Models were introduced. 
+They allow you to store data that affects UI and can be specific for each instance of the view.
+And you can replace model for the view without creating new view.
+
+![Lifetime](https://i.imgur.com/QAdBtoT.png)
+
+### Reactivity
+More about reactive programming can be read in [this github article](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754).
+
+### Declarative UI
+More about declarative UI can be read in [this article](https://medium.com/israeli-tech-radar/declarative-ui-what-how-and-why-13e092a7516f).
+
+## Attention! Achtung! Внимание!
 
 Breaking changes alert!
 Breaking changes are possible due to early development stage.
 
 ## Table of Contents
 
+* [Core concepts](#core-concepts)
+    * [Lifetime](#lifetime)
+    * [Reactivity](#reactivity)
+    * [Declarative UI](#declarative-ui)
 * [Installation guide](#installation-guide)
 * [Getting Started](#getting-started)
 * [Initialization](#initialization)
