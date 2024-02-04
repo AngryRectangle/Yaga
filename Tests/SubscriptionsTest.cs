@@ -16,6 +16,13 @@ namespace Tests
         }
         
         [Test]
+        public void Add_Null_ThrowsException()
+        {
+            var subs = new Subscriptions();
+            Assert.Catch<System.ArgumentNullException>(() => subs.Add(null));
+        }
+        
+        [Test]
         public void Add_DisposableExecuted()
         {
             var wasExecuted = false;

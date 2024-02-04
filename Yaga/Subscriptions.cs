@@ -14,6 +14,9 @@ namespace Yaga
 
         public ISubscriptions.Key Add(IDisposable disposable)
         {
+            if (disposable == null)
+                throw new ArgumentNullException(nameof(disposable));
+            
             var key = new ISubscriptions.Key(_keyIndex++);
             _disposables.Add(key, disposable);
             return key;
