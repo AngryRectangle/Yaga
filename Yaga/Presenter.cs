@@ -5,7 +5,6 @@ namespace Yaga
 {
     public interface IPresenter
     {
-        bool AcceptableView(Type viewType);
         internal Subscriptions Set(IView view, object model);
     }
 
@@ -76,8 +75,5 @@ namespace Yaga
         protected virtual void OnUnset(TView view)
         {
         }
-
-        public bool AcceptableView(Type viewType)
-            => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);
     }
 }
