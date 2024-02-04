@@ -64,18 +64,19 @@ namespace Yaga
             action();
         }
 
-        public static ISubscriptions.Key Set<TView, TModel>(this ISubscriptions owner, TView child, TModel model)
+        public static ViewControl<TView, TModel> Set<TView, TModel>(this ISubscriptions owner, TView child, TModel model)
             where TView : IView<TModel>
         {
             var subscriptions = UiBootstrap.Instance.Set(child, model);
-            return owner.Add(subscriptions);
+            var key = owner.Add(subscriptions);
+            subscriptions.Add(new Disposable(() => owner.Remove(key)));
+            return new ViewControl<TView, TModel>(child, subscriptions);
         }
 
-        public static ISubscriptions.Key Set<TView>(this ISubscriptions owner, TView child)
+        public static ViewControl<TView, Unit> Set<TView>(this ISubscriptions owner, TView child)
             where TView : IView<Unit>
         {
-            var subscriptions = UiBootstrap.Instance.Set(child, Unit.Instance);
-            return owner.Add(subscriptions);
+            return Set(owner, child, Unit.Instance);
         }
 
         public static ViewControl<TChildView, TChildModel> Create<TChildView, TChildModel>(
