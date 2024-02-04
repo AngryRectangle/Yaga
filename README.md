@@ -207,18 +207,43 @@ Each view is going through these stages:
 
 ## Presenter
 
-Presenter is a bridge between view and model.
-In the presenter you can subscribe on changes in model and update view
-or subscribe on player input and update model.
+In the presenter you describe how UI should react on changes in model or player input.
+To do that you often have to use external dependencies like ScriptableObjects with icons or other data.
+Without presenters you would have to pass those dependencies to the view every time you create it.
+And it would be a lot of boilerplate code. Considering prefab system in Unity, 
+it would mean that there are some views that doesn't have dependencies and need to be initialized with them before usage.
+It means that there are a lot of space for errors and bugs.
 
-Presenter have two main methods: `OnSet` and `OnUnset`.
-In those you can react on model setting or unsetting and, for example,
-subscribe on event in `OnSet` and unsubscribe in `OnUnset`.
+Presenters allow you to encapsulate all dependencies inside presenter. It allows you to easily use DI containers,
+and also ensures that if you have presenter for view, you have all dependencies for it.
+Just because you can't create a presenter without them.
+
+Presenter have one most important method: `OnSet`. You should override it to describe how view should react on model setting.
+The main idea behind that is to use reactivity to describe what UI need to look like depending on the model.
+This approach is very different from the more common imperative approach seen in Unity's UI.
+
+Such declarative approach allows you to describe UI in more abstract way 
+and also allows you to reuse your UI in different places without writing a lot of boilerplate code.
 
 ## Model
 
-Model is structure where you can store your data, events or properties.
-You can use any type as model, like int, string, IEnumerable or your own custom class.
+The model is structure where you can store your data, events or properties.
+You can use any type as a model, like int, string, IEnumerable or your own custom class.
+
+The model should include all data that affects UI and can be specific for each instance of the view.
+For example, if you have a button that should be disabled when some condition is met,
+you should put this condition to the model and subscribe on it in the presenter.
+But if that condition should be the same for all instances of that view, 
+you should put it to the presenter dependencies.
+If that condition can change its value during UI lifetime, you should use reactivity to track it.
+
+1. In the Model: Include data that impacts the UI and varies per view instance. 
+E.g., a condition that disables a button should be in the model, with the presenter subscribing to it.
+2. In Presenter Dependencies: Store data that is consistent across all view instances.
+3. Use Reactivity (like Observables): For data that changes during the 
+UI's lifetime and requires continuous monitoring to update the UI in real-time.
+
+## Reactivity
 
 Yaga provides minimal set of classes required for reactive programming.
 
