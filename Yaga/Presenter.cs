@@ -41,9 +41,6 @@ namespace Yaga
         protected virtual void OnUnset(TView view)
         {
         }
-
-        public bool AcceptableView(Type viewType)
-            => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);
     }
 
     public abstract class Presenter<TView> : IPresenter<TView, Unit>
