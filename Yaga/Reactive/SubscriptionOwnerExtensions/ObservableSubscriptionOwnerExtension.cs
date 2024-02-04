@@ -1,5 +1,6 @@
 ﻿using System;
 using Optional;
+using UnityEngine;
 
 namespace Yaga.Reactive
 {
@@ -39,19 +40,26 @@ namespace Yaga.Reactive
             Action<T> action)
             => owner.Add(observable.Subscribe(action));
 
-        public static ISubscriptions.Key Set<TView, TModel>(this ISubscriptions owner, TView child,
+        public static IDisposable Set<TView, TModel>(this ISubscriptions owner, TView child,
             IReadOnlyObservable<TModel> observableModel)
             where TView : IView<TModel>
         {
-            var cancelKey = Option.None<ISubscriptions.Key>();
+            var viewControl = owner.Set(child, observableModel.Value);
+            var cancelKey = owner.Add(new Disposable(() => viewControl.Unset()));
             var unsubscription = observableModel.Subscribe(model =>
             {
-                cancelKey.MatchSome(key => owner.Remove(key));
-                var viewControl = owner.Set(child, model);
-                cancelKey = owner.Add(new Disposable(() => viewControl.Unset())).Some();
+                var result = owner.Remove(cancelKey);
+                Debug.Assert(result, "Key is stored only here, so it should be removed successfully");
+                viewControl = owner.Set(child, model);
+                cancelKey = owner.Add(new Disposable(() => viewControl.Unset()));
             });
 
-            return owner.Add(unsubscription);
+            var key =  owner.Add(unsubscription);
+            return new Disposable(() =>
+            {
+                owner.Remove(key);
+                unsubscription.Dispose();
+            });
         }
     }
 }
