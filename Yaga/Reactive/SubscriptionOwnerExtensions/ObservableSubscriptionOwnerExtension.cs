@@ -77,7 +77,7 @@ namespace Yaga.Reactive
             return unsubscription;
         }
 
-        public static IDisposable Set<TView, TModel>(this ISubscriptions owner, TView child,
+        internal static IDisposable Set<TView, TModel>(this ISubscriptions owner, TView child,
             IReadOnlyObservable<Option<TModel>> observableModel, OptionalStrategy strategy = OptionalStrategy.Activity)
             where TView : MonoBehaviour, IView<TModel>
         {
