@@ -38,65 +38,26 @@ namespace Tests
             Assert.IsFalse(((IView)viewControl.View).Model.HasValue);
             Assert.IsFalse(((IView<string>)viewControl.View).Model.HasValue);
         }
-        
+
         [Test]
-        public void Add_AfterUnset_ThrowsException()
+        public void Subs_ModelSet_IsSome()
         {
             const string testModel = "testModel";
             UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
-            viewControl.Unset();
-
-            Assert.Throws<ViewModelIsUnsetException>(() => viewControl.Add(new Disposable()));
+            
+            Assert.IsTrue(viewControl.Subs.HasValue);
         }
         
         [Test]
-        public void Add_ActuallyAdds()
+        public void Subs_ModelUnset_IsNone()
         {
-            var isInvoked = false;
             const string testModel = "testModel";
             UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
             var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
-            viewControl.Add(new Disposable(()=>isInvoked = true));
             viewControl.Unset();
             
-            Assert.IsTrue(isInvoked);
-        }
-        
-        [Test]
-        public void Remove_ActuallyRemoves()
-        {
-            var isInvoked = false;
-            const string testModel = "testModel";
-            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
-            var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
-            var key = viewControl.Add(new Disposable(()=>isInvoked = true));
-            var isRemoved = viewControl.Remove(key);
-            viewControl.Unset();
-            
-            Assert.IsTrue(isRemoved);
-            Assert.IsFalse(isInvoked);
-        }
-        
-        [Test]
-        public void Remove_IncorrectKey_ReturnsFalse()
-        {
-            const string testModel = "testModel";
-            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
-            var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
-            var isRemoved = viewControl.Remove(new ISubscriptionsOwner.Key());
-            Assert.IsFalse(isRemoved);
-        }
-        
-        [Test]
-        public void Remove_AfterUnset_ThrowsException()
-        {
-            const string testModel = "testModel";
-            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
-            var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, testModel);
-            viewControl.Unset();
-
-            Assert.Throws<ViewModelIsUnsetException>(() => viewControl.Remove(new ISubscriptionsOwner.Key()));
+            Assert.IsFalse(viewControl.Subs.HasValue);
         }
     }
 }
