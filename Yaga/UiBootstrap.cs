@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Yaga.Exceptions;
-using Yaga.Extensions;
-using Yaga.Utils;
 
 namespace Yaga
 {
@@ -27,16 +25,20 @@ namespace Yaga
         /// <summary>
         /// List of all bound presenters.
         /// </summary>
-        private List<IPresenter> _presenters;
+        private readonly Dictionary<Type, IPresenter> _presenters;
 
         private UiBootstrap()
         {
-            _presenters = new List<IPresenter>();
+            _presenters = new Dictionary<Type, IPresenter>();
         }
 
-        public UiBootstrap(List<IPresenter> presenters)
+        public UiBootstrap(List<IPresenter> presenters) : this()
         {
-            _presenters = presenters ?? throw new ArgumentNullException(nameof(presenters));
+            if (presenters is null)
+                throw new ArgumentNullException(nameof(presenters));
+            
+            foreach (var presenter in presenters) 
+                Bind(presenter);
         }
 
         /// <summary>
@@ -58,34 +60,38 @@ namespace Yaga
 
         /// <summary>
         /// Binds presenter to view. Remember that presenter and view have to have single-to-single relation.
-        /// <exception cref="ArgumentNullException">If presenter is null</exception>
         /// </summary>
-        /// <inheritdoc cref="Instance"/>
-        /// <inheritdoc cref="CheckPresenterInterface"/>
-        public static void Bind(IPresenter presenter)
+        /// <exception cref="ArgumentNullException">If presenter is null</exception>
+        /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
+        /// <inheritdoc cref="GetAcceptableViewTypes"/>
+        public void Bind(IPresenter presenter)
         {
             if (presenter == null)
                 throw new ArgumentNullException(nameof(presenter));
 
-            CheckPresenterInterface(presenter.GetType());
-            Instance._presenters.Add(presenter);
+            var acceptableViews = GetAcceptableViewTypes(presenter);
+            foreach (var viewType in acceptableViews)
+            {
+                if (_presenters.TryGetValue(viewType, out var existingPresenter))
+                    throw new MultiplePresenterException(viewType, existingPresenter.GetType(), presenter.GetType());
+
+                _presenters.Add(viewType, presenter);
+            }
         }
 
         /// <summary>
         /// Binds presenter with default constructor to view. Remember that presenter and view have to have single-to-single relation.
         /// </summary>
         /// <exception cref="NoDefaultConstructorForPresenterException">If presenter has no default constructor.</exception>
-        /// <inheritdoc cref="Instance"/>
-        /// <inheritdoc cref="CheckPresenterInterface"/>
-        public static void Bind<TPresenter>()
+        /// <exception cref="MultiplePresenterException">If there are more then one acceptable <see cref="IPresenter"/> for view.</exception>
+        /// <inheritdoc cref="GetAcceptableViewTypes"/>
+        public void Bind<TPresenter>()
             where TPresenter : IPresenter
         {
-            CheckPresenterInterface(typeof(TPresenter));
-
             try
             {
                 var instance = Activator.CreateInstance<TPresenter>();
-                Instance._presenters.Add(instance);
+                Bind(instance);
             }
             catch (MissingMethodException _)
             {
@@ -95,45 +101,10 @@ namespace Yaga
         }
 
         /// <summary>
-        /// Check if presenters implements correct interfaces.
-        /// </summary>
-        /// <exception cref="PresenterBindingException">If presenter doesn't implement correct interfaces.</exception>
-        private static void CheckPresenterInterface(Type presenterType)
-        {
-            var interfaces = presenterType.GetInterfaces();
-            var modelessInterface = interfaces.SingleOrDefault(e =>
-                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<>));
-            var modelInterface = interfaces.SingleOrDefault(e =>
-                e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>));
-
-            if (modelessInterface is null && modelInterface is null)
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> or I{nameof(IPresenter)}<{nameof(IView)}, Model> interface but it doesn't.",
-                    presenterType);
-
-            var viewType = modelInterface?.GetGenericArguments()[0] ?? modelessInterface.GetGenericArguments()[0];
-            var viewHasModel = viewType.IsAssignableToGenericType(typeof(IView<>));
-            if (viewHasModel && modelessInterface is object)
-            {
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}, Model> interface because {viewType.FullName} has model.",
-                    presenterType);
-            }
-
-            if (!viewHasModel && modelInterface is object)
-            {
-                // Actually this impossible to happen because of generic constraints for IPresenter<TView,TModel>.
-                throw new PresenterBindingException(
-                    $"Presenter {presenterType.FullName} must implement {nameof(IPresenter)}<{nameof(IView)}> interface because {viewType.FullName} doesn't have model.",
-                    presenterType);
-            }
-        }
-
-        /// <summary>
         /// Clear all bound presenters.
         /// </summary>
         /// <inheritdoc cref="Instance"/>
-        public static void ClearPresenters()
+        public void ClearPresenters()
         {
             Instance._presenters.Clear();
         }
@@ -143,7 +114,7 @@ namespace Yaga
         /// </summary>
         /// <exception cref="ArgumentNullException">If view or model is null.</exception>
         /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TView, TModel>(TView view, TModel model)
+        internal Subscriptions Set<TView, TModel>(TView view, TModel model)
             where TView : IView<TModel>
         {
             if (view is null)
@@ -151,9 +122,6 @@ namespace Yaga
 
             if (model is null)
                 throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
 
             /*
              * Previously there was this line of code:
@@ -164,119 +132,42 @@ namespace Yaga
              * So to fix it, I've created IPresenterWithUnspecifiedView interface
              * to avoid reflection and boilerplate with Set method call.
              */
-            
-            var controller = (IPresenterWithUnspecifiedView)GetController(view.GetType());
-            controller.Set(view, model);
+
+            if (_presenters.TryGetValue(view.GetType(), out var presenter))
+                return presenter.Set(view, model);
+
+            throw new PresenterNotFoundException(view.GetType());
         }
 
-        /// <summary>
-        /// Call set method for presenter for view without model.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view is null.</exception>
-        /// <exception cref="ArgumentException">If TView requires model</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TView>(TView view)
-            where TView : IView
+        /// <exception cref="PresenterBindingException">if presenter doesn't implement <see cref="IPresenter{TView,TModel}"/>
+        /// interface or implements more then one.</exception>
+        private static IEnumerable<Type> GetAcceptableViewTypes(IPresenter presenter)
         {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
+            var presenterType = presenter.GetType();
+            var interfaces = presenterType.GetInterfaces();
+            var viewTypesEnumerable = interfaces
+                .Where(e => e.IsGenericType && e.GetGenericTypeDefinition() == typeof(IPresenter<,>))
+                .Select(e => e.GetGenericArguments()[0]);
 
-            var controller = GetController(view.GetType()) as IPresenter<TView>;
-            if (controller is null)
-                throw new ArgumentException($"{typeof(TView)} require model", nameof(view));
-
-            controller.Set(view);
-        }
-
-        /// <summary>
-        /// Sets model to provided view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view or model is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : View<TModel>
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            if (model is null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
-
-            var controller
-                = (IPresenter<ListView<TChild, TModel>, IObservableEnumerable<TModel>>)GetController(view.GetType());
-            controller.Set(view, new ObservableList<TModel>(model));
-        }
-
-        /// <summary>
-        /// Sets model to provided view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view or model is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Set<TChild, TModel>(ListView<TChild, TModel> view, IObservableEnumerable<TModel> model)
-            where TChild : View<TModel>
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            if (model is null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (view.HasModel && view.Model.Equals(model))
-                return;
-
-            var controller
-                = (IPresenter<ListView<TChild, TModel>, IObservableEnumerable<TModel>>)GetController(view.GetType());
-            controller.Set(view, model);
-        }
-
-        /// <summary>
-        /// Calls unset method for certain view.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If view is null.</exception>
-        /// <inheritdoc cref="UiBootstrap.GetController"/>
-        public void Unset(IView view)
-        {
-            if (view is null)
-                throw new ArgumentNullException(nameof(view));
-
-            GetController(view.GetType()).Unset(view);
-        }
-
-        /// <summary>
-        /// Get acceptable presenter from presenters list for view.
-        /// </summary>
-        /// <exception cref="PresenterNotFoundException">If there is no acceptable presenter for view.</exception>
-        /// <exception cref="MultiplePresenterException">If there are more than one acceptable presenter for view.</exception>
-        internal IPresenter GetController(Type viewType)
-        {
+            Type viewType;
             try
             {
-                var controller = _presenters.SingleOrDefault(e => e.AcceptableView(viewType));
-                if (controller == default)
-                    throw new PresenterNotFoundException(viewType);
-                return controller;
+                viewType = viewTypesEnumerable.SingleOrDefault();
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException _)
             {
-                throw new MultiplePresenterException(viewType);
+                throw new PresenterBindingException("Presenter implements more then one IPresenter<,> interface.",
+                    presenterType);
             }
+
+            if (viewType is null)
+                throw new PresenterBindingException("Presenter doesn't implement IPresenter<,> interface.",
+                    presenterType);
+
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.DefinedTypes)
+                .Where(type => viewType.IsAssignableFrom(type))
+                .Select(e => e.AsType());
         }
-
-        /// <summary>
-        /// Method for reflection for bindings. Don't use, don't rename, don't delete.
-        /// </summary>
-        private void SetView<TView, TModel>(TView view, TModel model)
-            where TView : IView<TModel>
-            => Set(view, model);
-
-        /// <summary>
-        /// Method for reflection for bindings. Don't use, don't rename, don't delete.
-        /// </summary>
-        private void SetList<TChild, TModel>(ListView<TChild, TModel> view, IEnumerable<TModel> model)
-            where TChild : View<TModel>
-            => Set(view, model);
     }
 }

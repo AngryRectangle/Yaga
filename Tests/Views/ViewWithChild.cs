@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Yaga.Test.Documentation;
 
 namespace Yaga.Test
@@ -8,6 +7,5 @@ namespace Yaga.Test
     {
         [SerializeField] public ModelessView modelessView;
         [SerializeField] public SimpleTextButtonView viewWithModel;
-        public override IEnumerable<IView> Children => new IView[]{ modelessView, viewWithModel };
     }
 }

@@ -1,26 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
+using Optional;
 using UnityEngine;
 
 namespace Yaga
 {
-    public interface IView : IEquatable<IView>, IEnumerable<IView>
+    public interface IView : IEquatable<IView>
     {
-        internal bool IsSetted { get; set; }
-        IEnumerable<IView> Children { get; }
         int GetInstanceID();
         bool IsPrefab { get; }
-        IView Create(Transform parent);
         void Destroy();
-        internal void OnUnsubscribe();
-        internal void SetAsRootParent(Transform parent);
+        IView Create(RectTransform parent, bool isRoot = false);
+        internal Option<Subscriptions> Model { get; }
     }
 
     public interface IView<TModel> : IView
     {
-        bool HasModel { get; set; }
-        TModel Model { get; internal set; }
-        void Set(TModel model);
-        void Unset();
+        internal new Option<(TModel Model, Subscriptions Subs)> Model { get; set; }
     }
 }

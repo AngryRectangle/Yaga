@@ -1,0 +1,48 @@
+name: Run Unity Tests
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+
+      - name: copy dir to new dir
+        run: |
+          pwd
+          folderName=$(echo "${PWD##*/}")
+          rsync -r "$GITHUB_WORKSPACE" "copiedProject" 
+          ls -F "copiedProject/$folderName"
+
+      - name: Run tests
+        id: runTests
+        uses: game-ci/unity-test-runner@main
+        env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          projectPath: ./copiedProject/Yaga
+          unityVersion: "2020.3.48f1"
+          testMode: all
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Yaga*,-*Test*'
+          packageMode: true
+
+      # Upload coverage
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Package Coverage results (all)
+          path: ${{ steps.runTests.outputs.coveragePath }}
+          retention-days: 1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: ${{ steps.runTests.outputs.coveragePath }}/**/*.xml 
+          flags: unity-tests
+          name: codecov-unity
+
+

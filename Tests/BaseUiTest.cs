@@ -1,5 +1,10 @@
-﻿using UnityEditor;
+﻿using System;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
 using Yaga.Test;
+using Object = UnityEngine.Object;
 
 namespace Tests
 {
@@ -7,14 +12,14 @@ namespace Tests
     {
         private PrefabLocator _locator;
 
-        public PrefabLocator Locator
+        public PrefabLocator Locator =>
+            _locator ? _locator : _locator = GetFirstWithName<PrefabLocator>("TestPrefabLocator.asset");
+
+        private T GetFirstWithName<T>(string name)
+            where T : Object
         {
-            get
-            {
-                if(_locator is null)
-                    _locator = AssetDatabase.LoadAssetAtPath<PrefabLocator>("Assets/Tests/TestPrefabLocator.asset");
-                return _locator;
-            }
+            var path = AssetDatabase.FindAssets("TestPrefabLocator").Select(AssetDatabase.GUIDToAssetPath).Single();
+            return AssetDatabase.LoadAssetAtPath<T>(path);
         }
     }
 }

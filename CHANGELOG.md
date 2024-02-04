@@ -1,3 +1,49 @@
+#### 0.8.0 (2024-02-05)
+
+##### BREAKING CHANGES
+* remove AcceptableView implementation from Presenter ([8a1074af](https://github.com/AngryRectangle/Yaga/commit/8a1074af59047041089dadd80ca81d29d5e4a893))
+* remove AcceptableView from IPresenter ([57b5a653](https://github.com/AngryRectangle/Yaga/commit/57b5a6531a8626fe7a601216d57dfd2a8edc4ed2))
+* move Bind method from static to instance in UiBootstrap.cs ([b1d10744](https://github.com/AngryRectangle/Yaga/commit/b1d1074404d0c8f1e831a849deadff8bd48650df))
+* remove IPresenterWithUnspecifiedView to use much safer approach ([5961a5d9](https://github.com/AngryRectangle/Yaga/commit/5961a5d9b0d0600a9d9f017eab2b4b493a073fb0))
+* refactor UiBootstrap presenters binding logic ([c7a3ddda](https://github.com/AngryRectangle/Yaga/commit/c7a3ddda5a1d5e78b7c1e81bb3f9af48facaa047))
+* removed all linq-style method duplicates for OptionalObservable to avoid ambiguous references ([a31b3f52](https://github.com/AngryRectangle/Yaga/commit/a31b3f528673628885d5b28cf2370ce17f5610d6))
+* rename Data in observables to Value ([016262e1](https://github.com/AngryRectangle/Yaga/commit/016262e179751c7a8a4be3661c4634d86583f7f5))
+* huge framework overhaul ([00bded91](https://github.com/AngryRectangle/Yaga/commit/00bded915a4ce5167233f54541298937030834d8))
+
+##### New Features
+* feat: add internal create methods for observable model ([5dfb1c9d](https://github.com/AngryRectangle/Yaga/commit/5dfb1c9ddb14e64fb2658dd5473dc5beef7f487c))
+* feat: add set extension method for OptionalObservable ([b167518a](https://github.com/AngryRectangle/Yaga/commit/b167518a59341c658f3c9b7104cb13626d7834a3))
+* feat: add create extension to create child views ([b16455f9](https://github.com/AngryRectangle/Yaga/commit/b16455f9ab81bb9c95320c00acff7d0d85e40e65))
+* feat: add WhereSelect extension for observables ([5282f0ae](https://github.com/AngryRectangle/Yaga/commit/5282f0aec1570dcd96b266ad56db2750781b7c75))
+
+##### Fixes:
+observable was throwing exceptions after view destroying ([87248aaa](https://github.com/AngryRectangle/Yaga/commit/87248aaa60308b6a8859938ddea5e78ad9419347))
+add null check for Subscriptions.Add ([3e8a8f70](https://github.com/AngryRectangle/Yaga/commit/3e8a8f70dcd64210757480da4ec146493d53ff5d))
+set method for observable subscription extension ([e46e28df](https://github.com/AngryRectangle/Yaga/commit/e46e28dff5e9a0ed9568c253253c59f421af3467))
+
+##### Documentation Changes
+* more xml docs for extension methods and presenters ([24dd68a4](https://github.com/AngryRectangle/Yaga/commit/24dd68a4d5b07d36a85842387f62d4fcda1433fb))
+* add new info to getting started section ([d43ab27a](https://github.com/AngryRectangle/Yaga/commit/d43ab27a2a2a2965af19e6e17314d26988a5d251))
+* add more info for models and presenters section ([294ca749](https://github.com/AngryRectangle/Yaga/commit/294ca749ade6b14f7fddc9092f16620ef615e3d6))
+* refactor reactivity section ([ae939145](https://github.com/AngryRectangle/Yaga/commit/ae939145d9b64886023660b573d6448b08d103ec))
+* add core concepts section ([da04b00c](https://github.com/AngryRectangle/Yaga/commit/da04b00ca1e7cc01d1a98d94ab83117f1ef0d50d))
+* update readme to reflect big refactoring ([4f694a86](https://github.com/AngryRectangle/Yaga/commit/4f694a86d6d944b1bb265678a5b553d4fac5f8ed))
+* update badges for README.md ([e36656b0](https://github.com/AngryRectangle/Yaga/commit/e36656b09cedf99d56174f36d581fe830b2dd392))
+
+##### Continuous Integration
+* ci: add testing and coverage reporting ([e34a9d82](https://github.com/AngryRectangle/Yaga/commit/e34a9d82a84021a2504ab9b8593f042f8690df19))
+
+##### Tests
+* temporary remove for optional observable set method ([74a55c31](https://github.com/AngryRectangle/Yaga/commit/74a55c31de7da9856f79d1cd3130e6778f8b11b5))
+* add test for observable Set extension method ([abe82bf2](https://github.com/AngryRectangle/Yaga/commit/abe82bf2351e408f90d248eb0b4c88379a424b69))
+* fix prefabs ([eb4ebd82](https://github.com/AngryRectangle/Yaga/commit/eb4ebd8260a7137d40f6e504e13cc4817a3607f3))
+* add beacon tests ([385a9a60](https://github.com/AngryRectangle/Yaga/commit/385a9a60f406b073afbb33de1b3fd9a0de6e2f7d))
+* add observable tests ([955e8377](https://github.com/AngryRectangle/Yaga/commit/955e837727f90fd3f5e257e739d427f31252d51e))
+* add tests for Subscriptions ([7c5bfbc0](https://github.com/AngryRectangle/Yaga/commit/7c5bfbc0e63fe411b4e966f08634dfcfdccec116))
+* another attempt to fix github tests ([68e80117](https://github.com/AngryRectangle/Yaga/commit/68e8011709f77d47944a420d22c116f67fed1ebe))
+* update prefab locator to fix github tests ([1395bf08](https://github.com/AngryRectangle/Yaga/commit/1395bf08d406412788958e2623892b62098ffd36))
+* update for UiBootstrap ([f581659a](https://github.com/AngryRectangle/Yaga/commit/f581659ac748affdc66cf3c903f83c0e6963ccc2))
+
 #### 0.7.0 (2024-01-28)
 
 ##### BREAKING CHANGES

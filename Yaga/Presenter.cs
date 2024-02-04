@@ -1,111 +1,95 @@
 ﻿using System;
+using Optional;
 
 namespace Yaga
 {
-    // This interfaces is needed to avoid c# generics stupidity on UiBootstrap.Set method.
-    public interface IPresenterWithUnspecifiedView : IPresenter
-    {
-        void Set(IView view, object model);
-    }
-    
-    public interface IPresenter<in TView, in TModel> : IPresenterWithUnspecifiedView
-        where TView : IView<TModel>
-    {
-        void Set(TView view, TModel model);
-        void Unset(TView view);
-    }
-
     public interface IPresenter
     {
-        bool AcceptableView(Type viewType);
-        void Unset(IView view);
+        internal Subscriptions Set(IView view, object model);
     }
 
-    public interface IPresenter<in TView> : IPresenter
-        where TView : IView
+    public interface IPresenter<in TView, in TModel> : IPresenter
+        where TView : IView<TModel>
     {
-        void Set(TView view);
-        void Unset(TView view);
+        internal Subscriptions Set(TView view, TModel model);
     }
 
     public abstract class Presenter<TView, TModel> : IPresenter<TView, TModel>
         where TView : IView<TModel>
     {
-        public void Set(IView view, object model) => Set((TView)view, (TModel)model);
-
-        public void Set(TView view, TModel model)
+        Subscriptions IPresenter.Set(IView view, object model)
         {
-            if (view.HasModel)
+            return ((IPresenter<TView, TModel>)this).Set((TView)view, (TModel)model);
+        }
+
+        Subscriptions IPresenter<TView, TModel>.Set(TView view, TModel model)
+        {
+            var subscriptions = new Subscriptions();
+            view.Model.MatchSome(active => active.Subs.Dispose());
+            view.Model = (model, subscriptions).Some();
+            OnSet(view, model, subscriptions);
+            subscriptions.Add(new Disposable(() =>
             {
-                if (model.Equals(view.Model))
-                    return;
-
-                Unset(view);
-            }
-
-            view.HasModel = true;
-            view.Model = model;
-            OnModelSet(view, model);
-            view.IsSetted = true;
+                view.Model = Option.None<(TModel, Subscriptions)>();
+                OnUnset(view);
+            }));
+            return subscriptions;
         }
 
-        public void Unset(TView view)
-        {
-            if (!view.HasModel)
-                return;
-
-            view.HasModel = false;
-            foreach (var child in view)
-                UiBootstrap.Instance.Unset(child);
-
-            view.OnUnsubscribe();
-            OnModelUnset(view);
-            view.IsSetted = false;
-        }
-
-        protected abstract void OnModelSet(TView view, TModel model);
-
-        protected virtual void OnModelUnset(TView view)
-        {
-        }
-
-        public void Unset(IView view) => Unset((TView)view);
-
-        public bool AcceptableView(Type viewType)
-            => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);
-    }
-
-    public abstract class Presenter<TView> : IPresenter<TView>
-        where TView : View
-    {
-        public void Set(IView view) => Set((TView)view);
-
-        public void Set(TView view)
-        {
-            OnSet(view);
-            (view as IView).IsSetted = true;
-        }
-
-        protected virtual void OnSet(TView view)
-        {
-        }
-
-        public void Unset(IView view) => Unset((TView)view);
-
-        public void Unset(TView view)
-        {
-            foreach (var child in view)
-                UiBootstrap.Instance.Unset(child);
-
-            OnUnset(view);
-            (view as IView).IsSetted = false;
-        }
+        /// <summary>
+        /// Invoked when model for view is being set.
+        /// </summary>
+        /// <param name="view">View instance</param>
+        /// <param name="model">Model instance</param>
+        /// <param name="subs">Object that stores subscription which will be canceled during model unset</param>
+        protected abstract void OnSet(TView view, TModel model, ISubscriptions subs);
+        /// <summary>
+        /// Invoked when model for view is being unset.
+        /// </summary>
+        /// <param name="view">View instance</param>
 
         protected virtual void OnUnset(TView view)
         {
         }
+    }
 
-        public bool AcceptableView(Type viewType)
-            => viewType == typeof(TView) || typeof(TView).IsAssignableFrom(viewType);
+    public abstract class Presenter<TView> : IPresenter<TView, Unit>
+        where TView : IView<Unit>
+    {
+        Subscriptions IPresenter.Set(IView view, object model)
+        {
+            return ((IPresenter<TView, Unit>)this).Set((TView)view, (Unit)model);
+        }
+
+        Subscriptions IPresenter<TView, Unit>.Set(TView view, Unit model)
+        {
+            var subscriptions = new Subscriptions();
+            view.Model.MatchSome(active => active.Subs.Dispose());
+            view.Model = (model, subscriptions).Some();
+            OnSet(view, subscriptions);
+            subscriptions.Add(new Disposable(() =>
+            {
+                view.Model = Option.None<(Unit, Subscriptions)>();
+                OnUnset(view);
+            }));
+            return subscriptions;
+        }
+
+        /// <summary>
+        /// Invoked when model for view is being set.
+        /// </summary>
+        /// <param name="view">View instance</param>
+        /// <param name="subs">Object that stores subscription which will be canceled during model unset</param>
+        protected virtual void OnSet(TView view, ISubscriptions subs)
+        {
+        }
+
+        /// <summary>
+        /// Invoked when model for view is being unset.
+        /// </summary>
+        /// <param name="view">View instance</param>
+        protected virtual void OnUnset(TView view)
+        {
+        }
     }
 }

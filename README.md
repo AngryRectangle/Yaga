@@ -1,18 +1,67 @@
-[![Coverage Status](./Reports/CodeCoverage/Report/badge_shieldsio_linecoverage_red.svg?dummy=8484744)](./Reports/CodeCoverage/Report//index.html)
+[![test status](https://github.com/AngryRectangle/Yaga/actions/workflows/tests.yml/badge.svg?branch=main)](https://codecov.io/gh/AngryRectangle/Yaga)
+[![codecov](https://codecov.io/gh/AngryRectangle/Yaga/branch/main/graph/badge.svg)](https://codecov.io/gh/AngryRectangle/Yaga)
 
 # Yaga
 
-**Yaga** is a simple UI lib for Unity.
-The main goal of the lib is to minimize amount of code you need to write for proper MVVM UI and keep it simple and
-reliable.
+Yaga is a sleek and powerful UI library for Unity, designed for simplicity and reusability. 
+It eradicates the need for verbose boilerplate, providing a fluent API and ensuring code safety. 
+Yaga's architecture promotes effortless code reusability and seamless integration with DI frameworks like Zenject, 
+streamlining your development process. 
+Embrace a library that not only minimizes coding effort but also enriches your project with maintainable, 
+efficient, and reliable MVVM UI architecture.
 
-### Attention! Achtung! Внимание!
+Yaga stands out with its modular design, offering unparalleled flexibility. 
+It allows seamless integration or replacement of its internal reactivity system with UniRx, 
+catering to your project's specific needs. Whether you choose to harness the power of UniRx, 
+rely on Yaga's built-in reactivity, or combine both, Yaga ensures a tailored, 
+efficient approach to managing reactivity in your Unity projects.
+
+## Core concepts
+### Lifetime
+One of the main problems of using MonoBehaviours for UI logic is that you have to somehow access
+runtime data from them. It means that your MonoBehaviour view has runtime dependencies.
+There are also "editortime" dependencies like prefabs, scriptable objects, 
+basically everything that you can use in the inspector.
+But you can't, for example, assign as a editortime dependency your games state.
+To do that you would have to have it all in MonoBehaviours, but it would be a huge mess,
+because having all your logic in MonoBehaviours put a lot of restrictions on your code.
+But you can still pass those runtime dependencies to the view when you create it with a lot of boilerplate code.
+And there is a catch. Lifetime of your view is not the same as lifetime of your runtime dependencies.
+Your views are also editortime, because they are created as a prefab in editor.
+Runtime dependencies are created in runtime, after you press play button.
+It means that you have to pass runtime dependencies to the view after you instantiated it from prefab.
+It provokes a lot of errors, for example, forgetting to pass dependencies before using the view or passing them twice, etc.
+To solve this problems Presenters were introduced. They allow you to encapsulate all runtime dependencies inside runtime presenter.
+
+But there is also another problem. Lifetime of data that affects UI can be even shorter than lifetime of the view.
+For example, you have inventory view that shows items from inventory.
+You want to reuse inventory child views that represent items in inventory because it is much more performant,
+than creating new view every time new item added or removed from inventory.
+That means some views can exists without data assigned to them. It can also lead to a lot of errors,
+such as memory leaking due to not unsubscribing from data changes or something like that.
+To solve this problem Models were introduced. 
+They allow you to store data that affects UI and can be specific for each instance of the view.
+And you can replace model for the view without creating new view.
+
+![Lifetime](https://i.imgur.com/QAdBtoT.png)
+
+### Reactivity
+More about reactive programming can be read in [this github article](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754).
+
+### Declarative UI
+More about declarative UI can be read in [this article](https://medium.com/israeli-tech-radar/declarative-ui-what-how-and-why-13e092a7516f).
+
+## Attention! Achtung! Внимание!
 
 Breaking changes alert!
 Breaking changes are possible due to early development stage.
 
 ## Table of Contents
 
+* [Core concepts](#core-concepts)
+    * [Lifetime](#lifetime)
+    * [Reactivity](#reactivity)
+    * [Declarative UI](#declarative-ui)
 * [Installation guide](#installation-guide)
 * [Getting Started](#getting-started)
 * [Initialization](#initialization)
@@ -21,11 +70,11 @@ Breaking changes are possible due to early development stage.
 * [View](#view)
 * [Presenter](#presenter)
 * [Model](#model)
-* [Beacon](#beacon)
-* [Observables](#observables)
+* [Reactivity](#reactivity)
+    * [Beacon](#beacon)
     * [Observable](#observable)
-    * [Binding chains](#binding-chains)
-    * [OptionalObservable](#OptionalObservable)
+    * [Observable chains](#observable-chains)
+    * [OptionalObservable](#optionalobservable)
 * [Editor Binding](#editor-binding)
 * [Best Practices](#best-practices)
 
@@ -39,12 +88,11 @@ Click "+" on the top left and paste link to repository:
 
 ## Getting Started
 
-Firstly you need to create view class which will be in inspector
-and create presenter class which will help you to change your view depending
-on values in model.
+First, create a view class in the inspector and a presenter class 
+to dynamically update the view based on model values.
 
 In this example SimpleTextButtonView is just a wrapper for button with text.
-It will allow you change text on button and do something when button is clicked.
+It will allow you to change the text on the button and do something when the button is clicked.
 
 ```c#
 // Create class for view with string model.
@@ -57,12 +105,12 @@ public class SimpleTextButtonView : View<string>
     // Create presenter for view, which will handle input from view and apply data from model.
     public class Presenter : Presenter<SimpleTextButtonView, string>
     {
-        protected override void OnModelSet(SimpleTextButtonView view, string model)
+        protected override void OnSet(SimpleTextButtonView view, string model, ISubscriptionsOwner subs)
         {
             // Set string value to text on button.
             view.buttonText.text = model;
             // Subscribe on button onClick and log messages after every click.
-            view.Subscribe(view.button, () => Debug.Log("Click"));
+            subs.Subscribe(view.button, () => Debug.Log("Click"));
         }
     }
 }
@@ -77,17 +125,58 @@ UiBootstrap.InitializeSingleton();
 UiControl.InitializeSingleton(canvasPrefab);
 
 // Bind presenter to make library call its method when it needed.
-UiBootstrap.Bind(new SimpleTextButtonView.Presenter());
+UiBootstrap.Instance.Bind(new SimpleTextButtonView.Presenter());
 ```
 
-After initialization you only have write single line to create instance of view
-with "Sample text" on button. Also, when you click button, you will see "Click"
-in the console.
+After initialization, you only need to write a single line
+to create an instance of the view with 'Sample text' on the button.
 
 ```c#
 // Create instance of sample view with "Sample text" on button.
-UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+
+var wasInvoked = false;
+Assert.AreEqual("Sample text", viewControl.View.Text.text);
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+viewControl.View.Button.onClick.Invoke();
+Assert.IsTrue(wasInvoked);
 ```
+
+viewControl is a reference to the view instance and model control for it.
+You can call 'Set()' to set new model to view.
+
+```c#
+viewControl.Set("New text");
+
+Assert.AreEqual("New text", viewControl.View.Text.text);
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+viewControl.View.Button.onClick.Invoke();
+Assert.IsTrue(wasInvoked);
+```
+
+Also you can call 'Unset()' to unsubscribe from model and end all active subscriptions.
+
+```c#
+viewControl.Unset();
+
+wasInvoked = false;
+// It will not match, because Subs is None.
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+Assert.IsFalse(viewControl.Subs.HasValue);
+viewControl.View.Button.onClick.Invoke();
+Assert.IsFalse(wasInvoked, "Button action was executed");
+```
+
+Or you can call 'Destroy()' to destroy view gameobject and unset model if it is set.
+
+```c#
+viewControl.Destroy();
+
+yield return null;
+// GameObject is destroyed, so viewControl.View is null.
+Assert.IsTrue(viewControl.View == null);
+```
+
 
 ## Initialization
 
@@ -129,59 +218,84 @@ UiBootstrap.InitializeSingleton(_uiBootstrap);
 
 ### Presenters binding
 
-You have to put your presenter for every view type you have created.
+You have to put your presenter for every view type you will use.
 It is possible either with shortcut method for presenters with
 parameterless constructors or just with binding instance of your presenter.
 
 ```c#
 // For presenter with parameterless constructor.
-UiBootstrap.Bind<Presenter>();
+UiBootstrap.Instance.Bind<Presenter>();
 
 // For presenters with parameters in constructor.
-UiBootstrap.Bind(new Presenter(param1, param2));
+UiBootstrap.Instance.Bind(new Presenter(param1, param2));
 ```
 
 ## View
 
-View is a MonoBehaviour which is used to show your data to player and handler player input.
-Each view can have concrete model type like int, string, our your custom type.
-Or it can have no model. Also each view has one and only one Presenter.
+A View is a MonoBehaviour used to display data to the player and handle player input.
+Each view has a concrete model type like int, string, or your custom type.
+If you want to have view without model you can, but it will be just a wrapper around Unit as a model.
+Also each view has one and only one Presenter.
 
 Relation scheme between view, presenter and model:
 `View ⇆ Presenter ⇆ Model`
 
 Each view is going through these stages:
 
-1. Create - instantiates game object and make it inactive after instantiation
-2. Set - shows view after model was set
-3. Unset - hides view after model unset
-4. Destroy - preparing view for destroy and call Destroy method on it.
-
-Each stage should be called in represented order
-and order violation is not recommended.
+1. Create - instantiates game object
+2. Set - sets the model for view, creating subscriptions and view update
+3. Unset - unsubscribe from model and end all active subscriptions
+4. Destroy - destroying views game object
 
 ## Presenter
 
-Presenter is a bridge between view and model.
-In presenter you can subscribe on changes in model and update view
-or subscribe on player input and update model.
+In the presenter you describe how UI should react on changes in model or player input.
+To do that you often have to use external dependencies like ScriptableObjects with icons or other data.
+Without presenters you would have to pass those dependencies to the view every time you create it.
+And it would be a lot of boilerplate code. Considering prefab system in Unity, 
+it would mean that there are some views that doesn't have dependencies and need to be initialized with them before usage.
+It means that there are a lot of space for errors and bugs.
 
-Presenter have two main methods: `OnModelSet` and `OnModelUnset`.
-In those you can react on model setting or unsetting and, for example,
-subscribe on event in `OnModelSet` and unsubscribe in `OnModelUnset`.
+Presenters allow you to encapsulate all dependencies inside presenter. It allows you to easily use DI containers,
+and also ensures that if you have presenter for view, you have all dependencies for it.
+Just because you can't create a presenter without them.
+
+Presenter have one most important method: `OnSet`. You should override it to describe how view should react on model setting.
+The main idea behind that is to use reactivity to describe what UI need to look like depending on the model.
+This approach is very different from the more common imperative approach seen in Unity's UI.
+
+Such declarative approach allows you to describe UI in more abstract way 
+and also allows you to reuse your UI in different places without writing a lot of boilerplate code.
 
 ## Model
 
-Model is structure where you can store your data, events or properties.
-You can use any type as model, like int, string, IEnumerable or your own custom class.
+The model is structure where you can store your data, events or properties.
+You can use any type as a model, like int, string, IEnumerable or your own custom class.
 
-## Beacon
+The model should include all data that affects UI and can be specific for each instance of the view.
+For example, if you have a button that should be disabled when some condition is met,
+you should put this condition to the model and subscribe on it in the presenter.
+But if that condition should be the same for all instances of that view, 
+you should put it to the presenter dependencies.
+If that condition can change its value during UI lifetime, you should use reactivity to track it.
 
-Beacons is an useful replacement for events.
+1. In the Model: Include data that impacts the UI and varies per view instance. 
+E.g., a condition that disables a button should be in the model, with the presenter subscribing to it.
+2. In Presenter Dependencies: Store data that is consistent across all view instances.
+3. Use Reactivity (like Observables): For data that changes during the 
+UI's lifetime and requires continuous monitoring to update the UI in real-time.
+
+## Reactivity
+
+Yaga provides minimal set of classes required for reactive programming.
+
+### Beacon
+
+Beacons are a useful replacement for events.
 One of the main benefits of using beacons is much simpler
 unsubscription logic for lambdas compared to events.
 After subscription beacon returns to you IDisposable which you can dispose to unsubscribe.
-Just compare event realisation:
+Just compare code with events:
 
 ```c#
 event Action<string> TextEvent;
@@ -194,7 +308,7 @@ TextEvent += action;
 TextEvent -= action;
 ```
 
-And Beacon realisation:
+And same code but with Beacon
 
 ```c#
 Beacon<string> TextBeacon = new Beacon<string>();
@@ -205,11 +319,6 @@ var disposable = TextBeacon.Add(e => Debug.Log($"Text {e} with length {e.Length}
 // Unsubscription logic.
 disposable.Dispose();
 ```
-
-## Observables
-
-Observer pattern in Yaga implemented with using of IObservable, IOptionalObservable,
-IObservableEnumerable and IObservableArray.
 
 ### Observable
 
@@ -228,11 +337,11 @@ disposable.Dispose();
 
 ### Observable chains
 
-You can chain observables to combine data from several sources and process it.
+You can chain observables to combine and process data from several sources.
 Example of simple chain where each next observable reacts on changes in previous.
 
 ```c#
-// Observale that will trigger itemInfo on change
+// Observable that will trigger itemInfo on change
 var amount = new Observable<int>(100);
 // Specify binding rule for data from amount to itemInfo
 var itemInfo = amount.Select(count => $"Current amount is {count}");
@@ -263,9 +372,9 @@ disposable.Dispose();
 
 ### OptionalObservable
 
-You should use optional observables when your observable data can be empty.
+Use optional observables when your observable data might be empty.
 OptionalObservable&lt;T> is wrapper around Observable&lt;Option&lt;T>>. 
-Option works as described <a href="https://github.com/nlkl/Optional/">here</a>.
+Option works as described in <a href="https://github.com/nlkl/Optional/">GitHub repository</a>.
 With OptionalObservable you can organise data processing
 which will guarantee correct processing of empty values.
 In subscription method you should provide methods which will process data in two scenarios:
@@ -282,23 +391,15 @@ someObservable.Data = 5; // Will trigger "5" message.
 disposable.Dispose();
 ```
 
-### Editor binding
-
-You can bind model fields and properties to views even from editor. You can select needed type and attack view you want
-to bind to.
-**This functionality is not properly tested yet, don't rely on it**
-
-![Editor binding](https://i.imgur.com/KLXRb4S.png)
-
 ## Best practices
 
-1. Declare your presenter class inside View class, to make View class fields private and have access to them only from
-   presenter. With that you will ba able to avoid extra boilerplate of properties. But your presenter will be more
-   coupled to view.
+1. Declare your presenter class inside the View class to keep View class fields private and ensure they're only accessed by the presenter. 
+   With that you will be able to avoid extra boilerplate of properties. But your presenter will be more coupled to view.
 2. Inherit your Presenter class from abstract class [Presenter<View, Model>](Yaga/Presenter.cs) it will help you to
    avoid boilerplate code.
 3. Inherit your View class from abstract class [View<Model>](Yaga/View.cs) it will help you to avoid boilerplate code.
 4. Use [Observable](Utils/Observable.cs) and Subscribe or SubscribeAndCall method inside [View](View.cs) to track
-5. Use [Beacon](Utils/Beacon.cs) instead of event to track user input inside [View](View.cs) with Subscribe or
+changes of some value over time.
+5. Use [Beacon](Utils/Beacon.cs) instead of events to track user input inside [View](View.cs) with Subscribe or
    SubscribeAndCall methods.
    changes in your model. It will unsubscribe when needed and you won't have bother about it.
