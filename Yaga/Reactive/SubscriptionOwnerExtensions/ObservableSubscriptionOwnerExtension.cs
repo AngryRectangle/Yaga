@@ -44,22 +44,37 @@ namespace Yaga.Reactive
             IReadOnlyObservable<TModel> observableModel)
             where TView : IView<TModel>
         {
+            ISubscriptions.Key viewCancelKey = default;
+            var unsubscription = new ReplacableDisposable();
+
             var viewControl = owner.Set(child, observableModel.Value);
+            viewControl.Subs.MatchSome(subs => viewCancelKey = subs.Add(unsubscription));
+            Debug.Assert(viewControl.Subs.HasValue);
+
             var cancelKey = owner.Add(new Disposable(() => viewControl.Unset()));
-            var unsubscription = observableModel.Subscribe(model =>
+            var tempDisposable = observableModel.Subscribe(model =>
             {
-                var result = owner.Remove(cancelKey);
+                var result = owner.Remove(cancelKey) &&
+                             viewControl.Subs.Match(subs => subs.Remove(viewCancelKey), () => false);
+
                 Debug.Assert(result, "Key is stored only here, so it should be removed successfully");
                 viewControl = owner.Set(child, model);
                 cancelKey = owner.Add(new Disposable(() => viewControl.Unset()));
+                viewControl.Subs.MatchSome(subs => viewCancelKey = subs.Add(unsubscription));
+                Debug.Assert(viewControl.Subs.HasValue);
             });
 
             var key = owner.Add(unsubscription);
-            return new Disposable(() =>
+            unsubscription.Replace(new Disposable(() =>
             {
                 owner.Remove(key);
-                unsubscription.Dispose();
-            });
+                viewControl.Subs.MatchSome(subs => subs.Remove(viewCancelKey));
+                Debug.Assert(viewControl.Subs.HasValue);
+                tempDisposable.Dispose();
+                unsubscription.Replace(null);
+            }));
+
+            return unsubscription;
         }
 
         public static IDisposable Set<TView, TModel>(this ISubscriptions owner, TView child,
@@ -126,6 +141,21 @@ namespace Yaga.Reactive
         {
             Activity,
             Nothing
+        }
+
+        private class ReplacableDisposable : IDisposable
+        {
+            private IDisposable _disposable;
+
+            public void Replace(IDisposable disposable)
+            {
+                _disposable = disposable;
+            }
+
+            public void Dispose()
+            {
+                _disposable?.Dispose();
+            }
         }
     }
 }

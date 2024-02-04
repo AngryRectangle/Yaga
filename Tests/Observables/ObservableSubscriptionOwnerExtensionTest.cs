@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using NUnit.Framework;
 using Optional;
 using Tests.Presenters;
+using UnityEngine.TestTools;
 using Yaga;
 using Yaga.Reactive;
 using Yaga.Test;
@@ -79,6 +81,24 @@ namespace Tests.Observables
 
             observableText.Value = "changed";
             Assert.AreEqual("changed", view.View.viewWithModel.Text.text);
+        }
+        
+        [UnityTest]
+        public IEnumerator Set_Observable_DestroySubscribedView()
+        {
+            var observableText = new Observable<string>("initial");
+            var presenter = new ChildrenViewPresenter(observableText);
+            UiBootstrap.Instance.Bind(presenter);
+            UiBootstrap.Instance.Bind<SimpleTextButtonView.Presenter>();
+            UiBootstrap.Instance.Bind<ObservablePresenter<ModelessView>>();
+
+            var view = UiControl.Instance.Create(Locator.viewWithChild);
+
+            view.View.viewWithModel.Destroy();
+            yield return null;
+            
+            observableText.Value = "changed";
+            // No exceptions is fine too.
         }
 
         [Test]

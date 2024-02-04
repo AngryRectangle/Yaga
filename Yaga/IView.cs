@@ -9,7 +9,7 @@ namespace Yaga
         int GetInstanceID();
         bool IsPrefab { get; }
         void Destroy();
-        internal IView Create(RectTransform parent, bool isRoot = false);
+        IView Create(RectTransform parent, bool isRoot = false);
         internal Option<Subscriptions> Model { get; }
     }
 
