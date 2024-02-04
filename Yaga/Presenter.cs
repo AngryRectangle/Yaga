@@ -36,7 +36,17 @@ namespace Yaga
             return subscriptions;
         }
 
+        /// <summary>
+        /// Invoked when model for view is being set.
+        /// </summary>
+        /// <param name="view">View instance</param>
+        /// <param name="model">Model instance</param>
+        /// <param name="subs">Object that stores subscription which will be canceled during model unset</param>
         protected abstract void OnSet(TView view, TModel model, ISubscriptions subs);
+        /// <summary>
+        /// Invoked when model for view is being unset.
+        /// </summary>
+        /// <param name="view">View instance</param>
 
         protected virtual void OnUnset(TView view)
         {
@@ -65,10 +75,19 @@ namespace Yaga
             return subscriptions;
         }
 
+        /// <summary>
+        /// Invoked when model for view is being set.
+        /// </summary>
+        /// <param name="view">View instance</param>
+        /// <param name="subs">Object that stores subscription which will be canceled during model unset</param>
         protected virtual void OnSet(TView view, ISubscriptions subs)
         {
         }
 
+        /// <summary>
+        /// Invoked when model for view is being unset.
+        /// </summary>
+        /// <param name="view">View instance</param>
         protected virtual void OnUnset(TView view)
         {
         }

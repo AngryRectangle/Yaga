@@ -64,7 +64,11 @@ namespace Yaga
             action();
         }
 
-        public static ViewControl<TView, TModel> Set<TView, TModel>(this ISubscriptions owner, TView child, TModel model)
+        /// <summary>
+        /// Set model to view. Model will be unset when parent model is unset or unset was called manually.
+        /// </summary>
+        public static ViewControl<TView, TModel> Set<TView, TModel>(this ISubscriptions owner, TView child,
+            TModel model)
             where TView : IView<TModel>
         {
             var subscriptions = UiBootstrap.Instance.Set(child, model);
@@ -73,12 +77,16 @@ namespace Yaga
             return new ViewControl<TView, TModel>(child, subscriptions);
         }
 
+        /// <inheritdoc cref="Set{TView, TModel}"/>
         public static ViewControl<TView, Unit> Set<TView>(this ISubscriptions owner, TView child)
             where TView : IView<Unit>
         {
             return Set(owner, child, Unit.Instance);
         }
 
+        /// <summary>
+        /// Create view from prefab and set model to it. Model will be unset when parent model is unset or unset was called manually.
+        /// </summary>
         public static ViewControl<TChildView, TChildModel> Create<TChildView, TChildModel>(
             this ISubscriptions owner, TChildView childPrefab, TChildModel model, RectTransform parent)
             where TChildView : IView<TChildModel>
@@ -89,6 +97,7 @@ namespace Yaga
             return control;
         }
 
+        /// <inheritdoc cref="Create{TChildView, TChildModel}(ISubscriptions, TChildView, TChildModel, RectTransform)"/>
         public static ViewControl<TChildView, TChildModel> Create<TView, TChildView, TChildModel>(
             this ISubscriptions owner, TChildView childPrefab, TChildModel model, TView parent)
             where TView : MonoBehaviour, IView
@@ -97,6 +106,7 @@ namespace Yaga
             return Create(owner, childPrefab, model, (RectTransform)parent.transform);
         }
 
+        /// <inheritdoc cref="Create{TChildView, TChildModel}(ISubscriptions, TChildView, TChildModel, RectTransform)"/>
         public static ViewControl<TChildView, Unit> Create<TChildView>(
             this ISubscriptions owner, TChildView childPrefab, RectTransform parent)
             where TChildView : IView<Unit>
@@ -104,6 +114,7 @@ namespace Yaga
             return Create(owner, childPrefab, Unit.Instance, parent);
         }
 
+        /// <inheritdoc cref="Create{TChildView, TChildModel}(ISubscriptions, TChildView, TChildModel, RectTransform)"/>
         public static ViewControl<TChildView, Unit> Create<TView, TChildView>(
             this ISubscriptions owner, TChildView childPrefab, TView parent)
             where TView : MonoBehaviour, IView

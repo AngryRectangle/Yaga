@@ -40,6 +40,14 @@ namespace Yaga.Reactive
             Action<T> action)
             => owner.Add(observable.Subscribe(action));
 
+        /// <summary>
+        /// Set view with model and subscribe on model changes.
+        /// If value in observable changes, view model will be updated.
+        /// If view is unset or destroyed, subscription will be disposed.
+        /// If parent view is unset or destroyed, child view will be destroyed too.
+        /// Also it is possible to dispose subscription manually by using return value.
+        /// </summary>
+        /// <returns>Manual disposable that allows to end subscription on call site</returns>
         public static IDisposable Set<TView, TModel>(this ISubscriptions owner, TView child,
             IReadOnlyObservable<TModel> observableModel)
             where TView : IView<TModel>
