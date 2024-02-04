@@ -15,6 +15,10 @@ namespace Yaga.Reactive
 
     public class OptionalObservable<T> : Observable<Option<T>>, IOptionalObservable<T>
     {
+        public OptionalObservable()
+        {
+        }
+
         public OptionalObservable(T value) : base(value.Some())
         {
         }
