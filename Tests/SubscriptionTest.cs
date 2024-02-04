@@ -61,7 +61,7 @@ namespace Tests
 
         private class ChildrenViewPresenter : Presenter<ViewWithChild>
         {
-            protected override void OnSet(ViewWithChild view, ISubscriptionsOwner subs)
+            protected override void OnSet(ViewWithChild view, ISubscriptions subs)
             {
                 subs.Set(view.modelessView);
                 subs.Set(view.viewWithModel, "text");
