@@ -8,9 +8,9 @@ namespace Yaga
         private Option<Subscriptions> _owner;
 
         public TView View => _view;
-        public Option<ISubscriptionsOwner> Subs => _owner.Map(e => (ISubscriptionsOwner)e);
+        public Option<ISubscriptions> Subs => _owner.Map(e => (ISubscriptions)e);
 
-        public ViewControl(TView view, Subscriptions owner)
+        internal ViewControl(TView view, Subscriptions owner)
         {
             _view = view;
             _owner = owner.Some();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Yaga
 {
-    public interface ISubscriptionsOwner
+    public interface ISubscriptions
     {
         Key Add(IDisposable disposable);
         bool Remove(Key key);

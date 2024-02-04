@@ -16,7 +16,7 @@ namespace Tests.Presenters
             _onModelUnset = onModelUnset;
         }
 
-        protected override void OnSet(TView view, TModel model, ISubscriptionsOwner subs)
+        protected override void OnSet(TView view, TModel model, ISubscriptions subs)
         {
             _onModelSet?.Invoke(view);
         }
@@ -39,7 +39,7 @@ namespace Tests.Presenters
             _onModelUnset = onModelUnset;
         }
 
-        protected override void OnSet(TView view, ISubscriptionsOwner subs)
+        protected override void OnSet(TView view, ISubscriptions subs)
         {
             _onModelSet?.Invoke(view);
         }

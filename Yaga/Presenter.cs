@@ -12,7 +12,7 @@ namespace Yaga
     public interface IPresenter<in TView, in TModel> : IPresenter
         where TView : IView<TModel>
     {
-        Subscriptions Set(TView view, TModel model);
+        internal Subscriptions Set(TView view, TModel model);
     }
 
     public abstract class Presenter<TView, TModel> : IPresenter<TView, TModel>
@@ -20,10 +20,10 @@ namespace Yaga
     {
         Subscriptions IPresenter.Set(IView view, object model)
         {
-            return Set((TView)view, (TModel)model);
+            return ((IPresenter<TView, TModel>)this).Set((TView)view, (TModel)model);
         }
 
-        public Subscriptions Set(TView view, TModel model)
+        Subscriptions IPresenter<TView, TModel>.Set(TView view, TModel model)
         {
             var subscriptions = new Subscriptions();
             view.Model.MatchSome(active => active.Subs.Dispose());
@@ -37,7 +37,7 @@ namespace Yaga
             return subscriptions;
         }
 
-        protected abstract void OnSet(TView view, TModel model, ISubscriptionsOwner subs);
+        protected abstract void OnSet(TView view, TModel model, ISubscriptions subs);
 
         protected virtual void OnUnset(TView view)
         {
@@ -52,10 +52,10 @@ namespace Yaga
     {
         Subscriptions IPresenter.Set(IView view, object model)
         {
-            return Set((TView)view, (Unit)model);
+            return ((IPresenter<TView, Unit>)this).Set((TView)view, (Unit)model);
         }
 
-        public Subscriptions Set(TView view, Unit model)
+        Subscriptions IPresenter<TView, Unit>.Set(TView view, Unit model)
         {
             var subscriptions = new Subscriptions();
             view.Model.MatchSome(active => active.Subs.Dispose());
@@ -69,7 +69,7 @@ namespace Yaga
             return subscriptions;
         }
 
-        protected virtual void OnSet(TView view, ISubscriptionsOwner subs)
+        protected virtual void OnSet(TView view, ISubscriptions subs)
         {
         }
 

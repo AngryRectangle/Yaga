@@ -44,9 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fc5cc46a49d43c98b449a009c01a74f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bindings: []
   modelessView: {fileID: 3388768408618550771}
-  viewWithModel: {fileID: 2207979677029908690}
+  viewWithModel: {fileID: 5608603166210426316, guid: ff5106daa48bf7d41b9c59d00136b5fa, type: 3}
 --- !u!1001 &6012748658619761950
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -162,16 +161,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d72a1cc7c8f4d1baeacb30ee22a6b5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2207979677029908690 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5608603166210426316, guid: 339931e5b0d49a84e9e7c2e2df55052c, type: 3}
-  m_PrefabInstance: {fileID: 6012748658619761950}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76eb178c1040432cb0d86ce272955881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

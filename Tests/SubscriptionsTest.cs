@@ -45,7 +45,7 @@ namespace Tests
             var subs = new Subscriptions();
             var disposable = new Disposable();
             var key = subs.Add(disposable);
-            Assert.IsFalse(subs.Remove(new ISubscriptionsOwner.Key(42)));
+            Assert.IsFalse(subs.Remove(new ISubscriptions.Key(42)));
         }
     }
 }
