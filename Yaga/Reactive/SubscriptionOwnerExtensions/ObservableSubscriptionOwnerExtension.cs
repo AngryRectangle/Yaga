@@ -137,6 +137,25 @@ namespace Yaga.Reactive
             });
         }
 
+        internal static (TChildView view, IDisposable unsubscription) Create<TChildView, TChildModel>(
+            this ISubscriptions owner, TChildView childPrefab, IReadOnlyObservable<TChildModel> observableModel,
+            RectTransform parent)
+            where TChildView : IView<TChildModel>
+        {
+            var view = (TChildView)childPrefab.Create(parent);
+            return (view, owner.Set(view, observableModel));
+        }
+
+        internal static (TChildView view, IDisposable unsubscription) Create<TView,
+            TChildView, TChildModel>(
+            this ISubscriptions owner, TChildView childPrefab, IReadOnlyObservable<TChildModel> observableModel,
+            TView parent)
+            where TView : MonoBehaviour, IView
+            where TChildView : IView<TChildModel>
+        {
+            return Create(owner, childPrefab, observableModel, (RectTransform)parent.transform);
+        }
+
         public enum OptionalStrategy
         {
             Activity,
