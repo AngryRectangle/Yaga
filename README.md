@@ -133,8 +133,50 @@ to create an instance of the view with 'Sample text' on the button.
 
 ```c#
 // Create instance of sample view with "Sample text" on button.
-UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+var viewControl = UiControl.Instance.Create(Locator.simpleTextButtonView, "Sample text");
+
+var wasInvoked = false;
+Assert.AreEqual("Sample text", viewControl.View.Text.text);
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+viewControl.View.Button.onClick.Invoke();
+Assert.IsTrue(wasInvoked);
 ```
+
+viewControl is a reference to the view instance and model control for it.
+You can call 'Set()' to set new model to view.
+
+```c#
+viewControl.Set("New text");
+
+Assert.AreEqual("New text", viewControl.View.Text.text);
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+viewControl.View.Button.onClick.Invoke();
+Assert.IsTrue(wasInvoked);
+```
+
+Also you can call 'Unset()' to unsubscribe from model and end all active subscriptions.
+
+```c#
+viewControl.Unset();
+
+wasInvoked = false;
+// It will not match, because Subs is None.
+viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+Assert.IsFalse(viewControl.Subs.HasValue);
+viewControl.View.Button.onClick.Invoke();
+Assert.IsFalse(wasInvoked, "Button action was executed");
+```
+
+Or you can call 'Destroy()' to destroy view gameobject and unset model if it is set.
+
+```c#
+viewControl.Destroy();
+
+yield return null;
+// GameObject is destroyed, so viewControl.View is null.
+Assert.IsTrue(viewControl.View == null);
+```
+
 
 ## Initialization
 

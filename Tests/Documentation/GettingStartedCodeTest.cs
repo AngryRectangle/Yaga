@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using UnityEngine.TestTools;
 using Yaga;
+using Yaga.Exceptions;
 using Yaga.Test.Documentation;
 
 namespace Tests.Documentation
@@ -20,10 +21,40 @@ namespace Tests.Documentation
             yield return null;
 
             // Testing part.
+            var wasInvoked = false;
             Assert.AreEqual("Sample text", viewControl.View.Text.text);
-            viewControl.Subscribe(viewControl.View.Button, Assert.Pass);
+            viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
             viewControl.View.Button.onClick.Invoke();
-            Assert.Fail("Button action was not executed");
+            Assert.IsTrue(wasInvoked, "Button action was not executed");
+
+            // Again documentation example part.
+            viewControl.Set("New text");
+
+            // Testing part.
+            wasInvoked = false;
+            Assert.AreEqual("New text", viewControl.View.Text.text);
+            viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+            viewControl.View.Button.onClick.Invoke();
+            Assert.IsTrue(wasInvoked, "Button action was not executed");
+
+            // Documentation example part.
+            viewControl.Unset();
+
+            // Testing part.
+            wasInvoked = false;
+            // It will not match, because Subs is None.
+            viewControl.Subs.MatchSome(subs => subs.Subscribe(viewControl.View.Button, () => wasInvoked = true));
+            Assert.IsFalse(viewControl.Subs.HasValue);
+            viewControl.View.Button.onClick.Invoke();
+            Assert.IsFalse(wasInvoked, "Button action was executed");
+
+            // Documentation example part.
+            viewControl.View.Destroy();
+
+            // Testing part.
+            yield return null;
+            // GameObject is destroyed, so viewControl.View is null.
+            Assert.IsTrue(viewControl.View == null);
         }
     }
 }
