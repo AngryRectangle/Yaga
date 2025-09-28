@@ -1,4 +1,5 @@
 ﻿using System;
+using Optional;
 
 namespace Yaga.Reactive
 {
@@ -20,6 +21,31 @@ namespace Yaga.Reactive
             Func<TIn, TOut> selector)
         {
             return new Observable_Select<TIn, TOut>(source, selector);
+        }
+
+        public static IReadOnlyObservable<Option<TOut>> SelectMap<TIn, TOut>(
+            this IReadOnlyObservable<Option<TIn>> source,
+            Func<TIn, TOut> selector)
+        {
+            return new Observable_Select<Option<TIn>, Option<TOut>>(source, value => value.Map(selector));
+        }
+
+        public static IReadOnlyObservable<TOut> SelectMatch<TIn, TOut>(this IReadOnlyObservable<Option<TIn>> source,
+            Func<TIn, TOut> selector, Func<TOut> onNoneSelector)
+        {
+            return new Observable_Select<Option<TIn>, TOut>(source, value => value.Match(selector, onNoneSelector));
+        }
+
+        public static IReadOnlyObservable<TOut> SelectMatch<TIn, TOut>(this IReadOnlyObservable<Option<TIn>> source,
+            Func<TIn, TOut> selector, TOut onNoneValue)
+        {
+            return new Observable_Select<Option<TIn>, TOut>(source, value => value.Match(selector, () => onNoneValue));
+        }
+        
+        public static IReadOnlyObservable<bool> SelectIfSome<TIn>(this IReadOnlyObservable<Option<TIn>> source,
+            Func<TIn, bool> selector)
+        {
+            return new Observable_Select<Option<TIn>, bool>(source, value => value.Match(selector, () => false));
         }
 
         /// <summary>
@@ -60,6 +86,47 @@ namespace Yaga.Reactive
             IReadOnlyOptionalObservable<T2> source2, Func<T1, T2, TOut> combiner)
         {
             return new Observable_CombineLatestWithOptional<T1, T2, TOut>(source1, source2, combiner);
+        }
+
+        public static IReadOnlyObservable<TOut> Unfold<TIn, TOut>(this IReadOnlyObservable<TIn> source)
+            where TIn : IReadOnlyObservable<TOut>
+        {
+            return new Observable_Unfold<TOut, TIn>(source);
+        }
+
+        public static IReadOnlyObservable<Option<TOut>> UnfoldOption<TIn, TOut>(
+            this IReadOnlyObservable<Option<TIn>> source)
+            where TIn : IReadOnlyObservable<TOut>
+        {
+            return new Observable_OptionUnfold<TOut, TIn>(source);
+        }
+
+        public static IReadOnlyObservable<Option<TOut>> UnfoldOption<TOut>(
+            this IReadOnlyObservable<Option<IReadOnlyObservable<TOut>>> source)
+        {
+            return new Observable_OptionUnfold<TOut, IReadOnlyObservable<TOut>>(source);
+        }
+
+        public static IReadOnlyObservable<Option<TOut>> UnfoldOption<TOut>(
+            this IReadOnlyObservable<Option<Observable<TOut>>> source)
+        {
+            return new Observable_OptionUnfold<TOut, Observable<TOut>>(source);
+        }
+
+        public static void SetNone<T>(this IObservable<Option<T>> observable)
+        {
+            observable.Value = Option.None<T>();
+        }
+
+        public static void SetValue<T>(this IObservable<Option<T>> observable, T value)
+        {
+            observable.Value = value.Some();
+        }
+
+        public static IDisposable Is<T>(this IObservable<T> observable, IReadOnlyObservable<T> fromObservable)
+        {
+            observable.Value = fromObservable.Value;
+            return fromObservable.Subscribe(value => { observable.Value = value; });
         }
     }
 
