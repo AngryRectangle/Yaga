@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using UnityEngine.Events;
+using Yaga.Reactive.BeaconExtensions;
 
 namespace Tests.Observables
 {
@@ -142,6 +144,64 @@ namespace Tests.Observables
             unsubscription.Dispose();
             beacon.Execute(42);
             Assert.AreEqual(0, result);
+        }
+        
+        [Test]
+        public void Is()
+        {
+            var unityEvent = new UnityEvent();
+            var beacon = new Yaga.Reactive.Beacon();
+            var invoked = false;
+            beacon.Add(() => invoked = true);
+
+            beacon.Is(unityEvent);
+            unityEvent.Invoke();
+            
+            Assert.IsTrue(invoked);
+        }
+
+        [Test]
+        public void Is_Unsubscribe()
+        {
+            var unityEvent = new UnityEvent();
+            var beacon = new Yaga.Reactive.Beacon();
+            var invoked = false;
+            beacon.Add(() => invoked = true);
+            var disposable = beacon.Is(unityEvent);
+            
+            disposable.Dispose();
+            unityEvent.Invoke();
+            
+            Assert.IsFalse(invoked);
+        }
+
+        [Test]
+        public void Is_T1()
+        {
+            var unityEvent = new UnityEvent<int>();
+            var beacon = new Yaga.Reactive.Beacon<int>();
+            var lastInvokeValue = 0;
+            beacon.Add(value => lastInvokeValue = value);
+
+            beacon.Is(unityEvent);
+            unityEvent.Invoke(42);
+            
+            Assert.AreEqual(42, lastInvokeValue);
+        }
+
+        [Test]
+        public void Is_Unsubscribe_T1()
+        {
+            var unityEvent = new UnityEvent<int>();
+            var beacon = new Yaga.Reactive.Beacon<int>();
+            var lastInvokeValue = 0;
+            beacon.Add(value => lastInvokeValue = value);
+            var disposable = beacon.Is(unityEvent);
+            
+            disposable.Dispose();
+            unityEvent.Invoke(42);
+            
+            Assert.AreEqual(0, lastInvokeValue);
         }
     }
 }
