@@ -1,3 +1,11 @@
+#### 0.9.0 (2024-09-28)
+
+##### New Features
+* add new fluent api for reactive UI ([8b1a19be](https://github.com/AngryRectangle/Yaga/commit/8b1a19bea81be9bae4f5918398c424748d1733bc))
+
+##### Tests
+* add for new fluent api ([4b97d02a](https://github.com/AngryRectangle/Yaga/commit/4b97d02a512fb6ff1ed4263a9eed7ad0e1b35884))
+
 #### 0.8.0 (2024-02-05)
 
 ##### BREAKING CHANGES
