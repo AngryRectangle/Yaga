@@ -9,7 +9,7 @@ namespace Yaga.Reactive
         /// <summary>
         /// Subscribe on observable value change, execute action and dispose subscription when needed.
         /// </summary>
-        public static void SubscribeAndCall<T>(this ISubscriptions owner, IObservable<T> observable,
+        public static void SubscribeAndCall<T>(this ISubscriptions owner, IReadOnlyObservable<T> observable,
             Action<T> action)
         {
             owner.Add(observable.Subscribe(action));

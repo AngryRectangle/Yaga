@@ -52,6 +52,11 @@ namespace Yaga.Reactive
         {
             return Subscribe(observer.OnNext);
         }
+        
+        public static implicit operator Observable<T>(T value)
+        {
+            return new Observable<T>(value);
+        }
     }
 
     internal class Observable_DistinctUntilChanged<T> : IReadOnlyObservable<T>
@@ -278,6 +283,75 @@ namespace Yaga.Reactive
         public IDisposable Subscribe(Action<TOut> action, Action onNull)
         {
             return Subscribe(option => option.Match(action, onNull));
+        }
+    }
+
+    internal class Observable_Unfold<T, TFolded> : IReadOnlyObservable<T>
+    where TFolded : IReadOnlyObservable<T>
+    {
+        private readonly IReadOnlyObservable<TFolded> _observable;
+
+        public Observable_Unfold(IReadOnlyObservable<TFolded> observable)
+        {
+            _observable = observable;
+        }
+
+        public T Value => _observable.Value.Value;
+
+        public IDisposable Subscribe(IObserver<T> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<T> action)
+        {
+            var disposable = new ReplacableDisposable();
+            var subscription = _observable.Subscribe(observable =>
+            {
+                disposable.Dispose();
+                disposable.Replace(observable.Subscribe(action));
+                action(observable.Value);
+            });
+
+            return new Disposable(subscription, disposable);
+        }
+    }
+    
+    internal class Observable_OptionUnfold<T, TFolded> : IReadOnlyObservable<Option<T>>
+        where TFolded : IReadOnlyObservable<T>
+    {
+        private readonly IReadOnlyObservable<Option<TFolded>> _observable;
+
+        public Observable_OptionUnfold(IReadOnlyObservable<Option<TFolded>> observable)
+        {
+            _observable = observable;
+        }
+
+        public Option<T> Value => _observable.Value.Map(e => e.Value);
+
+        public IDisposable Subscribe(IObserver<Option<T>> observer)
+        {
+            return Subscribe(observer.OnNext);
+        }
+
+        public IDisposable Subscribe(Action<Option<T>> action)
+        {
+            var disposable = new ReplacableDisposable();
+            var subscription = _observable.Subscribe(observable =>
+            {
+                disposable.Dispose();
+                observable.Match(some => 
+                {
+                    disposable.Replace(some.Subscribe(value => action(value.Some())));
+                    action(some.Value.Some());
+                }, 
+                    () =>
+                {
+                    action(Option.None<T>());
+                });
+            });
+
+            return new Disposable(subscription, disposable);
         }
     }
 }

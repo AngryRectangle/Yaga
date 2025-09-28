@@ -1,3 +1,11 @@
+#### 0.9.0 (2024-09-28)
+
+##### New Features
+* add new fluent api for reactive UI ([8b1a19be](https://github.com/AngryRectangle/Yaga/commit/8b1a19bea81be9bae4f5918398c424748d1733bc))
+
+##### Tests
+* add for new fluent api ([4b97d02a](https://github.com/AngryRectangle/Yaga/commit/4b97d02a512fb6ff1ed4263a9eed7ad0e1b35884))
+
 #### 0.8.0 (2024-02-05)
 
 ##### BREAKING CHANGES
@@ -11,15 +19,15 @@
 * huge framework overhaul ([00bded91](https://github.com/AngryRectangle/Yaga/commit/00bded915a4ce5167233f54541298937030834d8))
 
 ##### New Features
-* feat: add internal create methods for observable model ([5dfb1c9d](https://github.com/AngryRectangle/Yaga/commit/5dfb1c9ddb14e64fb2658dd5473dc5beef7f487c))
-* feat: add set extension method for OptionalObservable ([b167518a](https://github.com/AngryRectangle/Yaga/commit/b167518a59341c658f3c9b7104cb13626d7834a3))
-* feat: add create extension to create child views ([b16455f9](https://github.com/AngryRectangle/Yaga/commit/b16455f9ab81bb9c95320c00acff7d0d85e40e65))
-* feat: add WhereSelect extension for observables ([5282f0ae](https://github.com/AngryRectangle/Yaga/commit/5282f0aec1570dcd96b266ad56db2750781b7c75))
+* add internal create methods for observable model ([5dfb1c9d](https://github.com/AngryRectangle/Yaga/commit/5dfb1c9ddb14e64fb2658dd5473dc5beef7f487c))
+* add set extension method for OptionalObservable ([b167518a](https://github.com/AngryRectangle/Yaga/commit/b167518a59341c658f3c9b7104cb13626d7834a3))
+* add create extension to create child views ([b16455f9](https://github.com/AngryRectangle/Yaga/commit/b16455f9ab81bb9c95320c00acff7d0d85e40e65))
+* add WhereSelect extension for observables ([5282f0ae](https://github.com/AngryRectangle/Yaga/commit/5282f0aec1570dcd96b266ad56db2750781b7c75))
 
 ##### Fixes:
-observable was throwing exceptions after view destroying ([87248aaa](https://github.com/AngryRectangle/Yaga/commit/87248aaa60308b6a8859938ddea5e78ad9419347))
-add null check for Subscriptions.Add ([3e8a8f70](https://github.com/AngryRectangle/Yaga/commit/3e8a8f70dcd64210757480da4ec146493d53ff5d))
-set method for observable subscription extension ([e46e28df](https://github.com/AngryRectangle/Yaga/commit/e46e28dff5e9a0ed9568c253253c59f421af3467))
+* observable was throwing exceptions after view destroying ([87248aaa](https://github.com/AngryRectangle/Yaga/commit/87248aaa60308b6a8859938ddea5e78ad9419347))
+* add null check for Subscriptions.Add ([3e8a8f70](https://github.com/AngryRectangle/Yaga/commit/3e8a8f70dcd64210757480da4ec146493d53ff5d))
+* set method for observable subscription extension ([e46e28df](https://github.com/AngryRectangle/Yaga/commit/e46e28dff5e9a0ed9568c253253c59f421af3467))
 
 ##### Documentation Changes
 * more xml docs for extension methods and presenters ([24dd68a4](https://github.com/AngryRectangle/Yaga/commit/24dd68a4d5b07d36a85842387f62d4fcda1433fb))
@@ -31,7 +39,7 @@ set method for observable subscription extension ([e46e28df](https://github.com/
 * update badges for README.md ([e36656b0](https://github.com/AngryRectangle/Yaga/commit/e36656b09cedf99d56174f36d581fe830b2dd392))
 
 ##### Continuous Integration
-* ci: add testing and coverage reporting ([e34a9d82](https://github.com/AngryRectangle/Yaga/commit/e34a9d82a84021a2504ab9b8593f042f8690df19))
+* add testing and coverage reporting ([e34a9d82](https://github.com/AngryRectangle/Yaga/commit/e34a9d82a84021a2504ab9b8593f042f8690df19))
 
 ##### Tests
 * temporary remove for optional observable set method ([74a55c31](https://github.com/AngryRectangle/Yaga/commit/74a55c31de7da9856f79d1cd3130e6778f8b11b5))

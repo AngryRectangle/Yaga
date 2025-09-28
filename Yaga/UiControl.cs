@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using Yaga.Exceptions;
 
+[assembly: InternalsVisibleTo("Yaga.Utils")]
 namespace Yaga
 {
     /// <summary>
