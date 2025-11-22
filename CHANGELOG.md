@@ -1,4 +1,15 @@
-#### 0.9.0 (2024-09-28)
+#### 0.10.0 (2025-11-22)
+
+##### New Features
+* new observable extensions for interactability and input fields ([7dd4745c](https://github.com/AngryRectangle/Yaga/commit/7dd4745c0e25dabef503850b37fd29d367045998))
+
+##### Fixes
+* Observable_CombineLatest behaviour when second observable is update ([42a799e5](https://github.com/AngryRectangle/Yaga/commit/42a799e53913b732a9a5bfc846a5014a4637b09d))
+
+##### Tests
+* registration form test example ([df7f6dcd](https://github.com/AngryRectangle/Yaga/commit/df7f6dcd891556ec39dd16230eb4482ff8231439))
+
+#### 0.9.0 (2025-09-28)
 
 ##### New Features
 * add new fluent api for reactive UI ([8b1a19be](https://github.com/AngryRectangle/Yaga/commit/8b1a19bea81be9bae4f5918398c424748d1733bc))

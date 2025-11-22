@@ -5,6 +5,7 @@ using UnityEngine;
 using Yaga;
 using Yaga.Reactive.ObservableExtensions;
 using Yaga.Test.Documentation;
+using Object = UnityEngine.Object;
 
 namespace Tests.Observables
 {
@@ -293,6 +294,90 @@ namespace Tests.Observables
             disposable.Dispose();
 
             Assert.Pass();
+        }
+        
+        [Test]
+        public void Into_TMP_InputField_Subscribe_Init()
+        {
+            var testGo = new GameObject();
+            var inputField = testGo.AddComponent<TMP_InputField>();
+            var testString = "Initial";
+            inputField.text = testString;
+            var observable = new Yaga.Reactive.Observable<string>(string.Empty);
+
+            var disposable = inputField.Into(observable);
+
+            Assert.AreEqual(testString, inputField.text);
+        }
+
+        [Test]
+        public void Into_TMP_InputField_Subscribe_Reactive()
+        {
+            var testGo = new GameObject();
+            var inputField = testGo.AddComponent<TMP_InputField>();
+            var testString = "Initial";
+            inputField.text = testString;
+            var observable = new Yaga.Reactive.Observable<string>(string.Empty);
+
+            var disposable = inputField.Into(observable);
+            var newString = "Changed";
+            inputField.text = newString;
+
+            Assert.AreEqual(newString, observable.Value);
+        }
+
+        [Test]
+        public void Into_TMP_InputField_Unsubscribe()
+        {
+            var testGo = new GameObject();
+            var inputField = testGo.AddComponent<TMP_InputField>();
+            var observable = new Yaga.Reactive.Observable<string>(string.Empty);
+            var disposable = inputField.Into(observable);
+
+            disposable.Dispose();
+            var newString = "Changed";
+            inputField.text = newString;
+
+            Assert.AreEqual(string.Empty, observable.Value);
+        }
+        
+        [Test]
+        public void Into_Interactable_Button_Subscribe_Init()
+        {
+            var testGo = new GameObject();
+            var button = testGo.AddComponent<UnityEngine.UI.Button>();
+            var observable = new Yaga.Reactive.Observable<bool>(false);
+
+            var disposable = observable.IntoInteractable(button);
+
+            Assert.IsFalse(button.interactable);
+        }
+
+        [Test]
+        public void Into_Interactable_Button_Subscribe_Reactive()
+        {
+            var testGo = new GameObject();
+            var button = testGo.AddComponent<UnityEngine.UI.Button>();
+            var observable = new Yaga.Reactive.Observable<bool>(false);
+
+            var disposable = observable.IntoInteractable(button);
+            observable.Value = true;
+
+            Assert.IsTrue(button.interactable);
+        }
+        
+        [Test]
+        public void Into_Interactable_Button_Unsubscribe()
+        {
+            var testGo = new GameObject();
+            var button = testGo.AddComponent<UnityEngine.UI.Button>();
+            var observable = new Yaga.Reactive.Observable<bool>(false);
+            var disposable = observable.IntoInteractable(button);
+
+            disposable.Dispose();
+            observable.Value = true;
+
+            Assert.IsFalse(button.interactable);
         }
     }
 }

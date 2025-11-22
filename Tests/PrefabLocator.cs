@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Tests.Examples;
+using UnityEngine;
 using Yaga.Test.Documentation;
 
 namespace Yaga.Test
@@ -10,5 +11,6 @@ namespace Yaga.Test
         public ModelessView modelessView;
         public SimpleTextButtonView simpleTextButtonView;
         public ViewWithChild viewWithChild;
+        public RegistrationFormWindowView registrationFormWindowView;
     }
 }
