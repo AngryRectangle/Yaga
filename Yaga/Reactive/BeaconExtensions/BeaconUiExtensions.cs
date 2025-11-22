@@ -24,5 +24,16 @@ namespace Yaga.Reactive.BeaconExtensions
             @event.AddListener(signal.Execute);
             return new Disposable(() => @event.RemoveListener(signal.Execute));
         }
+        
+        /// <summary>
+        /// Connects a parameterless Unity <see cref="UnityEvent"/> to a <see cref="Beacon"/> so that
+        /// every time the event is invoked, the beacon executes.
+        /// </summary>
+        public static IDisposable Is<T>(this Beacon<T> signal, UnityEvent @event, Func<T> valueProvider)
+        {
+            void Handler() => signal.Execute(valueProvider());
+            @event.AddListener(Handler);
+            return new Disposable(() => @event.RemoveListener(Handler));
+        }
     }
 }

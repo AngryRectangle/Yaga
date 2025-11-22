@@ -2,6 +2,8 @@
 using Optional;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace Yaga.Reactive.ObservableExtensions
@@ -37,6 +39,40 @@ namespace Yaga.Reactive.ObservableExtensions
             var gameObject = monoBehaviour.gameObject;
             return observable.IntoActive(gameObject);
         }
+        
+        /// <summary>
+        /// Binds a boolean observable to a <see cref="Button"/>'s interactable state.
+        /// </summary>
+        /// <param name="observable">Source of active/inactive values.</param>
+        /// <param name="button">Target Button whose interactable state is controlled by the observable.</param>
+        /// <returns>
+        /// An <see cref="IDisposable"/> that, when disposed, stops listening for further changes.
+        /// Disposing multiple times is a no-op.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="button"/> is <c>null</c>.
+        /// </exception>
+        /// <remarks>
+        /// Sets the initial interactable state to the observable’s current value, then reacts to updates.
+        /// If the <paramref name="button"/> is destroyed later, the subscription is disposed automatically.
+        /// Assumes calls are made on Unity’s main thread.
+        /// </remarks>
+        public static IDisposable IntoInteractable(this IReadOnlyObservable<bool> observable, Button button)
+        {
+            if (!IsAlive(button))
+                throw new ArgumentNullException(nameof(button));
+
+            var guard = new SubGuard();
+
+            button.interactable = observable.Value;
+            guard.Attach(observable.Subscribe(isInteractable =>
+            {
+                if (guard.StopIfDead(button)) return;
+                button.interactable = isInteractable;
+            }));
+
+            return guard;
+        }
 
         /// <summary>
         /// Binds a boolean observable to a <see cref="GameObject"/>'s active state.
@@ -69,6 +105,35 @@ namespace Yaga.Reactive.ObservableExtensions
                 gameObject.SetActive(isActive);
             }));
 
+            return guard;
+        }
+
+        /// <summary>
+        /// Binds a <see cref="TMP_InputField"/>'s text to a string observable.
+        /// </summary>
+        /// <param name="inputField">Source of text values.</param>
+        /// <param name="observable">Target string observable.</param>
+        /// <returns>
+        /// An <see cref="IDisposable"/> that, when disposed, stops listening for further changes.
+        /// Disposing multiple times is a no-op.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="gameObject"/> is <c>null</c>.
+        /// </exception>
+        /// <remarks>
+        /// Sets the initial input field text to the observable’s current value, then updates the observable on
+        /// onValueChanged events.
+        /// </remarks>
+        public static IDisposable Into(this TMP_InputField inputField, IObservable<string> observable)
+        {
+            if (!IsAlive(inputField))
+                throw new ArgumentNullException(nameof(inputField));
+
+            var guard = new SubGuard();
+            observable.Value = inputField.text;
+            var handler = new UnityAction<string>(text => observable.Value = text);
+            inputField.onValueChanged.AddListener(handler);
+            guard.Attach(new Disposable(() => inputField.onValueChanged.RemoveListener(handler)));
             return guard;
         }
 
@@ -388,7 +453,7 @@ namespace Yaga.Reactive.ObservableExtensions
             // 3) Returned disposable cancels updates and disposes the latest binding; second call is a no-op.
             return new Disposable(DisposeAll);
         }
-        
+
         /// <summary>
         /// Mirrors values from one observable into another.
         /// </summary>
