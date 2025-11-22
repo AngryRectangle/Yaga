@@ -244,7 +244,13 @@ namespace Yaga.Reactive
 
         public IDisposable Subscribe(Action<TOut> action)
         {
-            return _source1.Subscribe(value1 => action(_combiner(value1, _source2.Value)));
+            var firstUnsubscription = _source1.Subscribe(value1 =>
+                action(_combiner(value1, _source2.Value)));
+
+            var secondUnsubscription = _source2.Subscribe(value2 =>
+                action(_combiner(_source1.Value, value2)));
+
+            return new Disposable(firstUnsubscription, secondUnsubscription);
         }
     }
 
